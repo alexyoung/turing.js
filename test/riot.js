@@ -42,7 +42,12 @@
         if (document.loaded) return;
         if (timer) window.clearTimeout(timer);
         document.loaded = true;
-        Riot.loadBrowserScripts(Riot.requiredFiles, tests);
+
+        if (Riot.requiredFiles.length > 0) {
+          Riot.loadBrowserScripts(Riot.requiredFiles, tests);
+        } else {
+          Riot.runAndReport(tests);
+        }
       }
 
       function checkReadyState() {
