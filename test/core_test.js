@@ -1,7 +1,5 @@
-if (typeof load != 'undefined') {
-  load('riot.js');
-  load('../turing.core.js');
-}
+load('riot.js');
+Riot.require('../turing.core.js');
 
 Riot.context('turing.core.js', function() {
   given('the turing object', function() {
