@@ -29,12 +29,77 @@
 
         case 'browser':
           Riot.formatter = new Riot.Formatters.HTML();
-          if (typeof window.onload === 'undefined') {
-            window.onload = function() {
-              Riot.runAndReport(tests);
-            };
+          if (typeof window.onload === 'undefined' || window.onload == null) {
+            Riot.browserAutoLoad(tests);
           }
           break;
+      }
+    },
+
+    browserAutoLoad: function(tests) {
+      var timer;
+      function fireContentLoadedEvent() {
+        if (document.loaded) return;
+        if (timer) window.clearTimeout(timer);
+        document.loaded = true;
+        Riot.loadBrowserScripts(Riot.requiredFiles, tests);
+      }
+
+      function checkReadyState() {
+        if (document.readyState === 'complete') {
+          document.stopObserving('readystatechange', checkReadyState);
+          fireContentLoadedEvent();
+        }
+      }
+
+      function pollDoScroll() {
+        try { document.documentElement.doScroll('left'); }
+        catch(e) {
+          timer = pollDoScroll.defer();
+          return;
+        }
+        fireContentLoadedEvent();
+      }
+
+      if (document.addEventListener) {
+        document.addEventListener('DOMContentLoaded', fireContentLoadedEvent, false);
+      } else {
+        document.observe('readystatechange', checkReadyState);
+        if (window == top)
+          timer = pollDoScroll.defer();
+      }
+
+      window.onload = fireContentLoadedEvent;
+    },
+
+    loadBrowserScripts: function(files, tests) {
+      var i, file;
+
+      function loadBrowserScript(src, callback) {
+        var script = document.createElement('script'),
+            head = document.getElementsByTagName('head')[0],
+            readyState;
+        script.setAttribute('type', 'text/javascript');
+        script.setAttribute('src', src);
+        script.onload = script.onreadystatechange = function() {
+          if (!(readyState = script.readyState) || /loaded|complete/.test(readyState)) {
+            script.onload = script.onreadystatechange = null;
+            head.removeChild(script);
+            if (callback) {
+              setTimeout(callback, 1);
+            }
+          }
+        };
+        
+        head.insertBefore(script, head.firstChild);
+      }
+
+      if (files.length > 1) {
+        file = files[0];
+        loadBrowserScript(file, function() { Riot.loadBrowserScripts(files.slice(1), tests); });
+      } else {
+        file = files[0];
+        loadBrowserScript(file, function() { Riot.runAndReport(tests); });
       }
     },
 
@@ -46,10 +111,11 @@
           load(arguments[0]);
           break;
         case 'browser':
-          var script_element = document.createElement('script');
-          script_element.setAttribute('src', arguments[0]);
-          script_element.setAttribute('type', 'text/javascript');
-          document.getElementsByTagName('head')[0].appendChild(script_element);
+          var script = document.createElement('script'),
+              head = document.getElementsByTagName('head');
+          script.setAttribute('type', 'text/javascript');
+          script.setAttribute('src', arguments[0]);
+          head[0].insertBefore(script, head.firstChild);
           break;
       }
     },
@@ -59,7 +125,9 @@
     require: function() {
       if (this.requiredFiles.indexOf(arguments[0]) == -1) {
         this.requiredFiles.push(arguments[0]);
-        this.load(arguments[0]);
+        if (Riot.detectEnvironment() !== 'browser') {
+          this.load(arguments[0]);
+        }
       }
     },
 
