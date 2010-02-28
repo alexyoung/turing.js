@@ -1,7 +1,7 @@
 (function(global) {
   var turing = {
-    VERSION: '0.0.1',
-    lesson: 'Part 1: Library Architecture'
+    VERSION: '0.0.2',
+    lesson: 'Part 2: Object Oriented Programming'
   };
 
   if (global.turing) {

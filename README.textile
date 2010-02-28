@@ -1,0 +1,6 @@
+h2. About Turing
+
+Turing is an educational framework developed for "DailyJS":http://dailyjs.com/.
+
+* "Part 1":http://dailyjs.com/2010/02/25/djscript-part-1-structure/
+* _Part 2_: Thursday 4th March
