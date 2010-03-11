@@ -6,7 +6,10 @@ turing.oo = {
   create: function() {
     var methods = null,
         parent  = undefined,
-        klass   = function() { this.initialize.apply(this, arguments); };
+        klass   = function() {
+          this.super = function(method, args) { return turing.oo.super(this.$parent, this, method, args); };
+          this.initialize.apply(this, arguments);
+        };
 
     if (typeof arguments[0] === 'function') {
       parent = arguments[0];
@@ -15,8 +18,10 @@ turing.oo = {
       methods = arguments[0];
     }
 
-    if (typeof parent !== 'undefined')
+    if (typeof parent !== 'undefined') {
       turing.oo.extend(klass.prototype, parent.prototype);
+      klass.prototype.$parent = parent.prototype;
+    }
 
     turing.oo.mixin(klass, methods);
     turing.oo.extend(klass.prototype, methods);
@@ -44,5 +49,9 @@ turing.oo = {
     for (var property in source)
       destination[property] = source[property];
     return destination;
+  },
+
+  super: function(parentClass, instance, method, args) {
+    return parentClass[method].apply(instance, args);
   }
 };

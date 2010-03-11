@@ -31,6 +31,12 @@ Riot.context('turing.oo.js', function() {
     should('use its own initializer', mixinUser.log).equals('log file');
     should('allow multiple mixins', doubleMixinUser.doSomething()).equals('something');
   });
+
+  given('an inherited class that uses super', function() {
+    var superUser = new SuperUser('alex', 104);
+    should('run super() for initialize', superUser.age).equals(104);
+    should('run super() for other methods', superUser.toString()).matches(/SuperUser:/);
+  });
 });
 
 Riot.run();

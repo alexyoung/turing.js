@@ -14,6 +14,10 @@ var User = turing.Class({
 
   login: function() {
     return true;
+  },
+
+  toString: function() {
+    return "name: " + this.name + ", age: " + this.age;
   }
 });
 
@@ -51,3 +55,12 @@ var DoubleMixinUser = turing.Class({
   }
 });
 
+var SuperUser = turing.Class(User, {
+  initialize: function() {
+    this.super('initialize', arguments);
+  },
+
+  toString: function() {
+    return "SuperUser: " + this.super('toString');
+  }
+});
