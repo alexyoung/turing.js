@@ -459,10 +459,41 @@
       return this.expectedMemo;
     },
 
+    // Based on http://github.com/visionmedia/jspec/blob/master/lib/jspec.js
+    // Short-circuits early, can compare arrays
+    isEqual: function(a, b) {
+      if (typeof a != typeof b) return;
+      if (a === b) return true;
+      if (a instanceof RegExp) {
+        return a.toString() === b.toString();
+      }
+      if (a instanceof Date) {
+        return Number(a) === Number(b);
+      }
+      if (typeof a != 'object') return;
+      if (a.length !== undefined) {
+        if (a.length !== b.length) {
+          return;
+        } else {
+          for (var i = 0, len = a.length; i < len; ++i) {
+            if (!this.isEqual(a[i], b[i])) {
+              return;
+            }
+          }
+        }
+      }
+      for (var key in a) {
+        if (!this.isEqual(a[key], b[key])) {
+          return;
+        }
+      }
+      return true;
+    },
+
     /* Assertions */
     equals: function(expected) {
       this.setAssertion(function(actual) {
-        if (actual() !== expected) {
+        if (!this.isEqual(actual(), expected)) {
           this.fail(expected + ' does not equal: ' + actual());
         }
       });
