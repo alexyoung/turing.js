@@ -1,6 +1,14 @@
 h2. About Turing
 
-Turing is an educational framework developed for "DailyJS":http://dailyjs.com/.
+Turing is an educational JavaScript framework developed for an article series on "DailyJS":http://dailyjs.com/.
 
-* "Part 1":http://dailyjs.com/2010/02/25/djscript-part-1-structure/
-* _Part 2_: Thursday 4th March
+Features include:
+
+* Classes, with extend and mixins
+* Functional programming methods: each, map
+
+* "Part 1: Structure":http://dailyjs.com/2010/02/25/djscript-part-1-structure/
+* "Part 2: OO":http://dailyjs.com/2010/03/04/framework-part-2-oo/
+* "Part 3: OO":http://dailyjs.com/2010/03/11/framework-part-3-oo/
+* "Part 4: Functional Programming":http://dailyjs.com/2010/03/18/framework-part-4-functional/
+
