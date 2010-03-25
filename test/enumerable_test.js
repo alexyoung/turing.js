@@ -1,6 +1,5 @@
 load('riot.js');
 Riot.require('../turing.core.js');
-Riot.require('../turing.numeric.js');
 Riot.require('../turing.enumerable.js');
 
 Riot.context('turing.enumerable.js', function() {
@@ -15,6 +14,10 @@ Riot.context('turing.enumerable.js', function() {
     should('iterate with map', function() {
       return turing.enumerable.map(a, function(n) { return n + 1; });
     }).equals([2, 3, 4, 5, 6]);
+
+    should('filter arrays', function() {
+      return turing.enumerable.filter(a, function(n) { return n % 2 == 0; });
+    }).equals([2, 4]);
   });
 
   given('an object', function() {
@@ -28,6 +31,10 @@ Riot.context('turing.enumerable.js', function() {
     should('iterate with map', function() {
       return turing.enumerable.map(obj, function(n) { return n + 1; });
     }).equals(['11', '21', '31']);
+
+    should('filter objects and return a multi-dimensional array', function() {
+      return turing.enumerable.filter(obj, function(v, i) { return v < 2; })[0][0];
+    }).equals('one');
   });
 });
 

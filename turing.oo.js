@@ -7,7 +7,7 @@ turing.oo = {
     var methods = null,
         parent  = undefined,
         klass   = function() {
-          this.super = function(method, args) { return turing.oo.super(this.$parent, this, method, args); };
+          this.$super = function(method, args) { return turing.oo.$super(this.$parent, this, method, args); };
           this.initialize.apply(this, arguments);
         };
 
@@ -51,7 +51,7 @@ turing.oo = {
     return destination;
   },
 
-  super: function(parentClass, instance, method, args) {
+  $super: function(parentClass, instance, method, args) {
     return parentClass[method].apply(instance, args);
   }
 };
