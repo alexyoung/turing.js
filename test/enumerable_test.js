@@ -1,5 +1,7 @@
 load('riot.js');
 Riot.require('../turing.core.js');
+Riot.require('../turing.oo.js');
+Riot.require('../turing.functional.js');
 Riot.require('../turing.enumerable.js');
 
 Riot.context('turing.enumerable.js', function() {
@@ -18,6 +20,18 @@ Riot.context('turing.enumerable.js', function() {
     should('filter arrays', function() {
       return turing.enumerable.filter(a, function(n) { return n % 2 == 0; });
     }).equals([2, 4]);
+
+    should('find values with detect', function() {
+      return turing.enumerable.detect(a, function(n) { return n == 1; });
+    });
+
+    should('not find values with detect that do not exist', function() {
+      return typeof turing.enumerable.detect(a, function(n) { return n == 1000; }) === 'undefined';
+    });
+
+    should('chain method calls', function() {
+      return turing.enumerable.chain([1, 2, 3, 4]).filter(function(n) { return n % 2 == 0; }).map(function(n) { return n * 10; }).values();
+    }).equals([20, 40]);
   });
 
   given('an object', function() {
