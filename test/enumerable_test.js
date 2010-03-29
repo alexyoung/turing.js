@@ -32,6 +32,10 @@ Riot.context('turing.enumerable.js', function() {
     should('chain method calls', function() {
       return turing.enumerable.chain([1, 2, 3, 4]).filter(function(n) { return n % 2 == 0; }).map(function(n) { return n * 10; }).values();
     }).equals([20, 40]);
+
+    should('accumulate results with reduce', function() {
+      return turing.enumerable.reduce([1, 2, 3], 0, function(memo, n) { return memo + n; });
+    }).equals(6);
   });
 
   given('an object', function() {

@@ -29,7 +29,8 @@ turing.enumerable = {
   },
 
   filter: function(enumerable, callback, context) {
-    if (Array.prototype.filter && enumerable.filter === Array.prototype.filter) return enumerable.filter(callback, context);
+    if (Array.prototype.filter && enumerable.filter === Array.prototype.filter)
+      return enumerable.filter(callback, context);
     var results   = [],
         pushIndex = !turing.isArray(enumerable);
     turing.enumerable.each(enumerable, function(value, index, list) {
@@ -55,6 +56,15 @@ turing.enumerable = {
     return result;
   },
 
+  reduce: function(enumerable, memo, callback, context) {
+    if (Array.prototype.reduce && enumerable.reduce === Array.prototype.reduce)
+      return enumerable.reduce(turing.bind(callback, context), memo);
+    turing.enumerable.each(enumerable, function(value, index, list) {
+      memo = callback.call(context, memo, value, index, list);
+    });
+    return memo;
+  },
+
   chain: function(enumerable) {
     return new turing.enumerable.Chainer(enumerable);
   }
@@ -62,6 +72,7 @@ turing.enumerable = {
 
 // Aliases
 turing.enumerable.select = turing.enumerable.filter;
+turing.enumerable.inject = turing.enumerable.reduce;
 
 // Chainer class
 turing.enumerable.Chainer = turing.Class({
@@ -74,7 +85,7 @@ turing.enumerable.Chainer = turing.Class({
   }
 });
 
-turing.enumerable.each(['map', 'detect', 'filter'], function(methodName) {
+turing.enumerable.each(['map', 'detect', 'filter', 'reduce'], function(methodName) {
   var method = turing.enumerable[methodName];
   turing.enumerable.Chainer.prototype[methodName] = function() {
     var args = Array.prototype.slice.call(arguments);

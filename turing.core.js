@@ -12,6 +12,14 @@
     return (object === +object) || (toString.call(object) === '[object Number]');
   }
 
+  turing.bind = function(fn, object) {
+    var slice = Array.prototype.slice,
+        args  = slice.apply(arguments, [2]);
+    return function() {
+      return fn.apply(object || {}, args.concat(slice.apply(arguments)));
+    };
+  }
+
   if (global.turing) {
     throw new Error('turing has already been defined');
   } else {
