@@ -21,6 +21,10 @@ Riot.context('turing.enumerable.js', function() {
       return turing.enumerable.filter(a, function(n) { return n % 2 == 0; });
     }).equals([2, 4]);
 
+    should('reject arrays', function() {
+      return turing.enumerable.reject(a, function(n) { return n % 2 == 0; });
+    }).equals([1, 3, 5]);
+
     should('find values with detect', function() {
       return turing.enumerable.detect(a, function(n) { return n == 1; });
     });
@@ -36,6 +40,34 @@ Riot.context('turing.enumerable.js', function() {
     should('accumulate results with reduce', function() {
       return turing.enumerable.reduce([1, 2, 3], 0, function(memo, n) { return memo + n; });
     }).equals(6);
+
+    should('invoke methods on arrays', function() {
+      return turing.enumerable.invoke(['hello', 'world'], 'substring', 0, 3);
+    }).equals(['hel', 'wor']);
+
+    should('pluck properties from arrays', function() {
+      return turing.enumerable.pluck(['hello', 'world', 'this', 'is', 'nice'], 'length');
+    }).equals([5, 5, 4, 2, 4]);
+
+    should('tail by skipping the first element', function() {
+      return turing.enumerable.tail([1, 2, 3, 4, 5]);
+    }).equals([2, 3, 4, 5]);
+
+    should('tail by skipping an optional number of elements', function() {
+      return turing.enumerable.tail([1, 2, 3, 4, 5], 3);
+    }).equals([4, 5]);
+
+    should('return false from some when an array is empty', function() {
+      return turing.enumerable.some([]);
+    }).isFalse();
+
+    should('return true from some when an array has items', function() {
+      return turing.enumerable.some([1, 2, 3]);
+    }).isTrue();
+
+    should('return true from some when an array matches a callback', function() {
+      return turing.enumerable.some([1, 2, 3], function(value) { return value === 3; });
+    }).isTrue();
   });
 
   given('an object', function() {
