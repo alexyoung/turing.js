@@ -102,6 +102,31 @@ turing.enumerable = {
     return result;
   },
 
+  all: function(enumerable, callback, context) {
+    callback = callback || turing.enumerable.identity;
+    if (Array.prototype.every && enumerable.every === Array.prototype.every)
+      return enumerable.every(callback, context);
+    var result = true;
+    turing.enumerable.each(enumerable, function(value, index, list) {
+      if (!(result = result && callback.call(context, value, index, list))) {
+        throw turing.enumerable.Break;
+      }
+    });
+    return result;
+  },
+
+  include: function(enumerable, target) {
+    if (Array.prototype.indexOf && enumerable.indexOf === Array.prototype.indexOf)
+      return enumerable.indexOf(target) != -1;
+    var found = false;
+    turing.enumerable.each(enumerable, function(value, key) {
+      if (found = value === target) {
+        throw turing.enumerable.Break;
+      }
+    });
+    return found;
+  },
+
   chain: function(enumerable) {
     return new turing.enumerable.Chainer(enumerable);
   },
@@ -117,6 +142,7 @@ turing.enumerable.collect = turing.enumerable.map;
 turing.enumerable.inject = turing.enumerable.reduce;
 turing.enumerable.rest = turing.enumerable.tail;
 turing.enumerable.any = turing.enumerable.some;
+turing.enumerable.every = turing.enumerable.all;
 turing.chainableMethods = ['map', 'collect', 'detect', 'filter', 'reduce',
                            'tail', 'rest', 'reject', 'pluck', 'any', 'some'];
 

@@ -68,6 +68,18 @@ Riot.context('turing.enumerable.js', function() {
     should('return true from some when an array matches a callback', function() {
       return turing.enumerable.some([1, 2, 3], function(value) { return value === 3; });
     }).isTrue();
+
+    should('check callback returns true for every item with all', function() {
+      return turing.enumerable.all([1, 2, 3], function(value) { return value < 4; });
+    }).isTrue();
+
+    should('check callback returns false with all when callback returns false', function() {
+      return turing.enumerable.all([1, 2, 3], function(value) { return value > 4; });
+    }).isFalse();
+
+    should('find values with include', function() {
+      return turing.enumerable.include([1, 2, 3], 3);
+    }).isTrue();
   });
 
   given('an object', function() {
@@ -85,6 +97,18 @@ Riot.context('turing.enumerable.js', function() {
     should('filter objects and return a multi-dimensional array', function() {
       return turing.enumerable.filter(obj, function(v, i) { return v < 2; })[0][0];
     }).equals('one');
+
+    should('check callback returns true for every item with all', function() {
+      return turing.enumerable.all(obj, function(value, key) { return value < 4; });
+    }).isTrue();
+
+    should('check callback returns false with all when callback returns false', function() {
+      return turing.enumerable.all(obj, function(value, key) { return value > 4; });
+    }).isFalse();
+
+    should('find values with include', function() {
+      return turing.enumerable.include(obj, '3');
+    }).isTrue();
   });
 });
 
