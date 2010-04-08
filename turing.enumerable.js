@@ -45,6 +45,12 @@ turing.enumerable = {
     return results;
   },
 
+  reject: function(enumerable, callback, context) {
+    return this.filter(enumerable, function() {
+      return !callback.apply(context, arguments);
+    }, context);
+  },
+
   detect: function(enumerable, callback, context) {
     var result;
     turing.enumerable.each(enumerable, function(value, index, list) {
@@ -73,14 +79,80 @@ turing.enumerable = {
     });
   },
 
+  tail: function(enumerable, start) {
+    start = typeof start === 'undefined' ? 1 : start;
+    return Array.prototype.slice.apply(enumerable, [start]);
+  },
+
+  invoke: function(enumerable, method) {
+    var args = turing.enumerable.tail(arguments, 2); 
+    return turing.enumerable.map(enumerable, function(value) {
+      return (method ? value[method] : value).apply(value, args);
+    });
+  },
+
+  pluck: function(enumerable, key) {
+    return turing.enumerable.map(enumerable, function(value) {
+      return value[key];
+    });
+  },
+
+  some: function(enumerable, callback, context) {
+    callback = callback || turing.enumerable.identity;
+    if (Array.prototype.some && enumerable.some === Array.prototype.some)
+      return enumerable.some(callback, context);
+    var result = false;
+    turing.enumerable.each(enumerable, function(value, index, list) {
+      if (result = callback.call(context, value, index, list)) {
+        throw turing.enumerable.Break;
+      }
+    });
+    return result;
+  },
+
+  all: function(enumerable, callback, context) {
+    callback = callback || turing.enumerable.identity;
+    if (Array.prototype.every && enumerable.every === Array.prototype.every)
+      return enumerable.every(callback, context);
+    var result = true;
+    turing.enumerable.each(enumerable, function(value, index, list) {
+      if (!(result = result && callback.call(context, value, index, list))) {
+        throw turing.enumerable.Break;
+      }
+    });
+    return result;
+  },
+
+  include: function(enumerable, target) {
+    if (Array.prototype.indexOf && enumerable.indexOf === Array.prototype.indexOf)
+      return enumerable.indexOf(target) != -1;
+    var found = false;
+    turing.enumerable.each(enumerable, function(value, key) {
+      if (found = value === target) {
+        throw turing.enumerable.Break;
+      }
+    });
+    return found;
+  },
+
   chain: function(enumerable) {
     return new turing.enumerable.Chainer(enumerable);
+  },
+
+  identity: function(value) {
+    return value;
   }
 };
 
 // Aliases
 turing.enumerable.select = turing.enumerable.filter;
+turing.enumerable.collect = turing.enumerable.map;
 turing.enumerable.inject = turing.enumerable.reduce;
+turing.enumerable.rest = turing.enumerable.tail;
+turing.enumerable.any = turing.enumerable.some;
+turing.enumerable.every = turing.enumerable.all;
+turing.chainableMethods = ['map', 'collect', 'detect', 'filter', 'reduce',
+                           'tail', 'rest', 'reject', 'pluck', 'any', 'some'];
 
 // Chainer class
 turing.enumerable.Chainer = turing.Class({
@@ -93,7 +165,7 @@ turing.enumerable.Chainer = turing.Class({
   }
 });
 
-turing.enumerable.each(['map', 'detect', 'filter', 'reduce'], function(methodName) {
+turing.enumerable.each(turing.chainableMethods, function(methodName) {
   var method = turing.enumerable[methodName];
   turing.enumerable.Chainer.prototype[methodName] = function() {
     var args = Array.prototype.slice.call(arguments);
