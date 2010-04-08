@@ -1,7 +1,7 @@
 (function(global) {
   var turing = {
-    VERSION: '0.0.5',
-    lesson: 'Part 4: Functional Programming 2'
+    VERSION: '0.0.7',
+    lesson: 'Part 7: Selectors'
   };
 
   turing.isArray = Array.isArray || function(object) {

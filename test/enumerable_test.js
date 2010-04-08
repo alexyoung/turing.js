@@ -36,6 +36,10 @@ Riot.context('turing.enumerable.js', function() {
     should('accumulate results with reduce', function() {
       return turing.enumerable.reduce([1, 2, 3], 0, function(memo, n) { return memo + n; });
     }).equals(6);
+
+    should('flatten an array', function() {
+      return turing.enumerable.flatten([[2, 4], [[6], 8]]);
+    }).equals([2, 4, 6, 8])
   });
 
   given('an object', function() {

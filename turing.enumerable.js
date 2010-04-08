@@ -65,6 +65,14 @@ turing.enumerable = {
     return memo;
   },
 
+  flatten: function(array) {
+    return turing.enumerable.reduce(array, [], function(memo, value) {
+      if (turing.isArray(value)) return memo.concat(turing.enumerable.flatten(value));
+      memo.push(value);
+      return memo;
+    });
+  },
+
   chain: function(enumerable) {
     return new turing.enumerable.Chainer(enumerable);
   }
