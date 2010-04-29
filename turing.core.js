@@ -1,7 +1,7 @@
 (function(global) {
   var turing = {
-    VERSION: '0.0.7',
-    lesson: 'Part 7: Selectors'
+    VERSION: '0.0.10',
+    lesson: 'Part 10: Events' 
   };
 
   turing.isArray = Array.isArray || function(object) {

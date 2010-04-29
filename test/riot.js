@@ -491,7 +491,7 @@
           }
         }
       }
-      for (var key in a) {
+      for (var key in b) {
         if (!this.isEqual(a[key], b[key])) {
           return;
         }
