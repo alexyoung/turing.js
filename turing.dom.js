@@ -45,7 +45,7 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
   };
 
   rules = {
-    'id and name':    '(#{ident}##{ident})',
+    'name and id':    '(#{ident}##{ident})',
     'id':             '(##{ident})',
     'class':          '(\\.#{ident})',
     'name and class': '(#{ident}\\.#{ident})',
@@ -184,21 +184,23 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
       return element.id === selector;
     },
 
-    'name': function(element, selector) {
-      return element.nodeName === selector.toUpperCase();
+    'name': function(element, nodeName) {
+      return element.nodeName === nodeName.toUpperCase();
     },
 
     'name and id': function(element, selector) {
-      return matchMap.id(element, selector) && matchMap.name(element, selector);
+      return matchMap.id(element, selector) && matchMap.name(element, selector.split('#')[0]);
     },
 
     'class': function(element, selector) {
-      selector = selector.split('\.')[1];
-      return element.className.match('\\b' + selector + '\\b'); 
+      if (element && element.className) {
+        selector = selector.split('\.')[1];
+        return element.className.match('\\b' + selector + '\\b'); 
+      }
     },
 
     'name and class': function(element, selector) {
-      return matchMap['class'](element, selector) && matchMap.name(element, selector);
+      return matchMap['class'](element, selector) && matchMap.name(element, selector.split('\.')[0]);
     }
   };
 
@@ -224,15 +226,19 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
   };
 
   Searcher.prototype.matchesAllRules = function(element) {
-    var tokens = this.tokens, token, ancestor = element;
-    token = tokens.pop();
-    while ((ancestor = ancestor.parentNode) && token) {
+    var tokens = this.tokens.slice(), token = tokens.pop(),
+        ancestor = element.parentNode, matchFound = false;
+    if (!token || !ancestor) return false;
+
+    while (ancestor && token) {
       if (this.matchesToken(ancestor, token)) {
+        matchFound = true;
         token = tokens.pop();
       }
+      ancestor = ancestor.parentNode;
     }
 
-    return tokens.length === 0;
+    return matchFound && tokens.length === 0;
   };
 
   Searcher.prototype.parse = function() {
@@ -242,8 +248,14 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     // Traverse upwards from each element to see if it matches all of the rules
     for (i = 0; i < elements.length; i++) {
       element = elements[i];
-      if (this.matchesAllRules(element)) {
-        results.push(element);
+      if (this.tokens.length > 0) {
+        if (this.matchesAllRules(element)) {
+          results.push(element);
+        }
+      } else {
+        if (this.matchesToken(element, this.key_selector)) {
+          results.push(element);
+        }
       }
     }
     return results;

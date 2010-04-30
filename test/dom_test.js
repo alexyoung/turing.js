@@ -16,6 +16,8 @@ Riot.context('turing.dom.js', function() {
     should('find a link', turing.dom.get('#dom-test a.link')[0].innerHTML).equals('Example Link');
     should('find a class name by itself', turing.dom.get('.example1')[0].nodeName).equals('DIV');
     should('find a nested link', turing.dom.get('div#dom-test div p a.link')[0].innerHTML).equals('Example Link');
+    should('find a nested tag', turing.dom.get('.example3 p')[0].innerHTML).equals('Text');
+    should('find a nested tag', turing.dom.get('.example3 p').length).equals(1);
   });
 
   given('a selector that does not match anything', function() {
