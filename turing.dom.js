@@ -181,7 +181,7 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
   matchMap = {
     'id': function(element, selector) {
       selector = selector.split('#')[1];
-      return element.id === selector;
+      return element && element.id === selector;
     },
 
     'name': function(element, nodeName) {

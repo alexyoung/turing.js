@@ -98,7 +98,7 @@
 
   turing.events = events;
 
-  if (window.attachEvent && !window.addEventListener) {
+  if (typeof window !== 'undefined' && window.attachEvent && !window.addEventListener) {
     window.attachEvent('onunload', function() {
       for (var i = 0; i < cache.length; i++) {
         try {
