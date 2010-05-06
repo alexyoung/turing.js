@@ -5,12 +5,40 @@
     return element.nodeType !== 3 && element.nodeType !== 8;
   }
 
+  function stop(event) {
+    event.preventDefault(event);
+    event.stopPropagation(event);
+  }
+
+  function fix(event, element) {
+    if (!event) var event = window.event;
+
+    event.stop = function() { stop(event); };
+
+    if (typeof event.target === 'undefined')
+      event.target = event.srcElement || element;
+
+    if (!event.preventDefault)
+      event.preventDefault = function() { event.returnValue = false; };
+
+    if (!event.stopPropagation)
+      event.stopPropagation = function() { event.cancelBubble = true; };
+
+    if (event.target && event.target.nodeType === 3)
+      event.target = event.target.parentNode;
+
+    if (event.pageX == null && event.clientX != null) {
+      var doc = document.documentElement, body = document.body;
+      event.pageX = event.clientX + (doc && doc.scrollLeft || body && body.scrollLeft || 0) - (doc && doc.clientLeft || body && body.clientLeft || 0);
+      event.pageY = event.clientY + (doc && doc.scrollTop || body && body.scrollTop || 0) - (doc && doc.clientTop || body && body.clientTop || 0);
+    }
+
+    return event;
+  }
+
   function createResponder(element, handler) {
     return function(event) {
-      if (typeof event.target === 'undefined') {
-        event.target = event.srcElement || element;
-      }
-
+      fix(event, element);
       return handler(event);
     };
   }
@@ -58,9 +86,11 @@
     var event;
     if (document.createEventObject) {
       event = document.createEventObject();
+      fix(event, element);
       return element.fireEvent('on' + type, event)
     } else {
       event = document.createEvent('HTMLEvents');
+      fix(event, element);
       event.initEvent(type, true, true);
       return !element.dispatchEvent(event);
     }

@@ -34,8 +34,16 @@ Riot.context('turing.events.js', function() {
 
       turing.events.add(document, 'click', callback);
       turing.events.fire(turing.dom.get('.clickme')[0], 'click');
+      turing.events.remove(document, 'click', callback);
       return lastResult;
     }).equals('Text');
+
+    should('stop', function() {
+      var callback = function(event) { event.stop(); };
+      turing.events.add(turing.dom.get('#link2')[0], 'click', callback);
+      turing.events.fire(turing.dom.get('#link2')[0], 'click');
+      return window.location.hash;
+    }).equals('');
   });
 });
 
