@@ -74,6 +74,36 @@
     return request;
   }
 
+  function JSONPCallback(url, success, failure) {
+    var self = this;
+    this.url = url;
+    this.methodName = '__turing_jsonp_' + parseInt(new Date().getTime());
+    this.success = success;
+    this.failure = failure;
+
+    function runCallback(json) {
+      self.success(json);
+      self.teardown();
+    }
+
+    window[this.methodName] = runCallback;
+  }
+
+  JSONPCallback.prototype.run = function() {
+    this.scriptTag = document.createElement('script');
+    this.scriptTag.id = this.methodName;
+    this.scriptTag.src = this.url.replace('{callback}', this.methodName);
+    document.body.appendChild(this.scriptTag);
+  }
+
+  JSONPCallback.prototype.teardown = function() {
+    window[this.methodName] = null;
+    delete window[this.methodName];
+    if (this.scriptTag) {
+      document.body.removeChild(this.scriptTag);
+    }
+  }
+
   net.get = function(url, options) {
     options.method = 'get';
     return ajax(url, options);
@@ -82,6 +112,15 @@
   net.post = function(url, options) {
     options.method = 'post';
     return ajax(url, options);
+  };
+
+  net.jsonp = function(url, options) {
+    if (typeof options === 'undefined') {
+      options = {};
+    }
+
+    var callback = new JSONPCallback(url, options.success, options.failure);
+    callback.run();
   };
 
   net.ajax = ajax;
