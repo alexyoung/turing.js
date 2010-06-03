@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Turing Animation Test</title>
+    <style>
+#box { background-color: red; width: 20px; height: 20px; position: absolute; left: 0; top: 10 }
+    </style>
+    <script type="text/javascript">
+function animate() {
+  var box = document.getElementById('box'),
+      duration = 1000,
+      start = (new Date).valueOf(),
+      finish = start + duration,
+      interval;
+
+  interval = setInterval(function() {
+    var time = (new Date).valueOf(), frame = time > finish ? 1 : (time - start) / duration;
+    box.style.left = frame * 100 + 'px';
+    if (time > finish) {
+      clearInterval(interval);
+    }
+  }, 10);
+}
+    </script>
+  </head>
+  <body onload="animate()">
+    <div id="box">
+    </div>
+  </body>
+</html>
+
