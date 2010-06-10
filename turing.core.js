@@ -1,7 +1,7 @@
 (function(global) {
   var turing = {
-    VERSION: '0.0.15',
-    lesson: 'Part 15: Animations',
+    VERSION: '0.0.16',
+    lesson: 'Part 16: Animations',
     alias: '$t'
   };
 
