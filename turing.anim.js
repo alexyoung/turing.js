@@ -236,7 +236,7 @@
   };
 
   anim.highlight = function(element, duration, options) {
-    var style = a = element.currentStyle ? element.currentStyle : getComputedStyle(element, null);
+    var style = element.currentStyle ? element.currentStyle : getComputedStyle(element, null);
     options = options || {};
     options.from = options.from || '#ff9';
     options.to = options.to || style.backgroundColor;
