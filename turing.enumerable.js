@@ -155,15 +155,13 @@ turing.chainableMethods = ['map', 'collect', 'detect', 'filter', 'reduce',
                            'tail', 'rest', 'reject', 'pluck', 'any', 'some'];
 
 // Chainer class
-turing.enumerable.Chainer = turing.Class({
-  initialize: function(values) {
-    this.results = values;
-  },
+turing.enumerable.Chainer = function(values) {
+  this.results = values;
+};
 
-  values: function() {
-    return this.results;
-  }
-});
+turing.enumerable.Chainer.prototype.values = function() {
+  return this.results;
+};
 
 turing.enumerable.each(turing.chainableMethods, function(methodName) {
   var method = turing.enumerable[methodName];

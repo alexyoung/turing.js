@@ -1,6 +1,7 @@
 (function() {
   var anim = {},
       easing = {},
+      Chainer,
       opacityType = (typeof document.body.style.opacity !== 'undefined') ? 'opacity' : 'filter';
 
   // These CSS related functions should be moved into turing.css
@@ -248,9 +249,38 @@
     }, 200);
   };
 
-  anim.parseColour = function(colourString) { return new Colour(colourString); };
+  anim.move = function(element, duration, options) {
+    return anim.animate(element, duration, { 'left': options.x, 'top': options.y, 'easing': options.easing || easing.sine });
+  };
 
+  anim.parseColour = function(colourString) { return new Colour(colourString); };
+  anim.pause = function(element, duration, options) {};
   anim.easing = easing;
+
+  Chainer = function(element) {
+    this.element = element;
+    this.position = 0;
+  };
+
+  for (methodName in anim) {
+    (function(methodName) {
+      var method = anim[methodName];
+      Chainer.prototype[methodName] = function() {
+        var args = Array.prototype.slice.call(arguments);
+        args.unshift(this.element);
+        this.position += args[1] || 0;
+        setTimeout(function() {
+          method.apply(null, args);
+        }, this.position);
+        return this;
+      };
+    })(methodName);
+  }
+
+  anim.chain = function(element) {
+    return new Chainer(element);
+  };
+
   turing.anim = anim;
 })();
 

@@ -1,7 +1,7 @@
 (function(global) {
   var turing = {
-    VERSION: '0.0.13',
-    lesson: 'Part 13: Ajax',
+    VERSION: '0.0.19',
+    lesson: 'Part 19: Animations',
     alias: '$t'
   };
 
@@ -241,15 +241,13 @@ turing.chainableMethods = ['map', 'collect', 'detect', 'filter', 'reduce',
                            'tail', 'rest', 'reject', 'pluck', 'any', 'some'];
 
 // Chainer class
-turing.enumerable.Chainer = turing.Class({
-  initialize: function(values) {
-    this.results = values;
-  },
+turing.enumerable.Chainer = function(values) {
+  this.results = values;
+};
 
-  values: function() {
-    return this.results;
-  }
-});
+turing.enumerable.Chainer.prototype.values = function() {
+  return this.results;
+};
 
 turing.enumerable.each(turing.chainableMethods, function(methodName) {
   var method = turing.enumerable[methodName];
