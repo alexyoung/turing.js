@@ -268,6 +268,8 @@
       Chainer.prototype[methodName] = function() {
         var args = Array.prototype.slice.call(arguments);
         args.unshift(this.element);
+        // Note: the duration needs to be communicated another way
+        // because of defaults (like highlight())
         this.position += args[1] || 0;
         setTimeout(function() {
           method.apply(null, args);
