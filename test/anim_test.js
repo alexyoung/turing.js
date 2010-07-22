@@ -15,7 +15,7 @@ Riot.context('turing.anim.js', function() {
     turing.anim.chain(box)
       .highlight()
       .pause(2000)
-      .move(1000, { x: '100px', y: '100px' })
+      .move(1000, { x: '100px', y: '100px', easing: 'ease-in-out' })
       .animate(2000, { width: '1000px' })
       .fadeOut(2000)
       .pause(2000)
