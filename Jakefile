@@ -6,7 +6,7 @@ var jake = require('jake'),
 jake.task('concat', function(t) {
   var output = '',
       files = ('turing.core.js turing.oo.js turing.enumerable.js '
-              + 'turing.functional.js turing.dom.js turing.events.js turing.alias.js').split(' ')
+              + 'turing.functional.js turing.dom.js turing.events.js turing.alias.js turing.anim.js').split(' ')
 
   files.map(function(file) {
     output += FILE.read(file)

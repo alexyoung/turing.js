@@ -2,7 +2,7 @@
   var anim = {},
       easing = {},
       Chainer,
-      opacityType = (typeof document.body.style.opacity !== 'undefined') ? 'opacity' : 'filter',
+      opacityType,
       CSSTransitions = {};
 
   // These CSS related functions should be moved into turing.css
@@ -10,6 +10,10 @@
     return property.replace(/-+(.)?/g, function(match, chr) {
       return chr ? chr.toUpperCase() : '';
     });
+  }
+
+  function getOpacityType() {
+    return (typeof document.body.style.opacity !== 'undefined') ? 'opacity' : 'filter';
   }
 
   function Colour(value) {
@@ -176,6 +180,10 @@
         finish = start + duration,
         easingFunction = easing.linear,
         interval;
+
+    if (!opacityType) {
+      opacityType = getOpacityType();
+    }
 
     options = options || {};
     if (options.hasOwnProperty('easing')) {
@@ -364,4 +372,3 @@
 
   turing.anim = anim;
 })();
-
