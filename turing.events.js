@@ -1,5 +1,5 @@
 (function() {
-  var events = {}, cache = [];
+  var events = {}, cache = [], onReadyBound = false, isReady = false, DOMContentLoaded, readyCallbacks = [];
 
   function isValidElement(element) {
     return element.nodeType !== 3 && element.nodeType !== 8;
@@ -58,16 +58,105 @@
     return responder;
   }
 
+  function ready() {
+    if (!isReady) {
+			// Make sure body exists
+			if (!document.body) {
+				return setTimeout(ready, 13);
+			}
+
+      isReady = true;
+
+      for (var i in readyCallbacks) {
+        readyCallbacks[i]();
+      }
+
+      readyCallbacks = null;
+
+      // TODO:
+      // When custom events work properly in IE:
+      // events.fire(document, 'dom:ready');
+    }
+  }
+
+  // This checks if the DOM is ready recursively
+  function DOMReadyScrollCheck() {
+    if (isReady) {
+      return;
+    }
+
+    try {
+      document.documentElement.doScroll('left');
+    } catch(e) {
+      setTimeout(DOMReadyScrollCheck, 1);
+      return;
+    }
+
+    ready();
+  }
+
+  // DOMContentLoaded cleans up listeners
+  if (document.addEventListener) {
+    DOMContentLoaded = function() {
+      document.removeEventListener('DOMContentLoaded', DOMContentLoaded, false);
+      ready();
+    };
+  } else if ( document.attachEvent ) {
+    DOMContentLoaded = function() {
+      if (document.readyState === 'complete') {
+        document.detachEvent('onreadystatechange', DOMContentLoaded);
+        ready();
+      }
+    };
+  }
+
+  function bindOnReady() {
+    if (onReadyBound) return;
+    onReadyBound = true;
+
+		if (document.readyState === 'complete') {
+			ready();
+		} else if (document.addEventListener) {
+			document.addEventListener('DOMContentLoaded', DOMContentLoaded, false );
+			window.addEventListener('load', ready, false);
+		} else if (document.attachEvent) {
+			document.attachEvent('onreadystatechange', DOMContentLoaded);
+
+			window.attachEvent('onload', ready);
+
+			// Check to see if the document is ready
+			var toplevel = false;
+			try {
+				toplevel = window.frameElement == null;
+			} catch(e) {}
+
+			if (document.documentElement.doScroll && toplevel) {
+				DOMReadyScrollCheck();
+			}
+		}
+  }
+
+  function IEType(type) {
+    if (type.match(/:/)) {
+      return type;
+    }
+    return 'on' + type;
+  }
+
   events.add = function(element, type, handler) {
     if (!isValidElement(element)) return;
 
     var responder = createResponder(element, handler);
     cache.push({ element: element, type: type, handler: handler, responder: responder });
 
-    if (element.addEventListener) {
-      element.addEventListener(type, responder, false);
-    } else if (element.attachEvent) {
-      element.attachEvent('on' + type, responder);
+    if (type.match(/:/) && element.attachEvent) {
+      element.attachEvent('ondataavailable', responder);
+    } else {
+      if (element.addEventListener) {
+        element.addEventListener(type, responder, false);
+      } else if (element.attachEvent) {
+        element.attachEvent(IEType(type), responder);
+      }
     }
   };
 
@@ -78,7 +167,7 @@
     if (document.removeEventListener) {
       element.removeEventListener(type, responder, false);
     } else {
-      element.detachEvent('on' + type, responder);
+      element.detachEvent(IEType(type), responder);
     }
   };
 
@@ -87,13 +176,27 @@
     if (document.createEventObject) {
       event = document.createEventObject();
       fix(event, element);
-      return element.fireEvent('on' + type, event)
+
+      // This isn't quite ready
+      if (type.match(/:/)) {
+        event.eventName = type;
+        event.eventType = 'ondataavailable';
+        return element.fireEvent(event.eventType, event)
+      } else {
+        return element.fireEvent(IEType(type), event)
+      }
     } else {
       event = document.createEvent('HTMLEvents');
       fix(event, element);
+      event.eventName = type;
       event.initEvent(type, true, true);
       return !element.dispatchEvent(event);
     }
+  };
+
+  events.ready = function(callback) {
+    bindOnReady();
+    readyCallbacks.push(callback);
   };
 
   turing.events = events;
