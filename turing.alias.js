@@ -21,5 +21,5 @@
     return alias;
   };
 
-  eval(turing.alias + ' = turing.aliasFramework()');  
+  turing.exportAlias(turing.alias, turing.aliasFramework);
 })();

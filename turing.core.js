@@ -1,7 +1,7 @@
 (function(global) {
   var turing = {
-    VERSION: '0.0.25',
-    lesson: 'Part 25: DOM Ready',
+    VERSION: '0.0.26',
+    lesson: 'Part 26: Feedback',
     alias: '$t'
   };
 
@@ -19,6 +19,10 @@
     return function() {
       return fn.apply(object || {}, args.concat(slice.apply(arguments)));
     };
+  };
+
+  turing.exportAlias = function(aliasName, method) {
+    global[aliasName] = method();
   };
 
   if (global.turing) {
