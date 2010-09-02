@@ -1,7 +1,7 @@
 (function() {
   turing.aliasFramework = function() {
     var alias = function() {
-      return turing.dom.get(arguments[0]);
+      return turing(arguments[0]);
     }
 
     if (turing.enumerable) {

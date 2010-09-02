@@ -1,6 +1,7 @@
 load('riot.js');
 Riot.require('../turing.core.js');
 Riot.require('../turing.dom.js');
+Riot.require('../turing.alias.js');
 
 Riot.context('turing.dom.js', function() {
   given('a selector to tokenize', function() {
@@ -22,6 +23,10 @@ Riot.context('turing.dom.js', function() {
 
   given('a selector that does not match anything', function() {
     should('not find anything', turing.dom.get('div#massive-explosion .failEarly p.lease')).equals([]);
+  });
+
+  given('chained DOM calls', function() {
+    should('find a nested tag', turing('.example3').find('p').length).equals(1);
   });
 });
 

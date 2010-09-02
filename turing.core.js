@@ -1,13 +1,18 @@
 (function(global) {
-  var turing = {
-    VERSION: '0.0.26',
-    lesson: 'Part 26: Feedback',
-    alias: '$t'
-  };
+  function turing() {
+    return turing.init.apply(turing, arguments);
+  }
+
+  turing.VERSION = '0.0.28';
+  turing.lesson = 'Part 28: Chaining';
+  turing.alias = '$t';
 
   turing.isArray = Array.isArray || function(object) {
     return !!(object && object.concat && object.unshift && !object.callee);
   };
+
+  // This can be overriden by libraries that extend turing(...)
+  turing.init = function() { };
 
   turing.isNumber = function(object) {
     return (object === +object) || (toString.call(object) === '[object Number]');
