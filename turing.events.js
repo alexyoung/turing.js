@@ -199,6 +199,20 @@
     readyCallbacks.push(callback);
   };
 
+  events.addDOMethods = function() {
+    if (typeof turing.domChain === 'undefined') return;
+
+    turing.domChain.bind = function(type, handler) {
+      var element = this.first();
+      if (element) {
+        turing.events.add(element, type, handler);
+        return this;
+      }
+    };
+  };
+
+  events.addDOMethods();
+
   turing.events = events;
 
   if (typeof window !== 'undefined' && window.attachEvent && !window.addEventListener) {

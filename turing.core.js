@@ -3,8 +3,8 @@
     return turing.init.apply(turing, arguments);
   }
 
-  turing.VERSION = '0.0.28';
-  turing.lesson = 'Part 28: Chaining';
+  turing.VERSION = '0.0.29';
+  turing.lesson = 'Part 29: Chaining';
   turing.alias = '$t';
 
   turing.isArray = Array.isArray || function(object) {

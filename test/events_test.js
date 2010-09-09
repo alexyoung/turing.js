@@ -17,6 +17,13 @@ Riot.context('turing.events.js', function() {
       return check;
     }).equals(1);
 
+    should('bind events using the chained API', function() {
+      var clicks = 0;
+      turing('#events-test a').bind('click', function() { clicks++; });
+      turing.events.fire(element, 'click');
+      return clicks;
+    }).equals(1);
+
     should('remove onclick', function() {
       check = 0;
       turing.events.add(element, 'click', callback);
