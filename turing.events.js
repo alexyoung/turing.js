@@ -199,6 +199,17 @@
     readyCallbacks.push(callback);
   };
 
+  if (turing.dom !== 'undefined') {
+    events.delegate = function(element, selector, type, handler) {
+      return events.add(element, type, function(event) {
+        var matches = turing.dom.findElement(event.target, selector, event.currentTarget);
+        if (matches) {
+          handler(event);
+        }
+      });
+    };
+  }
+
   events.addDOMethods = function() {
     if (typeof turing.domChain === 'undefined') return;
 

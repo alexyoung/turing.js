@@ -230,15 +230,15 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
 
   Searcher.prototype.matchesAllRules = function(element) {
     var tokens = this.tokens.slice(), token = tokens.pop(),
-        ancestor = element.parentNode, matchFound = false;
-    if (!token || !ancestor) return false;
+        matchFound = false;
+    if (!token || !element) return false;
 
-    while (ancestor && token) {
-      if (this.matchesToken(ancestor, token)) {
+    while (element && token) {
+      if (this.matchesToken(element, token)) {
         matchFound = true;
         token = tokens.pop();
       }
-      ancestor = ancestor.parentNode;
+      element = element.parentNode;
     }
 
     return matchFound && tokens.length === 0;
@@ -252,7 +252,7 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     for (i = 0; i < elements.length; i++) {
       element = elements[i];
       if (this.tokens.length > 0) {
-        if (this.matchesAllRules(element)) {
+        if (this.matchesAllRules(element.parentNode)) {
           results.push(element);
         }
       } else {
@@ -332,6 +332,19 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
         root = typeof arguments[1] === 'undefined' ? document : arguments[1],
         searcher = new Searcher(root, tokens);
     return searcher.parse();
+  };
+
+  // Does an element satify a selector, based on root element?
+  dom.findElement = function(element, selector, root) {
+    var tokens = dom.tokenize(selector).tokens,
+        searcher = new Searcher(root, []);
+    searcher.tokens = tokens;
+    while (element) {
+      if (searcher.matchesAllRules(element)) {
+        return element;
+      }
+      element = element.parentNode;
+    }
   };
 
   // Chained calls

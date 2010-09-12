@@ -4,6 +4,23 @@ Riot.require('../turing.dom.js');
 Riot.require('../turing.events.js');
 
 Riot.context('turing.events.js', function() {
+  given('a delegate handler', function() {
+    var clicks = 0;
+    turing.events.delegate(document, '#events-test a', 'click', function(e) {
+      clicks++;
+    });
+
+    should('run the handler when the right selector is matched', function() {
+      turing.events.fire(turing.dom.get('#events-test a')[0], 'click');
+      return clicks;
+    }).equals(1);
+
+    should('only run when expected', function() {
+      turing.events.fire(turing.dom.get('p')[0], 'click');
+      return clicks;
+    }).equals(1);
+  });
+
   given('an element', function() {
     var element = turing.dom.get('#events-test a')[0],
         check = 0,

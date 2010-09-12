@@ -28,6 +28,17 @@ Riot.context('turing.dom.js', function() {
   given('chained DOM calls', function() {
     should('find a nested tag', turing('.example3').find('p').length).equals(1);
   });
+
+  given('a nested element', function() {
+    var element = turing.dom.get('#dom-test a.link')[0];
+    should('find elements with the right selector', function() {
+      return turing.dom.findElement(element, '#dom-test a.link', document);
+    }).equals(element);
+
+    should('not find elements with the wrong selector',function() {
+      return turing.dom.findElement(turing.dom.get('#dom-test .example1 p')[0], 'a.link', document);
+    }).equals(undefined);
+  });
 });
 
 Riot.run();
