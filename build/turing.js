@@ -1,13 +1,18 @@
 (function(global) {
-  var turing = {
-    VERSION: '0.0.24',
-    lesson: 'Part 24: Touch',
-    alias: '$t'
-  };
+  function turing() {
+    return turing.init.apply(turing, arguments);
+  }
+
+  turing.VERSION = '0.0.29';
+  turing.lesson = 'Part 29: Chaining';
+  turing.alias = '$t';
 
   turing.isArray = Array.isArray || function(object) {
     return !!(object && object.concat && object.unshift && !object.callee);
   };
+
+  // This can be overriden by libraries that extend turing(...)
+  turing.init = function() { };
 
   turing.isNumber = function(object) {
     return (object === +object) || (toString.call(object) === '[object Number]');
@@ -19,6 +24,10 @@
     return function() {
       return fn.apply(object || {}, args.concat(slice.apply(arguments)));
     };
+  };
+
+  turing.exportAlias = function(aliasName, method) {
+    global[aliasName] = method();
   };
 
   if (global.turing) {
@@ -383,10 +392,12 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
 
   find = {
     byId: function(root, id) {
+      if (root === null) return [];
       return [root.getElementById(id)];
     },
 
     byNodeName: function(root, tagName) {
+      if (root === null) return [];
       var i, results = [], nodes = root.getElementsByTagName(tagName);
       for (i = 0; i < nodes.length; i++) {
         results.push(nodes[i]);
@@ -395,6 +406,7 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     },
 
     byClassName: function(root, className) {
+      if (root === null) return [];
       var i, results = [], nodes = root.getElementsByTagName('*');
       for (i = 0; i < nodes.length; i++) {
         if (nodes[i].className.match('\\b' + className + '\\b')) {
@@ -502,15 +514,15 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
 
   Searcher.prototype.matchesAllRules = function(element) {
     var tokens = this.tokens.slice(), token = tokens.pop(),
-        ancestor = element.parentNode, matchFound = false;
-    if (!token || !ancestor) return false;
+        matchFound = false;
+    if (!token || !element) return false;
 
-    while (ancestor && token) {
-      if (this.matchesToken(ancestor, token)) {
+    while (element && token) {
+      if (this.matchesToken(element, token)) {
         matchFound = true;
         token = tokens.pop();
       }
-      ancestor = ancestor.parentNode;
+      element = element.parentNode;
     }
 
     return matchFound && tokens.length === 0;
@@ -524,7 +536,7 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     for (i = 0; i < elements.length; i++) {
       element = elements[i];
       if (this.tokens.length > 0) {
-        if (this.matchesAllRules(element)) {
+        if (this.matchesAllRules(element.parentNode)) {
           results.push(element);
         }
       } else {
@@ -601,15 +613,84 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
 
   dom.get = function(selector) {
     var tokens = dom.tokenize(selector).tokens,
-        searcher = new Searcher(document, tokens);
+        root = typeof arguments[1] === 'undefined' ? document : arguments[1],
+        searcher = new Searcher(root, tokens);
     return searcher.parse();
   };
+
+  // Does an element satify a selector, based on root element?
+  dom.findElement = function(element, selector, root) {
+    var tokens = dom.tokenize(selector).tokens,
+        searcher = new Searcher(root, []);
+    searcher.tokens = tokens;
+    while (element) {
+      if (searcher.matchesAllRules(element)) {
+        return element;
+      }
+      element = element.parentNode;
+    }
+  };
+
+  // Chained calls
+  turing.init = function(selector) {
+    return new turing.domChain.init(selector);    
+  };
+
+  turing.domChain = {
+    init: function(selector) {
+      this.selector = selector;
+      this.length = 0;
+      this.prevObject = null;
+      this.elements = [];
+
+      if (!selector) {
+        return this;
+      } else {
+        return this.find(selector);
+      }
+    },
+
+    writeElements: function() {
+      for (var i = 0; i < this.elements.length; i++) {
+        this[i] = this.elements[i];
+      }
+    },
+
+    first: function() {
+      return this.elements.length === 0 ? null : this.elements[0];
+    },
+
+    find: function(selector) {
+      var elements = [],
+          ret = turing(),
+          root = document;
+
+      if (this.prevObject) {
+        if (this.prevObject.elements.length > 0) {
+          root = this.prevObject.elements[0];
+        } else {
+          root = null;
+        }
+      }
+
+      elements = dom.get(selector, root);
+      this.elements = elements;
+      ret.elements = elements;
+      ret.selector = selector;
+      ret.length = elements.length;
+      ret.prevObject = this;
+      ret.writeElements();
+      return ret;
+    }
+  };
+
+  turing.domChain.init.prototype = turing.domChain;
 
   turing.dom = dom;
 })();
 
 (function() {
-  var events = {}, cache = [];
+  var events = {}, cache = [], onReadyBound = false, isReady = false, DOMContentLoaded, readyCallbacks = [];
 
   function isValidElement(element) {
     return element.nodeType !== 3 && element.nodeType !== 8;
@@ -668,16 +749,105 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     return responder;
   }
 
+  function ready() {
+    if (!isReady) {
+			// Make sure body exists
+			if (!document.body) {
+				return setTimeout(ready, 13);
+			}
+
+      isReady = true;
+
+      for (var i in readyCallbacks) {
+        readyCallbacks[i]();
+      }
+
+      readyCallbacks = null;
+
+      // TODO:
+      // When custom events work properly in IE:
+      // events.fire(document, 'dom:ready');
+    }
+  }
+
+  // This checks if the DOM is ready recursively
+  function DOMReadyScrollCheck() {
+    if (isReady) {
+      return;
+    }
+
+    try {
+      document.documentElement.doScroll('left');
+    } catch(e) {
+      setTimeout(DOMReadyScrollCheck, 1);
+      return;
+    }
+
+    ready();
+  }
+
+  // DOMContentLoaded cleans up listeners
+  if (document.addEventListener) {
+    DOMContentLoaded = function() {
+      document.removeEventListener('DOMContentLoaded', DOMContentLoaded, false);
+      ready();
+    };
+  } else if ( document.attachEvent ) {
+    DOMContentLoaded = function() {
+      if (document.readyState === 'complete') {
+        document.detachEvent('onreadystatechange', DOMContentLoaded);
+        ready();
+      }
+    };
+  }
+
+  function bindOnReady() {
+    if (onReadyBound) return;
+    onReadyBound = true;
+
+		if (document.readyState === 'complete') {
+			ready();
+		} else if (document.addEventListener) {
+			document.addEventListener('DOMContentLoaded', DOMContentLoaded, false );
+			window.addEventListener('load', ready, false);
+		} else if (document.attachEvent) {
+			document.attachEvent('onreadystatechange', DOMContentLoaded);
+
+			window.attachEvent('onload', ready);
+
+			// Check to see if the document is ready
+			var toplevel = false;
+			try {
+				toplevel = window.frameElement == null;
+			} catch(e) {}
+
+			if (document.documentElement.doScroll && toplevel) {
+				DOMReadyScrollCheck();
+			}
+		}
+  }
+
+  function IEType(type) {
+    if (type.match(/:/)) {
+      return type;
+    }
+    return 'on' + type;
+  }
+
   events.add = function(element, type, handler) {
     if (!isValidElement(element)) return;
 
     var responder = createResponder(element, handler);
     cache.push({ element: element, type: type, handler: handler, responder: responder });
 
-    if (element.addEventListener) {
-      element.addEventListener(type, responder, false);
-    } else if (element.attachEvent) {
-      element.attachEvent('on' + type, responder);
+    if (type.match(/:/) && element.attachEvent) {
+      element.attachEvent('ondataavailable', responder);
+    } else {
+      if (element.addEventListener) {
+        element.addEventListener(type, responder, false);
+      } else if (element.attachEvent) {
+        element.attachEvent(IEType(type), responder);
+      }
     }
   };
 
@@ -688,7 +858,7 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     if (document.removeEventListener) {
       element.removeEventListener(type, responder, false);
     } else {
-      element.detachEvent('on' + type, responder);
+      element.detachEvent(IEType(type), responder);
     }
   };
 
@@ -697,14 +867,53 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     if (document.createEventObject) {
       event = document.createEventObject();
       fix(event, element);
-      return element.fireEvent('on' + type, event)
+
+      // This isn't quite ready
+      if (type.match(/:/)) {
+        event.eventName = type;
+        event.eventType = 'ondataavailable';
+        return element.fireEvent(event.eventType, event)
+      } else {
+        return element.fireEvent(IEType(type), event)
+      }
     } else {
       event = document.createEvent('HTMLEvents');
       fix(event, element);
+      event.eventName = type;
       event.initEvent(type, true, true);
       return !element.dispatchEvent(event);
     }
   };
+
+  events.ready = function(callback) {
+    bindOnReady();
+    readyCallbacks.push(callback);
+  };
+
+  if (turing.dom !== 'undefined') {
+    events.delegate = function(element, selector, type, handler) {
+      return events.add(element, type, function(event) {
+        var matches = turing.dom.findElement(event.target, selector, event.currentTarget);
+        if (matches) {
+          handler(event);
+        }
+      });
+    };
+  }
+
+  events.addDOMethods = function() {
+    if (typeof turing.domChain === 'undefined') return;
+
+    turing.domChain.bind = function(type, handler) {
+      var element = this.first();
+      if (element) {
+        turing.events.add(element, type, handler);
+        return this;
+      }
+    };
+  };
+
+  events.addDOMethods();
 
   turing.events = events;
 
@@ -721,9 +930,81 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
 })();
 
 (function() {
+  var touch = {}, state = {};
+
+  touch.swipeThreshold = 50;
+
+  // Returns [orientation angle, orientation string]
+  touch.orientation = function() {
+    var orientation = window.orientation,
+        orientationString = '';
+    switch (orientation) {
+      case 0:
+        orientationString += 'portrait';
+      break;
+
+      case -90:
+        orientationString += 'landscape right';
+      break;
+
+      case 90:
+        orientationString += 'landscape left';
+      break;
+
+      case 180:
+        orientationString += 'portrait upside-down';
+      break;
+    }
+    return [orientation, orientationString];
+  };
+
+  function touchStart(e) {
+    state.touches = e.touches;
+    state.startTime  = (new Date).getTime();
+    state.x = e.changedTouches[0].clientX;
+    state.y = e.changedTouches[0].clientY;
+    state.startX = state.x;
+    state.startY = state.y;
+    state.target = e.target;
+    state.duration = 0;
+  }
+
+  function touchEnd(e) {
+    var x = e.changedTouches[0].clientX,
+        y = e.changedTouches[0].clientY;
+
+    if (state.x === x && state.y === y && state.touches.length == 1) {
+      turing.events.fire(e.target, 'tap');
+    }
+  }
+
+  function touchMove(e) {
+    var moved = 0, touch = e.changedTouches[0];
+    state.duration = (new Date).getTime() - state.startTime;
+    state.x = state.startX - touch.pageX;
+    state.y = state.startY - touch.pageY;
+    moved = Math.sqrt(Math.pow(Math.abs(state.x), 2) + Math.pow(Math.abs(state.y), 2));
+
+    if (state.duration < 1000 && moved > turing.touch.swipeThreshold) {
+      turing.events.fire(e.target, 'swipe');
+    }
+  }
+
+  // register must be called to register for touch event helpers
+  touch.register = function() {
+    turing.events.add(document, 'touchstart', touchStart);
+    turing.events.add(document, 'touchmove', touchMove);
+    turing.events.add(document, 'touchend', touchEnd);
+    turing.touch.swipeThreshold = screen.width / 5;
+  };
+
+  turing.touch = touch;
+})();
+
+(function() {
   turing.aliasFramework = function() {
     var alias = function() {
-      return turing.dom.get(arguments[0]);
+      return turing(arguments[0]);
     }
 
     if (turing.enumerable) {
@@ -743,7 +1024,7 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     return alias;
   };
 
-  eval(turing.alias + ' = turing.aliasFramework()');  
+  turing.exportAlias(turing.alias, turing.aliasFramework);
 })();
 (function() {
   var anim = {},
