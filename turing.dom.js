@@ -350,8 +350,8 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
 
   dom.get = function(selector) {
     var root = typeof arguments[1] === 'undefined' ? document : arguments[1];
-    return turing.detect('querySelectorAll') ?
-      root.querySelectorAll(selector) : get(selector, root);
+    return turing.toArray(turing.detect('querySelectorAll') ?
+      root.querySelectorAll(selector) : get(selector, root));
   };
 
   // Does an element satify a selector, based on root element?

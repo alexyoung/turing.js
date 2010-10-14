@@ -3,12 +3,20 @@
     return turing.init.apply(turing, arguments);
   }
 
-  turing.VERSION = '0.0.29';
-  turing.lesson = 'Part 29: Chaining';
+  turing.VERSION = '0.0.33';
+  turing.lesson = 'Part 33: NodeList, Collections and Arrays';
   turing.alias = '$t';
 
   turing.isArray = Array.isArray || function(object) {
     return !!(object && object.concat && object.unshift && !object.callee);
+  };
+
+  turing.toArray = function(collection) {
+    var results = [];
+    for (var i = 0; i < collection.length; i++) {
+      results.push(collection[i]);
+    }
+    return results;
   };
 
   // This can be overriden by libraries that extend turing(...)
