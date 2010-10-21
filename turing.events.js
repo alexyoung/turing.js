@@ -215,11 +215,28 @@
 
     turing.domChain.bind = function(type, handler) {
       var element = this.first();
-      if (element) {
-        turing.events.add(element, type, handler);
-        return this;
+      for (var i = 0; i < this.length; i++) {
+        element = this[i];
+        if (handler) {
+          turing.events.add(element, type, handler);
+        } else {
+          turing.events.fire(element, type);
+        }
       }
+      return this;
     };
+
+    var chainedAliases = ('click dblclick mouseover mouseout mousemove ' +
+                          'mousedown mouseup blur focus change keydown ' +
+                          'keypress keyup resize scroll').split(' ');
+
+    for (var i = 0; i < chainedAliases.length; i++) {
+      (function(name) {
+        turing.domChain[name] = function(handler) {
+          return this.bind(name, handler);
+        };
+      })(chainedAliases[i]);
+    }
   };
 
   events.addDOMethods();
