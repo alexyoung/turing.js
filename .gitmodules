@@ -1,0 +1,3 @@
+[submodule "lib/turing-test"]
+	path = lib/turing-test
+	url = git@github.com:alexyoung/turing-test.js.git
