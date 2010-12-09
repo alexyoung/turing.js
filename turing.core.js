@@ -57,5 +57,8 @@
     throw new Error('turing has already been defined');
   } else {
     global.turing = turing;
+    if (typeof exports !== 'undefined') exports.turing = turing;
   }
 })(typeof window === 'undefined' ? this : window);
+
+
