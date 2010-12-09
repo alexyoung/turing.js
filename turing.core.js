@@ -3,8 +3,8 @@
     return turing.init.apply(turing, arguments);
   }
 
-  turing.VERSION = '0.0.35';
-  turing.lesson = 'Part 35: More on Chained Events';
+  turing.VERSION = '0.0.41';
+  turing.lesson = 'Part 41: Insane Testing Stuff';
   turing.alias = '$t';
 
   turing.isArray = Array.isArray || function(object) {

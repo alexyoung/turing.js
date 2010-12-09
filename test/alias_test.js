@@ -1,21 +1,13 @@
-// NOTE: Must be run from the tests directory for now until I can figure out paths for the web tests
-if (typeof TuringTest === 'undefined') {
-  require.paths.unshift('./');
-  var TuringTest = require('turing-test/turing-test');
-}
+require.paths.unshift('./turing-test/lib');
 
-TuringTest.init({
-  webRelativePath: 'turing-test/',
-  webScripts: ['../turing.core.js', '../turing.alias.js'],
-  eval: eval
-});
-
-var test = TuringTest.test,
-    assert = TuringTest.assert;
+turing = require('../turing.core.js').turing;
+var test = require('test'),
+    assert = require('assert'),
+    $t = require('../turing.alias.js');
 
 exports.testAlias = {
   'test turing is present': function() {
-    assert.ok(turing, 'turing.core should have loaded');
+    assert.equal(turing.VERSION, '0.0.41', 'turing.core should have loaded');
   },
 
   'test alias exists': function() {
@@ -24,4 +16,3 @@ exports.testAlias = {
 };
 
 test.run(exports);
-
