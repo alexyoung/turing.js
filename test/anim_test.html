@@ -1,18 +1,23 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title>Turing Animation Test</title>
-    <style>
-#box { background-color: #ff0000; width: 20px; height: 20px; position: absolute; left: 0; top: 10px }
-#test-results { background-color: #ffffff }
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>Animation Test</title>
+
+    <!-- Test Library -->
+    <link rel="stylesheet" href="turing-test/stylesheets/screen.css"></link>
+    <script src="turing-test/turing-test.js" type="text/javascript"></script>
+    <style type="text/css">
+      #box { background-color: #ff0000; width: 20px; height: 20px; position: absolute; left: 0; top: 10px }
     </style>
-    <script type="text/javascript" src="riot.js"></script>
-    <script type="text/javascript" src="anim_test.js"></script>
   </head>
   <body>
     <div id="box">
     </div>
-    <div id="test-results"></div>
+    <ul id="results"></ul>
+    <script src="anim_test.js" type="text/javascript"></script>
   </body>
 </html>
+
 

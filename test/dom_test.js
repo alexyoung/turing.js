@@ -1,45 +1,43 @@
-load('riot.js');
-Riot.require('../turing.core.js');
-Riot.require('../turing.dom.js');
-Riot.require('../turing.alias.js');
+require.paths.unshift('./turing-test/lib');
 
-Riot.context('turing.dom.js', function() {
-  given('a selector to tokenize', function() {
-    should('return class for .link', turing.dom.tokenize('.link').finders()).equals(['class']);
-    should('return class and name for a.link', turing.dom.tokenize('a.link').finders()).equals(['name and class']);
-  });
+turing = require('../turing.core.js').turing;
+var test = require('test'),
+    assert = require('assert');
 
-  given('a selector to search for', function() {
-    should('find with id', turing.dom.get('#dom-test')[0].id).equals('dom-test');
-    should('find with id and name', turing.dom.get('div#dom-test')[0].id).equals('dom-test');
-    should('find with tag name', turing.dom.get('a')[0].innerHTML).equals('Example Link');
-    should('find with tag name', turing.dom.get('p')[0].innerHTML).equals('Text');
-    should('find a link', turing.dom.get('#dom-test a.link')[0].innerHTML).equals('Example Link');
-    should('find a class name by itself', turing.dom.get('.example1')[0].nodeName).equals('DIV');
-    should('find a nested link', turing.dom.get('div#dom-test div p a.link')[0].innerHTML).equals('Example Link');
-    should('find a nested tag', turing.dom.get('.example3 p')[0].innerHTML).equals('Text');
-    should('find a nested tag', turing.dom.get('.example3 p').length).equals(1);
-  });
+require('../turing.dom.js');
 
-  given('a selector that does not match anything', function() {
-    should('not find anything', turing.dom.get('div#massive-explosion .failEarly p.lease')).equals([]);
-  });
+exports.testDOM = {
+  'test tokenization': function() {
+    assert.equal('class', turing.dom.tokenize('.link').finders(), 'return class for .link');
+    assert.equal('name and class', turing.dom.tokenize('a.link').finders(), 'return class and name for a.link');
+  },
 
-  given('chained DOM calls', function() {
-    should('find a nested tag', turing('.example3').find('p').length).equals(1);
-  });
+  'test selector finders': function() {
+    assert.equal('dom-test', turing.dom.get('#dom-test')[0].id, 'find with id');
+    assert.equal('dom-test', turing.dom.get('div#dom-test')[0].id, 'find with id and name');
+    assert.equal('Example Link', turing.dom.get('a')[0].innerHTML, 'find with tag name');
+    assert.equal('Text', turing.dom.get('p')[0].innerHTML, 'find with tag name');
+    assert.equal('Example Link', turing.dom.get('#dom-test a.link')[0].innerHTML, 'find a link');
+    assert.equal('DIV', turing.dom.get('.example1')[0].nodeName, 'find a class name by itself');
+    assert.equal('Example Link', turing.dom.get('div#dom-test div p a.link')[0].innerHTML, 'find a nested link');
+    assert.equal('Text', turing.dom.get('.example3 p')[0].innerHTML, 'find a nested tag');
+    assert.equal(1, turing.dom.get('.example3 p').length, 'find a nested tag');
+  },
 
-  given('a nested element', function() {
+  'test a selector that does not match anything': function() {
+    assert.equal('', turing.dom.get('div#massive-explosion .failEarly p.lease'), 'not find anything');
+  },
+
+  'test chained DOM calls': function() {
+    assert.equal(1, turing('.example3').find('p').length, 'find a nested tag');
+  },
+
+  'test a nested element': function() {
     var element = turing.dom.get('#dom-test a.link')[0];
-    should('find elements with the right selector', function() {
-      return turing.dom.findElement(element, '#dom-test a.link', document);
-    }).equals(element);
 
-    should('not find elements with the wrong selector',function() {
-      return turing.dom.findElement(turing.dom.get('#dom-test .example1 p')[0], 'a.link', document);
-    }).equals(undefined);
-  });
-});
+    assert.equal(element, turing.dom.findElement(element, '#dom-test a.link', document), 'find elements with the right selector');
+    assert.equal(undefined, turing.dom.findElement(turing.dom.get('#dom-test .example1 p')[0], 'a.link', document), 'not find elements with the wrong selector');
+  }
+};
 
-Riot.run();
-
+test.run(exports);

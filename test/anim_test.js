@@ -1,50 +1,37 @@
-Riot.require('../turing.core.js');
-Riot.require('../turing.enumerable.js');
-Riot.require('../turing.anim.js');
+require.paths.unshift('./turing-test/lib');
 
-Riot.context('turing.anim.js', function() {
-  given('a box to change', function() {
-    /*setTimeout(function() {
-    turing.anim.animate(box, 1000, { 'backgroundColor': '#00ff55' });
-    }, 1000)
-    */
-    //turing.anim.move(document.getElementById('box'), 1000, { x: '100px', y: '100px' });
+turing = require('../turing.core.js').turing;
+var test = require('test'),
+    assert = require('assert');
 
+require('../turing.enumerable.js');
+require('../turing.anim.js');
+
+exports.testAnimations = {
+  'test hex colour converts to RGB': function() {
+    assert.equal('rgb(255, 0, 255)', turing.anim.parseColour('#ff00ff').toString());
+  },
+
+  'test RGB colours are left alone': function() {
+    assert.equal('rgb(255, 255, 255)', turing.anim.parseColour('rgb(255, 255, 255)').toString());
+  },
+
+  'test chained animations': function() {
     var box = document.getElementById('box');
-
     turing.anim.chain(box)
       .highlight()
-      .pause(2000)
-      .move(1000, { x: '100px', y: '100px', easing: 'ease-in-out' })
-      .animate(2000, { width: '1000px' })
-      .fadeOut(2000)
-      .pause(2000)
-      .fadeIn(2000)
-      .animate(2000, { width: '20px' })
+      .pause(250)
+      .move(100, { x: '100px', y: '100px', easing: 'ease-in-out' })
+      .animate(250, { width: '1000px' })
+      .fadeOut(250)
+      .pause(250)
+      .fadeIn(250)
+      .animate(250, { width: '20px' });
 
+    setTimeout(function() { assert.equal(box.style.top, '100px'); }, 350);
+    setTimeout(function() { assert.equal(box.style.width, '20px'); }, 2000);
+  }
+};
 
-    //turing.anim.highlight(document.getElementById('test-results'));
-    //turing.anim.fadeOut(box, 1000);
-    //turing.anim.fadeIn(box, 1000);
-  });
+test.run(exports);
 
-  given('a long hex colour', function() {
-    should('convert to the correct RGB',
-      turing.anim.parseColour('#ff00ff').toString()
-    ).equals('rgb(255, 0, 255)');
-  });
-
-  given('a small hex colour', function() {
-    should('convert to the correct RGB',
-      turing.anim.parseColour('#fff').toString()
-    ).equals('rgb(255, 255, 255)');
-  });
-
-  given('An RGB colour', function() {
-    should('leave it alone',
-      turing.anim.parseColour('rgb(255, 255, 255)').toString()
-    ).equals('rgb(255, 255, 255)');
-  });
-});
-
-Riot.run();
