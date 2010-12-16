@@ -1,3 +1,3 @@
-[submodule "lib/turing-test"]
-	path = lib/turing-test
+[submodule "test/turing-test"]
+	path = test/turing-test
 	url = git@github.com:alexyoung/turing-test.js.git
