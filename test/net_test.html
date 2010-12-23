@@ -1,17 +1,21 @@
-<!DOCTYPE html>
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
-    <title>Turing Net Test</title>
-    <style>
-p.pass { color: green; font-weight: bold; margin: 0 }
-p.fail { color: red; font-weight: bold; margin: 0 }
-#test-results ul { margin-bottom: 1em }
+    <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+    <title>Net Test</title>
+
+    <!-- Test Library -->
+    <link rel="stylesheet" href="turing-test/stylesheets/screen.css"></link>
+    <script src="turing-test/turing-test.js" type="text/javascript"></script>
+    <style type="text/css">
+      #dom-test { border: 4px dotted #ff0; background-color: #f0f0f0 }
     </style>
-    <script type="text/javascript" src="riot.js"></script>
-    <script type="text/javascript" src="net_test.js"></script>
   </head>
   <body>
-    <div id="test-results"></div>
+    <ul id="results"></ul>
+    <script src="net_test.js" type="text/javascript"></script>
   </body>
 </html>
+
 

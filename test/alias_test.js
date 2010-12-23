@@ -1,6 +1,8 @@
 require.paths.unshift('./turing-test/lib');
 
-turing = require('../turing.core.js').turing;
+if (typeof turing === 'undefined')
+  turing = require('../turing.core.js').turing;
+
 var test = require('test'),
     assert = require('assert'),
     $t = require('../turing.alias.js');

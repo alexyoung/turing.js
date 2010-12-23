@@ -1,119 +1,134 @@
-load('riot.js');
-Riot.require('../turing.core.js');
-Riot.require('../turing.oo.js');
-Riot.require('../turing.functional.js');
-Riot.require('../turing.enumerable.js');
+require.paths.unshift('./turing-test/lib');
 
-Riot.context('turing.enumerable.js', function() {
-  given('an array', function() {
+turing = require('../turing.core.js').turing;
+var test = require('test'),
+    assert = require('assert');
+
+require('../turing.oo.js');
+require('../turing.functional.js');
+require('../turing.enumerable.js');
+
+exports.testEnumerable = {
+  'test array iteration with each': function() {
+    var a = [1, 2, 3, 4, 5],
+        count = 0;
+    turing.enumerable.each(a, function(n) { count += 1; });
+    assert.equal(5, count, 'count should have been iterated');
+  },
+
+  'test array iteration with map': function() {
+    var a = [1, 2, 3, 4, 5],
+        b = turing.enumerable.map(a, function(n) { return n + 1; });
+    assert.deepEqual([2, 3, 4, 5, 6], b, 'map should iterate');
+  },
+
+  'test array filtering': function() {
     var a = [1, 2, 3, 4, 5];
-    should('iterate with each', function() {
-      var count = 0;
-      turing.enumerable.each(a, function(n) { count += 1; });
-      return count;
-    }).equals(5);
+    assert.deepEqual([2, 4], turing.enumerable.filter(a, function(n) { return n % 2 == 0; }), 'array should be filtered');
+  },
 
-    should('iterate with map', function() {
-      return turing.enumerable.map(a, function(n) { return n + 1; });
-    }).equals([2, 3, 4, 5, 6]);
+  'test array reject': function() {
+    var a = [1, 2, 3, 4, 5];
+    assert.deepEqual([1, 3, 5], turing.enumerable.reject(a, function(n) { return n % 2 == 0; }), 'items should have been rejected');
+  },
 
-    should('filter arrays', function() {
-      return turing.enumerable.filter(a, function(n) { return n % 2 == 0; });
-    }).equals([2, 4]);
+  'test finding values with detect': function() {
+    var a = [1, 2, 3, 4, 5];
+    assert.ok(turing.enumerable.detect(a, function(n) { return n == 1; }), 'detect should find the item');
+  },
 
-    should('reject arrays', function() {
-      return turing.enumerable.reject(a, function(n) { return n % 2 == 0; });
-    }).equals([1, 3, 5]);
+  'test detect does not find items that do not exist': function() {
+    var a = [1, 2, 3, 4, 5];
+    assert.equal(null, turing.enumerable.detect(a, function(n) { return n == 1000; }));
+  },
 
-    should('find values with detect', function() {
-      return turing.enumerable.detect(a, function(n) { return n == 1; });
-    });
+  'test chained method calls': function() {
+    assert.deepEqual([20, 40], turing.enumerable.chain([1, 2, 3, 4])
+      .filter(function(n) { return n % 2 == 0; })
+      .map(function(n) { return n * 10; })
+      .values());
+  },
 
-    should('not find values with detect that do not exist', function() {
-      return typeof turing.enumerable.detect(a, function(n) { return n == 1000; }) === 'undefined';
-    });
+  'test reduce results accumulation': function() {
+    assert.equal(6, turing.enumerable.reduce([1, 2, 3], 0, function(memo, n) { return memo + n; }));
+  },
 
-    should('chain method calls', function() {
-      return turing.enumerable.chain([1, 2, 3, 4]).filter(function(n) { return n % 2 == 0; }).map(function(n) { return n * 10; }).values();
-    }).equals([20, 40]);
+  'test flatten': function() {
+    assert.deepEqual([2, 4, 6, 8], turing.enumerable.flatten([[2, 4], [[6], 8]]));
+  },
 
-    should('accumulate results with reduce', function() {
-      return turing.enumerable.reduce([1, 2, 3], 0, function(memo, n) { return memo + n; });
-    }).equals(6);
+  'test method invocation': function() {
+    assert.deepEqual(['hel', 'wor'], turing.enumerable.invoke(['hello', 'world'], 'substring', 0, 3));
+  },
 
-    should('flatten an array', function() {
-      return turing.enumerable.flatten([[2, 4], [[6], 8]]);
-    }).equals([2, 4, 6, 8])
+  'test pluck': function() {
+    assert.deepEqual([5, 5, 4, 2, 4], turing.enumerable.pluck(['hello', 'world', 'this', 'is', 'nice'], 'length'));
+  },
 
-    should('invoke methods on arrays', function() {
-      return turing.enumerable.invoke(['hello', 'world'], 'substring', 0, 3);
-    }).equals(['hel', 'wor']);
+  'test tail': function() {
+    assert.deepEqual([2, 3, 4, 5], turing.enumerable.tail([1, 2, 3, 4, 5]));
+  },
 
-    should('pluck properties from arrays', function() {
-      return turing.enumerable.pluck(['hello', 'world', 'this', 'is', 'nice'], 'length');
-    }).equals([5, 5, 4, 2, 4]);
+  'test tail skip': function() {
+    assert.deepEqual([4, 5], turing.enumerable.tail([1, 2, 3, 4, 5], 3));
+  },
+  
+  'test return false from some when an array is empty': function() {
+    assert.equal(false, turing.enumerable.some([]));
+  },
 
-    should('tail by skipping the first element', function() {
-      return turing.enumerable.tail([1, 2, 3, 4, 5]);
-    }).equals([2, 3, 4, 5]);
+  'test return true from some when an array has items': function() {
+    assert.ok(turing.enumerable.some([1, 2, 3]));
+  },
 
-    should('tail by skipping an optional number of elements', function() {
-      return turing.enumerable.tail([1, 2, 3, 4, 5], 3);
-    }).equals([4, 5]);
+  'test return true from some when an array matches a callback': function() {
+    assert.ok(turing.enumerable.some([1, 2, 3], function(value) { return value === 3; }));
+  },
 
-    should('return false from some when an array is empty', function() {
-      return turing.enumerable.some([]);
-    }).isFalse();
+  'test check callback returns true for every item with all': function() {
+    assert.ok(turing.enumerable.all([1, 2, 3], function(value) { return value < 4; }));
+  },
 
-    should('return true from some when an array has items', function() {
-      return turing.enumerable.some([1, 2, 3]);
-    }).isTrue();
+  'test check callback returns false with all when callback returns false': function() {
+    assert.equal(false, turing.enumerable.all([1, 2, 3], function(value) { return value > 4; }));
+  },
 
-    should('return true from some when an array matches a callback', function() {
-      return turing.enumerable.some([1, 2, 3], function(value) { return value === 3; });
-    }).isTrue();
+  'test finds values with include': function() {
+    assert.ok(turing.enumerable.include([1, 2, 3], 3));
+  },
 
-    should('check callback returns true for every item with all', function() {
-      return turing.enumerable.all([1, 2, 3], function(value) { return value < 4; });
-    }).isTrue();
+  'test objects iterate with each': function() {
+    var obj = { one: '1', two: '2', three: '3' },
+        count = 0;
+    turing.enumerable.each(obj, function(n) { count += 1; });
+    assert.equal(3, count);
+  },
 
-    should('check callback returns false with all when callback returns false', function() {
-      return turing.enumerable.all([1, 2, 3], function(value) { return value > 4; });
-    }).isFalse();
-
-    should('find values with include', function() {
-      return turing.enumerable.include([1, 2, 3], 3);
-    }).isTrue();
-  });
-
-  given('an object', function() {
+  'test iterate objects with map': function() {
     var obj = { one: '1', two: '2', three: '3' };
-    should('iterate with each', function() {
-      var count = 0;
-      turing.enumerable.each(obj, function(n) { count += 1; });
-      return count;
-    }).equals(3);
+    assert.deepEqual(['11', '21', '31'], turing.enumerable.map(obj, function(n) { return n + 1; }));
+  },
 
-    should('iterate with map', function() {
-      return turing.enumerable.map(obj, function(n) { return n + 1; });
-    }).equals(['11', '21', '31']);
+  'test filter objects and return a multi-dimensional array': function() {
+    var obj = { one: '1', two: '2', three: '3' };
+    assert.equal('one', turing.enumerable.filter(obj, function(v, i) { return v < 2; })[0][0]);
+  },
 
-    should('filter objects and return a multi-dimensional array', function() {
-      return turing.enumerable.filter(obj, function(v, i) { return v < 2; })[0][0];
-    }).equals('one');
+  'test check callback returns true for every item with all': function() {
+    var obj = { one: '1', two: '2', three: '3' };
+    assert.ok(turing.enumerable.all(obj, function(value, key) { return value < 4; }));
+  },
 
-    should('check callback returns true for every item with all', function() {
-      return turing.enumerable.all(obj, function(value, key) { return value < 4; });
-    }).isTrue();
+  'test check callback returns false with all when callback returns false': function() {
+    var obj = { one: '1', two: '2', three: '3' };
+    assert.equal(false, turing.enumerable.all(obj, function(value, key) { return value > 4; }));
+  },
 
-    should('check callback returns false with all when callback returns false', function() {
-      return turing.enumerable.all(obj, function(value, key) { return value > 4; });
-    }).isFalse();
+  'test finds values with include': function() {
+    var obj = { one: '1', two: '2', three: '3' };
+    assert.ok(turing.enumerable.include(obj, '3'));
+  }
+};
 
-    should('find values with include', function() {
-      return turing.enumerable.include(obj, '3');
-    }).isTrue();
-  });
-});
+test.run(exports);
 
-Riot.run();
