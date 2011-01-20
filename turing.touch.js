@@ -5,7 +5,27 @@
  */
 
 /**
- * Support for touchscreen devices.
+ * Support for touchscreen devices.  Run `turing.touch.register()` to get touch event support.
+ *
+ * Tap:
+ *
+ *     turing.events.add(element, 'tap', function(e) {
+ *       alert('tap');
+ *     });
+ *
+ * Swipe:
+ *
+ *     turing.events.add(element, 'swipe', function(e) {
+ *       alert('swipe');
+ *     });
+ *
+ * Orientation Changes:
+ *
+ * Device orientation is available in `turing.touch.orientation()`.
+ *
+ *     turing.events.add(element, 'orientationchange', function(e) {
+ *       alert('Orientation is now: ' + turing.touch.orientation());
+ *     });
  */
 (function() {
   var touch = {}, state = {};

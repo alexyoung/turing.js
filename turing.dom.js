@@ -331,13 +331,26 @@
     return false;
   });
 
+  /**
+   * Finds DOM elements based on a CSS selector.
+   *
+   * @param {String} selector A CSS selector
+   * @returns {Array} The elements
+   */
   dom.get = function(selector) {
     var root = typeof arguments[1] === 'undefined' ? document : arguments[1];
     return turing.toArray(turing.detect('querySelectorAll') ?
       root.querySelectorAll(selector) : get(selector, root));
   };
 
-  // Does an element satify a selector, based on root element?
+  /**
+   * Does an element satify a selector, based on root element?
+   *
+   * @param {Object} element A DOM element
+   * @param {String} selector A CSS selector
+   * @param {Object} root The root DOM element
+   * @returns {Object} The matching DOM element
+   */
   dom.findElement = function(element, selector, root) {
     var tokens = dom.tokenize(selector).tokens,
         searcher = new Searcher(root, []);
@@ -352,7 +365,7 @@
 
   // Chained calls
   turing.init = function(selector) {
-    return new turing.domChain.init(selector);    
+    return new turing.domChain.init(selector);
   };
 
   turing.domChain = {

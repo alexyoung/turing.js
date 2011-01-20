@@ -10,6 +10,17 @@
 (function() {
   var net = {};
 
+  /**
+    * Ajax request options:
+    *
+    *   - `method`: {String} HTTP method - GET, POST, etc.
+    *   - `asynchronous`: {Boolean} Defaults to asynchronous
+    *   - `postBody`: {String} The HTTP POST body
+    *   - `success`: {Function} A callback to run when a request is successful
+    *   - `error`: {Function} A callback to run when the request fails
+    *
+    */
+
   function xhr() {
     if (typeof XMLHttpRequest !== 'undefined' && (window.location.protocol !== 'file:' || !window.ActiveXObject)) {
       return new XMLHttpRequest();
@@ -50,10 +61,15 @@
       }
     }
 
+    // The HTTP headers to accept
     function setHeaders() {
       var headers = {
         'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
       };
+
+      /**
+       * Set other headers
+       */
 
       for (var name in headers) {
         request.setRequestHeader(name, headers[name]);
@@ -113,16 +129,45 @@
     }
   }
 
+  /**
+   * An Ajax GET request.
+   *
+   * @param {String} url The URL to request
+   * @param {Object} options The Ajax request options
+   * @returns {Object} The Ajax request object
+   */
   net.get = function(url, options) {
     options.method = 'get';
     return ajax(url, options);
   };
 
+  /**
+   * An Ajax POST request.
+   *
+   * @param {String} url The URL to request
+   * @param {Object} options The Ajax request options (`postBody` may come in handy here)
+   * @returns {Object} The Ajax request object
+   */
   net.post = function(url, options) {
     options.method = 'post';
     return ajax(url, options);
   };
 
+  /**
+   * A jsonp request.  Example:
+   *
+   *     var url = 'http://feeds.delicious.com/v1/json/';
+   *     url += 'alex_young/javascript?callback={callback}';
+   *
+   *     turing.net.jsonp(url, {
+   *       success: function(json) {
+   *         console.log(json);
+   *       }
+   *     });
+   *
+   * @param {String} url The URL to request
+   * @param {Object} options The Ajax request options
+   */
   net.jsonp = function(url, options) {
     if (typeof options === 'undefined') {
       options = {};

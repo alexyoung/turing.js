@@ -1,23 +1,75 @@
+/*!
+ * Turing Core
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * A private namespace to set things up against the global object.
+ */
 (function(global) {
+  /**
+   * The turing object.  Use `turing('selector')` for quick DOM access when built with the DOM module.
+   *
+   * @returns {Object} The turing object, run through `init`
+   */
   function turing() {
     return turing.init.apply(turing, arguments);
   }
 
-  turing.VERSION = '0.0.29';
-  turing.lesson = 'Part 29: Chaining';
+  turing.VERSION = '0.0.47';
+  turing.lesson = 'Part 47: Writing Documentation';
+
+  /**
+   * This alias will be used as an alternative to `turing.*`
+   */
   turing.alias = '$t';
 
+  /**
+   * Determine if an object is an `Array`.
+   *
+   * @param {Object} object An object that may or may not be an array
+   * @returns {Boolean} True if the parameter is an array
+   */
   turing.isArray = Array.isArray || function(object) {
-    return !!(object && object.concat && object.unshift && !object.callee);
+    return !!(object && object.concat
+              && object.unshift && !object.callee);
+  };
+
+  /**
+   * Convert an `Array`-like collection into an `Array`.
+   *
+   * @param {Object} collection A collection of items that responds to length
+   * @returns {Array} An `Array` of items
+   */
+  turing.toArray = function(collection) {
+    var results = [];
+    for (var i = 0; i < collection.length; i++) {
+      results.push(collection[i]);
+    }
+    return results;
   };
 
   // This can be overriden by libraries that extend turing(...)
   turing.init = function() { };
 
+  /**
+   * Determines if an object is a `Number`.
+   *
+   * @param {Object} object A value to test
+   * @returns {Boolean} True if the object is a Number
+   */
   turing.isNumber = function(object) {
     return (object === +object) || (toString.call(object) === '[object Number]');
   };
 
+  /**
+   * Binds a function to an object.
+   *
+   * @param {Function} fn A function
+   * @param {Object} object An object to bind to
+   * @returns {Function} A rebound method
+   */
   turing.bind = function(fn, object) {
     var slice = Array.prototype.slice,
         args  = slice.apply(arguments, [2]);
@@ -26,16 +78,63 @@
     };
   };
 
+  /**
+   * Allows aliases for `turing.*` to be bound to the global,
+   * used internally by `turing.alias.js`.
+   *
+   * @param {String} alias A name for the alias
+   * @param {Function} method A function that sets up the alias
+   */
   turing.exportAlias = function(aliasName, method) {
     global[aliasName] = method();
+  };
+
+  var testCache = {},
+      detectionTests = {};
+
+  /**
+   * Used to add feature-detection methods.
+   *
+   * @param {String} name The name of the test
+   * @param {Function} fn The function that performs the test
+   */
+  turing.addDetectionTest = function(name, fn) {
+    if (!detectionTests[name])
+      detectionTests[name] = fn;
+  };
+
+  /**
+   * Run a feature detection name.
+   *
+   * @param {String} name The name of the test
+   * @returns {Boolean} The outcome of the test
+   */
+  turing.detect = function(testName) {
+    if (typeof testCache[testCache] === 'undefined') {
+      testCache[testName] = detectionTests[testName]();
+    }
+    return testCache[testName];
   };
 
   if (global.turing) {
     throw new Error('turing has already been defined');
   } else {
     global.turing = turing;
+    if (typeof exports !== 'undefined') exports.turing = turing;
   }
 })(typeof window === 'undefined' ? this : window);
+
+
+/*!
+ * Turing OO
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * The Turing OO module.
+ */
+
 turing.Class = function() {
   return turing.oo.create.apply(this, arguments);
 }
@@ -93,9 +192,33 @@ turing.oo = {
     return parentClass[method].apply(instance, args);
   }
 };
+/*!
+ * Turing Enumerable
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * The Turing Enumerable module.
+ */
 turing.enumerable = {
+  /**
+   * Throw to break out of iterators.
+   */
   Break: {},
 
+  /**
+   * Iterates using a function over a set of items.  Example:
+   *
+   *      turing.enumerable.each([1, 2, 3], function(n) {
+   *        console.log(n);
+   *      });
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {Function} callback The function to run
+   * @param {Object} [context] An optional parameter to determine `this` in the callback
+   * @returns {Object} The passed in enumerable object
+   */
   each: function(enumerable, callback, context) {
     try {
       if (Array.prototype.forEach && enumerable.forEach === Array.prototype.forEach) {
@@ -114,6 +237,18 @@ turing.enumerable = {
     return enumerable;
   },
 
+  /**
+   * Changes a set of item using a function. Example:
+   *
+   *      turing.enumerable.map([1, 2, 3], function(n) {
+   *        return n + 1;
+   *      });
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {Function} callback The function to run over each item
+   * @param {Object} [context] An optional parameter to determine `this` in the callback
+   * @returns {Array} The changed items
+   */
   map: function(enumerable, callback, context) {
     if (Array.prototype.map && enumerable.map === Array.prototype.map) return enumerable.map(callback, context);
     var results = [];
@@ -123,6 +258,21 @@ turing.enumerable = {
     return results;
   },
 
+  /**
+   * Removes items based on a callback.  For example:
+   *
+   *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
+   *      turing.enumerable.filter(a, function(n) {
+   *        return n % 2 === 0;
+   *      });
+   *
+   *      => [2, 4, 6, 8]
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {Function} callback The function to run over each item
+   * @param {Object} [context] An optional parameter to determine `this` in the callback
+   * @returns {Array} The filtered items
+   */
   filter: function(enumerable, callback, context) {
     if (Array.prototype.filter && enumerable.filter === Array.prototype.filter)
       return enumerable.filter(callback, context);
@@ -140,12 +290,42 @@ turing.enumerable = {
     return results;
   },
 
+  /**
+   * The opposite of filter.  For example:
+   *
+   *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
+   *      turing.enumerable.reject(a, function(n) {
+   *        return n % 2 === 0;
+   *      });
+   *
+   *      => [1, 3, 5, 7]
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {Function} callback The function to run over each item
+   * @param {Object} [context] An optional parameter to determine `this` in the callback
+   * @returns {Array} The rejected items
+   */
   reject: function(enumerable, callback, context) {
     return this.filter(enumerable, function() {
       return !callback.apply(context, arguments);
     }, context);
   },
 
+  /**
+   * Find a single item.  For example:
+   *
+   *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
+   *      turing.enumerable.detect(a, function(n) {
+   *        return n === 3;
+   *      });
+   *
+   *      => 3
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {Function} callback The function to run over each item
+   * @param {Object} [context] An optional parameter to determine `this` in the callback
+   * @returns {Object} The item, if found
+   */
   detect: function(enumerable, callback, context) {
     var result;
     turing.enumerable.each(enumerable, function(value, index, list) {
@@ -157,6 +337,22 @@ turing.enumerable = {
     return result;
   },
 
+  /**
+   * Runs a function over each item, collecting the results:
+   *
+   *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
+   *      turing.enumerable.reduce(a, 0, function(memo, n) {
+   *        return memo + n;
+   *      });
+   *
+   *      => 36
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {Object} memo The initial accumulator value
+   * @param {Function} callback The function to run over each item
+   * @param {Object} [context] An optional parameter to determine `this` in the callback
+   * @returns {Object} The accumulated results
+   */
   reduce: function(enumerable, memo, callback, context) {
     if (Array.prototype.reduce && enumerable.reduce === Array.prototype.reduce)
       return enumerable.reduce(turing.bind(callback, context), memo);
@@ -166,6 +362,16 @@ turing.enumerable = {
     return memo;
   },
 
+  /**
+   * Flattens multidimensional arrays:
+   *
+   *      turing.enumerable.flatten([[2, 4], [[6], 8]]);
+   *
+   *      => [2, 4, 6, 8]
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @returns {Object} The flat array
+   */
   flatten: function(array) {
     return turing.enumerable.reduce(array, [], function(memo, value) {
       if (turing.isArray(value)) return memo.concat(turing.enumerable.flatten(value));
@@ -174,11 +380,33 @@ turing.enumerable = {
     });
   },
 
+  /**
+   * Return the last items from a list:
+   *
+   *      turing.enumerable.tail([1, 2, 3, 4, 5], 3);
+   *
+   *      => [4, 5]
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {Number} start The index of the item to 'cut' the array
+   * @returns {Object} A list of items
+   */
   tail: function(enumerable, start) {
     start = typeof start === 'undefined' ? 1 : start;
     return Array.prototype.slice.apply(enumerable, [start]);
   },
 
+  /**
+   * Invokes `method` on a list of items:
+   *
+   *      turing.enumerable.invoke(['hello', 'world'], 'substring', 0, 3);
+   *
+   *      => ['hel', 'wor']
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {Function} method The method to invoke on each item
+   * @returns {Object} The changed list
+   */
   invoke: function(enumerable, method) {
     var args = turing.enumerable.tail(arguments, 2); 
     return turing.enumerable.map(enumerable, function(value) {
@@ -186,12 +414,37 @@ turing.enumerable = {
     });
   },
 
+  /**
+   * Pluck a property from each item of a list:
+   *
+   *      turing.enumerable.pluck(['hello', 'world'], 'length');
+   *
+   *      => [5, 5]
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {String} key The property to pluck
+   * @returns {Object} The plucked properties
+   */
   pluck: function(enumerable, key) {
     return turing.enumerable.map(enumerable, function(value) {
       return value[key];
     });
   },
 
+  /**
+   * Determines if a list matches some items based on a callback:
+   *
+   *      turing.enumerable.some([1, 2, 3], function(value) {
+   *        return value === 3;
+   *      });
+   *
+   *      => true
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {Function} callback A function to run against each item
+   * @param {Object} [context] An optional parameter to determine `this` in the callback
+   * @returns {Boolean} True if an item was matched
+   */
   some: function(enumerable, callback, context) {
     callback = callback || turing.enumerable.identity;
     if (Array.prototype.some && enumerable.some === Array.prototype.some)
@@ -205,6 +458,20 @@ turing.enumerable = {
     return result;
   },
 
+  /**
+   * Checks if all items match the callback:
+   *
+   *      turing.enumerable.all([1, 2, 3], function(value) {
+   *        return value < 4;
+   *      })
+   *
+   *      => true
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {Function} callback A function to run against each item
+   * @param {Object} [context] An optional parameter to determine `this` in the callback
+   * @returns {Boolean} True if all items match
+   */
   all: function(enumerable, callback, context) {
     callback = callback || turing.enumerable.identity;
     if (Array.prototype.every && enumerable.every === Array.prototype.every)
@@ -218,6 +485,17 @@ turing.enumerable = {
     return result;
   },
 
+  /**
+   * Checks if one item matches a value:
+   *
+   *      turing.enumerable.include([1, 2, 3], 3);
+   *
+   *      => true
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @param {Object} target A value to find
+   * @returns {Boolean} True if an item was found
+   */
   include: function(enumerable, target) {
     if (Array.prototype.indexOf && enumerable.indexOf === Array.prototype.indexOf)
       return enumerable.indexOf(target) != -1;
@@ -230,6 +508,19 @@ turing.enumerable = {
     return found;
   },
 
+  /**
+   * Chain enumerable calls:
+   *
+   *      turing.enumerable.chain([1, 2, 3, 4])
+   *        .filter(function(n) { return n % 2 == 0; })
+   *        .map(function(n) { return n * 10; })
+   *        .values();
+   *
+   *      => [20, 40]
+   *
+   * @param {Object} enumerable A set of items that responds to `length`
+   * @returns {Object} The chained enumerable API
+   */
   chain: function(enumerable) {
     return new turing.enumerable.Chainer(enumerable);
   },
@@ -267,6 +558,15 @@ turing.enumerable.each(turing.chainableMethods, function(methodName) {
     return this;
   }
 });
+/*!
+ * Turing Functional
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * Turing Functional helpers.
+ */
 turing.functional = {
   curry: turing.bind,
 
@@ -282,32 +582,15 @@ turing.functional = {
     return wrapper;
   } 
 };
-/*jslint indent: 2, white: false, plusplus: false */
+/*!
+ * Turing DOM
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
 
-/*
-
-* CSS2 selectors
-* Generates a parser based on property lists that contain matchers
-* Tokenizes
-
-Notes:
-
-http://www.w3.org/TR/CSS2/grammar.html
-http://en.wikipedia.org/wiki/Lexical_analysis
-http://nokogiri.org/lib/nokogiri/css/tokenizer_rex.html
-http://github.com/jeresig/sizzle/blob/master/sizzle.js
-http://github.com/digitarald/sly/blob/master/Sly.js
-http://gnosis.cx/TPiP/chap4.txt
-http://www.w3.org/TR/CSS2/selector.html
-
-Algorithms:
-
-https://developer.mozilla.org/en/Writing_Efficient_CSS
-http://blog.twoalex.com/2010/02/26/a-shocking-truth-about-css/
-http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
-
-*/
-
+/**
+ * The Turing DOM module.
+ */
 (function() {
   var dom = {}, InvalidFinder = Error, macros, rules, tokenMap,
       find, matchMap, findMap, filter, scannerRegExp;
@@ -611,14 +894,47 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     return tokenizer;
   };
 
-  dom.get = function(selector) {
+  function get(selector, root) {
     var tokens = dom.tokenize(selector).tokens,
-        root = typeof arguments[1] === 'undefined' ? document : arguments[1],
         searcher = new Searcher(root, tokens);
     return searcher.parse();
+  }
+
+  turing.addDetectionTest('querySelectorAll', function() {
+    var div = document.createElement('div');
+    div.innerHTML = '<p class="TEST"></p>';
+
+    // Some versions of Safari can't handle uppercase in quirks mode
+    if (div.querySelectorAll) {
+      if (div.querySelectorAll('.TEST').length === 0) return false;
+      return true;
+    }
+
+    // Helps IE release memory associated with the div
+    div = null;
+    return false;
+  });
+
+  /**
+   * Finds DOM elements based on a CSS selector.
+   *
+   * @param {String} selector A CSS selector
+   * @returns {Array} The elements
+   */
+  dom.get = function(selector) {
+    var root = typeof arguments[1] === 'undefined' ? document : arguments[1];
+    return turing.toArray(turing.detect('querySelectorAll') ?
+      root.querySelectorAll(selector) : get(selector, root));
   };
 
-  // Does an element satify a selector, based on root element?
+  /**
+   * Does an element satify a selector, based on root element?
+   *
+   * @param {Object} element A DOM element
+   * @param {String} selector A CSS selector
+   * @param {Object} root The root DOM element
+   * @returns {Object} The matching DOM element
+   */
   dom.findElement = function(element, selector, root) {
     var tokens = dom.tokenize(selector).tokens,
         searcher = new Searcher(root, []);
@@ -633,7 +949,7 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
 
   // Chained calls
   turing.init = function(selector) {
-    return new turing.domChain.init(selector);    
+    return new turing.domChain.init(selector);
   };
 
   turing.domChain = {
@@ -689,6 +1005,15 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
   turing.dom = dom;
 })();
 
+/*!
+ * Turing Events
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * The Turing Events module.
+ */
 (function() {
   var events = {}, cache = [], onReadyBound = false, isReady = false, DOMContentLoaded, readyCallbacks = [];
 
@@ -906,11 +1231,28 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
 
     turing.domChain.bind = function(type, handler) {
       var element = this.first();
-      if (element) {
-        turing.events.add(element, type, handler);
-        return this;
+      for (var i = 0; i < this.length; i++) {
+        element = this[i];
+        if (handler) {
+          turing.events.add(element, type, handler);
+        } else {
+          turing.events.fire(element, type);
+        }
       }
+      return this;
     };
+
+    var chainedAliases = ('click dblclick mouseover mouseout mousemove ' +
+                          'mousedown mouseup blur focus change keydown ' +
+                          'keypress keyup resize scroll').split(' ');
+
+    for (var i = 0; i < chainedAliases.length; i++) {
+      (function(name) {
+        turing.domChain[name] = function(handler) {
+          return this.bind(name, handler);
+        };
+      })(chainedAliases[i]);
+    }
   };
 
   events.addDOMethods();
@@ -929,6 +1271,15 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
   }
 })();
 
+/*!
+ * Turing Touch
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * Support for touchscreen devices.
+ */
 (function() {
   var touch = {}, state = {};
 
@@ -1001,6 +1352,15 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
   turing.touch = touch;
 })();
 
+/*!
+ * Turing Alias
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * Manages aliases for the framework (`turing.*` becomes `$t` by default).
+ */
 (function() {
   turing.aliasFramework = function() {
     var alias = function() {
@@ -1026,6 +1386,16 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
 
   turing.exportAlias(turing.alias, turing.aliasFramework);
 })();
+/*!
+ * Turing Anim
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * The Turing animation module.
+ */
+
 (function() {
   var anim = {},
       easing = {},
@@ -1202,6 +1572,15 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     }
   };
 
+
+  /**
+   * Animates an element using CSS properties.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} properties CSS properties to animate, for example: `{ width: '20px' }`
+   * @param {Object} options Currently accepts an easing function or built-in easing method name (linear, sine, reverse, spring, bounce)
+   */
   anim.animate = function(element, duration, properties, options) {
     var duration = duration,
         start = (new Date).valueOf(),
@@ -1321,12 +1700,25 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
 
   CSSTransitions.vendorPrefix = CSSTransitions.findCSS3VendorPrefix();
 
-  // Helpers
-  anim.fade = function(element, duration, options, easing) {
+  /**
+   * Fade an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} options to, from, easing function: `{ to: 1, from: 0, easing: 'bounce' }`
+   */
+  anim.fade = function(element, duration, options) {
     element.style.opacity = options.from;
     return anim.animate(element, duration, { 'opacity': options.to }, { 'easing': options.easing });
   };
 
+  /**
+   * Fade in an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} options May include an easing function: `{ to: 1, from: 0, easing: 'bounce' }`
+   */
   anim.fadeIn = function(element, duration, options) {
     options = options || {};
     options.from = options.from || 0.0;
@@ -1334,6 +1726,13 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     return anim.fade(element, duration, options);
   };
 
+  /**
+   * Fade out an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} options May include an easing function: `{ to: 1, from: 0, easing: 'bounce' }`
+   */
   anim.fadeOut = function(element, duration, options) {
     var from;
     options = options || {};
@@ -1348,9 +1747,16 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     // This easing function reverses the position value and adds from
     options.easing = function(p) { return (1.0 - p) + options.from; };
 
-    return anim.fade(element, duration, options, { 'easing': options.easing });
+    return anim.fade(element, duration, options);
   };
 
+  /**
+   * Highlight an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} options May include an easing function: `{ to: 1, from: 0, easing: 'bounce' }`
+   */
   anim.highlight = function(element, duration, options) {
     var style = element.currentStyle ? element.currentStyle : getComputedStyle(element, null);
     options = options || {};
@@ -1364,12 +1770,29 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     }, 200);
   };
 
+  /**
+   * Move an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} options Position and easing, for example: `{ left: 100, top: 50, easing: 'sine' }`
+   */
   anim.move = function(element, duration, options) {
     return anim.animate(element, duration, { 'left': options.x, 'top': options.y }, { 'easing': options.easing || easing.sine });
   };
 
+  /**
+   * Parse colour strings.  For example: `assert.equal('rgb(255, 0, 255)', turing.anim.parseColour('#ff00ff').toString());`
+   *
+   * @param {String} colourString A hex colour string
+   * @returns {String} RGB string
+   */
   anim.parseColour = function(colourString) { return new Colour(colourString); };
   anim.pause = function(element, duration, options) {};
+
+  /**
+   * Easing functions: linear, sine, reverse, spring, bounce.
+   */
   anim.easing = easing;
 
   Chainer = function(element) {
@@ -1394,6 +1817,22 @@ http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
     })(methodName);
   }
 
+  /**
+   * Chain animation module calls, for example:
+   *
+   *     turing.anim.chain(element)
+   *       .highlight()
+   *       .pause(250)
+   *       .move(100, { x: '100px', y: '100px', easing: 'ease-in-out' })
+   *       .animate(250, { width: '1000px' })
+   *       .fadeOut(250)
+   *       .pause(250)
+   *       .fadeIn(250)
+   *       .animate(250, { width: '20px' });
+   *
+   * @param {Object} element A DOM element
+   * @returns {Chainer} Chained API object
+   */
   anim.chain = function(element) {
     return new Chainer(element);
   };

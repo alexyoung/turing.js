@@ -184,6 +184,15 @@
     }
   };
 
+
+  /**
+   * Animates an element using CSS properties.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} properties CSS properties to animate, for example: `{ width: '20px' }`
+   * @param {Object} options Currently accepts an easing function or built-in easing method name (linear, sine, reverse, spring, bounce)
+   */
   anim.animate = function(element, duration, properties, options) {
     var duration = duration,
         start = (new Date).valueOf(),
@@ -303,12 +312,25 @@
 
   CSSTransitions.vendorPrefix = CSSTransitions.findCSS3VendorPrefix();
 
-  // Helpers
-  anim.fade = function(element, duration, options, easing) {
+  /**
+   * Fade an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} options to, from, easing function: `{ to: 1, from: 0, easing: 'bounce' }`
+   */
+  anim.fade = function(element, duration, options) {
     element.style.opacity = options.from;
     return anim.animate(element, duration, { 'opacity': options.to }, { 'easing': options.easing });
   };
 
+  /**
+   * Fade in an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} options May include an easing function: `{ to: 1, from: 0, easing: 'bounce' }`
+   */
   anim.fadeIn = function(element, duration, options) {
     options = options || {};
     options.from = options.from || 0.0;
@@ -316,6 +338,13 @@
     return anim.fade(element, duration, options);
   };
 
+  /**
+   * Fade out an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} options May include an easing function: `{ to: 1, from: 0, easing: 'bounce' }`
+   */
   anim.fadeOut = function(element, duration, options) {
     var from;
     options = options || {};
@@ -330,9 +359,16 @@
     // This easing function reverses the position value and adds from
     options.easing = function(p) { return (1.0 - p) + options.from; };
 
-    return anim.fade(element, duration, options, { 'easing': options.easing });
+    return anim.fade(element, duration, options);
   };
 
+  /**
+   * Highlight an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} options May include an easing function: `{ to: 1, from: 0, easing: 'bounce' }`
+   */
   anim.highlight = function(element, duration, options) {
     var style = element.currentStyle ? element.currentStyle : getComputedStyle(element, null);
     options = options || {};
@@ -346,12 +382,29 @@
     }, 200);
   };
 
+  /**
+   * Move an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {Number} duration Duration in milliseconds
+   * @param {Object} options Position and easing, for example: `{ left: 100, top: 50, easing: 'sine' }`
+   */
   anim.move = function(element, duration, options) {
     return anim.animate(element, duration, { 'left': options.x, 'top': options.y }, { 'easing': options.easing || easing.sine });
   };
 
+  /**
+   * Parse colour strings.  For example: `assert.equal('rgb(255, 0, 255)', turing.anim.parseColour('#ff00ff').toString());`
+   *
+   * @param {String} colourString A hex colour string
+   * @returns {String} RGB string
+   */
   anim.parseColour = function(colourString) { return new Colour(colourString); };
   anim.pause = function(element, duration, options) {};
+
+  /**
+   * Easing functions: linear, sine, reverse, spring, bounce.
+   */
   anim.easing = easing;
 
   Chainer = function(element) {
@@ -376,6 +429,22 @@
     })(methodName);
   }
 
+  /**
+   * Chain animation module calls, for example:
+   *
+   *     turing.anim.chain(element)
+   *       .highlight()
+   *       .pause(250)
+   *       .move(100, { x: '100px', y: '100px', easing: 'ease-in-out' })
+   *       .animate(250, { width: '1000px' })
+   *       .fadeOut(250)
+   *       .pause(250)
+   *       .fadeIn(250)
+   *       .animate(250, { width: '20px' });
+   *
+   * @param {Object} element A DOM element
+   * @returns {Chainer} Chained API object
+   */
   anim.chain = function(element) {
     return new Chainer(element);
   };

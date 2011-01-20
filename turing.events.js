@@ -69,10 +69,10 @@
 
   function ready() {
     if (!isReady) {
-			// Make sure body exists
-			if (!document.body) {
-				return setTimeout(ready, 13);
-			}
+      // Make sure body exists
+      if (!document.body) {
+        return setTimeout(ready, 13);
+      }
 
       isReady = true;
 
@@ -123,26 +123,26 @@
     if (onReadyBound) return;
     onReadyBound = true;
 
-		if (document.readyState === 'complete') {
-			ready();
-		} else if (document.addEventListener) {
-			document.addEventListener('DOMContentLoaded', DOMContentLoaded, false );
-			window.addEventListener('load', ready, false);
-		} else if (document.attachEvent) {
-			document.attachEvent('onreadystatechange', DOMContentLoaded);
+    if (document.readyState === 'complete') {
+      ready();
+    } else if (document.addEventListener) {
+      document.addEventListener('DOMContentLoaded', DOMContentLoaded, false );
+      window.addEventListener('load', ready, false);
+    } else if (document.attachEvent) {
+      document.attachEvent('onreadystatechange', DOMContentLoaded);
 
-			window.attachEvent('onload', ready);
+      window.attachEvent('onload', ready);
 
-			// Check to see if the document is ready
-			var toplevel = false;
-			try {
-				toplevel = window.frameElement == null;
-			} catch(e) {}
+      // Check to see if the document is ready
+      var toplevel = false;
+      try {
+        toplevel = window.frameElement == null;
+      } catch(e) {}
 
-			if (document.documentElement.doScroll && toplevel) {
-				DOMReadyScrollCheck();
-			}
-		}
+      if (document.documentElement.doScroll && toplevel) {
+        DOMReadyScrollCheck();
+      }
+    }
   }
 
   function IEType(type) {
@@ -152,6 +152,17 @@
     return 'on' + type;
   }
 
+  /**
+   * Bind an event to an element.
+   *
+   *      turing.events.add(element, 'click', function() {
+   *        console.log('Clicked');
+   *      });
+   *
+   * @param {Object} element A DOM element
+   * @param {String} type The event name
+   * @param {Function} handler The event handler
+   */
   events.add = function(element, type, handler) {
     if (!isValidElement(element)) return;
 
@@ -169,6 +180,15 @@
     }
   };
 
+  /**
+   * Remove an event from an element.
+   *
+   *      turing.events.add(element, 'click', callback);
+   *
+   * @param {Object} element A DOM element
+   * @param {String} type The event name
+   * @param {Function} handler The event handler
+   */
   events.remove = function(element, type, handler) {
     if (!isValidElement(element)) return;
     var responder = removeCachedResponder(element, type, handler);
@@ -180,6 +200,15 @@
     }
   };
 
+  /**
+   * Fires an event.
+   *
+   *      turing.events.fire(element, 'click');
+   *
+   * @param {Object} element A DOM element
+   * @param {String} type The event name
+   * @returns {Object} The browser's `fireEvent` or `dispatchEvent` result
+   */
   events.fire = function(element, type) {
     var event;
     if (document.createEventObject) {
@@ -203,6 +232,15 @@
     }
   };
 
+  /**
+   * Add a 'DOM ready' callback.
+   *
+   *      turing.events.ready(function() {
+   *        // The DOM is ready
+   *      });
+   *
+   * @param {Function} callback A callback to run
+   */
   events.ready = function(callback) {
     bindOnReady();
     readyCallbacks.push(callback);
@@ -219,6 +257,14 @@
     };
   }
 
+  /**
+    * Events can be chained with DOM calls:
+    *
+    *       turing('p').bind('click', function(e) {
+    *         alert('ouch');
+    *       });
+    *
+    */
   events.addDOMethods = function() {
     if (typeof turing.domChain === 'undefined') return;
 

@@ -321,9 +321,19 @@ code .this { color: #19469D; }</style>
     } <span class="keyword">else</span> {
       <span class="keyword">return</span> <span class="number float">7.6</span> * (<span class="variable">position</span> -= (<span class="number float">2.625</span> / <span class="number float">2.75</span>)) * <span class="variable">position</span> + <span class="number float">0.98</span>;
     }
-  };
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Animates an element using CSS properties.</p>
 
-  <span class="variable">anim</span>.<span class="variable">animate</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">properties</span>, <span class="variable">options</span>) {
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>Number</em>  duration Duration in milliseconds</p></li><li><p><strong>param</strong>: <em>Object</em>  properties CSS properties to animate, for example: <code>{ width: '20px' }</code></p></li><li><p><strong>param</strong>: <em>Object</em>  options Currently accepts an easing function or built-in easing method name (linear, sine, reverse, spring, bounce)</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">anim</span>.<span class="variable">animate</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">properties</span>, <span class="variable">options</span>) {
     <span class="keyword">var</span> <span class="variable">duration</span> = <span class="variable">duration</span>,
         <span class="variable">start</span> = (<span class="keyword">new</span> <span class="class">Date</span>).<span class="variable">valueOf</span>(),
         <span class="variable">finish</span> = <span class="variable">start</span> + <span class="variable">duration</span>,
@@ -440,22 +450,51 @@ code .this { color: #19469D; }</style>
     }
   };
 
-  <span class="class">CSSTransitions</span>.<span class="variable">vendorPrefix</span> = <span class="class">CSSTransitions</span>.<span class="variable">findCSS3VendorPrefix</span>();
+  <span class="class">CSSTransitions</span>.<span class="variable">vendorPrefix</span> = <span class="class">CSSTransitions</span>.<span class="variable">findCSS3VendorPrefix</span>();</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Fade an element.</p>
 
-  <span class="comment">// Helpers</span>
-  <span class="variable">anim</span>.<span class="variable">fade</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>, <span class="variable">easing</span>) {
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>Number</em>  duration Duration in milliseconds</p></li><li><p><strong>param</strong>: <em>Object</em>  options to, from, easing function: <code>{ to: 1, from: 0, easing: 'bounce' }</code></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">anim</span>.<span class="variable">fade</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>) {
     <span class="variable">element</span>.<span class="variable">style</span>.<span class="variable">opacity</span> = <span class="variable">options</span>.<span class="variable">from</span>;
     <span class="keyword">return</span> <span class="variable">anim</span>.<span class="variable">animate</span>(<span class="variable">element</span>, <span class="variable">duration</span>, { <span class="string">'opacity'</span>: <span class="variable">options</span>.<span class="variable">to</span> }, { <span class="string">'easing'</span>: <span class="variable">options</span>.<span class="variable">easing</span> });
-  };
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Fade in an element.</p>
 
-  <span class="variable">anim</span>.<span class="variable">fadeIn</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>) {
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>Number</em>  duration Duration in milliseconds</p></li><li><p><strong>param</strong>: <em>Object</em>  options May include an easing function: <code>{ to: 1, from: 0, easing: 'bounce' }</code></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">anim</span>.<span class="variable">fadeIn</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>) {
     <span class="variable">options</span> = <span class="variable">options</span> || {};
     <span class="variable">options</span>.<span class="variable">from</span> = <span class="variable">options</span>.<span class="variable">from</span> || <span class="number float">0.0</span>;
     <span class="variable">options</span>.<span class="variable">to</span> = <span class="variable">options</span>.<span class="variable">to</span> || <span class="number float">1.0</span>;
     <span class="keyword">return</span> <span class="variable">anim</span>.<span class="variable">fade</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>);
-  };
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Fade out an element.</p>
 
-  <span class="variable">anim</span>.<span class="variable">fadeOut</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>) {
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>Number</em>  duration Duration in milliseconds</p></li><li><p><strong>param</strong>: <em>Object</em>  options May include an easing function: <code>{ to: 1, from: 0, easing: 'bounce' }</code></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">anim</span>.<span class="variable">fadeOut</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>) {
     <span class="keyword">var</span> <span class="variable">from</span>;
     <span class="variable">options</span> = <span class="variable">options</span> || {};
     <span class="variable">options</span>.<span class="variable">from</span> = <span class="variable">options</span>.<span class="variable">from</span> || <span class="number float">1.0</span>;
@@ -469,10 +508,20 @@ code .this { color: #19469D; }</style>
     <span class="comment">// This easing function reverses the position value and adds from</span>
     <span class="variable">options</span>.<span class="variable">easing</span> = <span class="keyword">function</span>(<span class="variable">p</span>) { <span class="keyword">return</span> (<span class="number float">1.0</span> - <span class="variable">p</span>) + <span class="variable">options</span>.<span class="variable">from</span>; };
 
-    <span class="keyword">return</span> <span class="variable">anim</span>.<span class="variable">fade</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>, { <span class="string">'easing'</span>: <span class="variable">options</span>.<span class="variable">easing</span> });
-  };
+    <span class="keyword">return</span> <span class="variable">anim</span>.<span class="variable">fade</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>);
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Highlight an element.</p>
 
-  <span class="variable">anim</span>.<span class="variable">highlight</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>) {
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>Number</em>  duration Duration in milliseconds</p></li><li><p><strong>param</strong>: <em>Object</em>  options May include an easing function: <code>{ to: 1, from: 0, easing: 'bounce' }</code></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">anim</span>.<span class="variable">highlight</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>) {
     <span class="keyword">var</span> <span class="variable">style</span> = <span class="variable">element</span>.<span class="variable">currentStyle</span> ? <span class="variable">element</span>.<span class="variable">currentStyle</span> : <span class="variable">getComputedStyle</span>(<span class="variable">element</span>, <span class="keyword">null</span>);
     <span class="variable">options</span> = <span class="variable">options</span> || {};
     <span class="variable">options</span>.<span class="variable">from</span> = <span class="variable">options</span>.<span class="variable">from</span> || <span class="string">'#ff9'</span>;
@@ -483,15 +532,43 @@ code .this { color: #19469D; }</style>
     <span class="keyword">return</span> <span class="variable">setTimeout</span>(<span class="keyword">function</span>() {
       <span class="variable">anim</span>.<span class="variable">animate</span>(<span class="variable">element</span>, <span class="variable">duration</span>, { <span class="string">'backgroundColor'</span>: <span class="variable">options</span>.<span class="variable">to</span>, <span class="string">'easing'</span>: <span class="variable">options</span>.<span class="variable">easing</span> })
     }, <span class="number integer">200</span>);
-  };
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Move an element.</p>
 
-  <span class="variable">anim</span>.<span class="variable">move</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>) {
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>Number</em>  duration Duration in milliseconds</p></li><li><p><strong>param</strong>: <em>Object</em>  options Position and easing, for example: <code>{ left: 100, top: 50, easing: 'sine' }</code></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">anim</span>.<span class="variable">move</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>) {
     <span class="keyword">return</span> <span class="variable">anim</span>.<span class="variable">animate</span>(<span class="variable">element</span>, <span class="variable">duration</span>, { <span class="string">'left'</span>: <span class="variable">options</span>.<span class="variable">x</span>, <span class="string">'top'</span>: <span class="variable">options</span>.<span class="variable">y</span> }, { <span class="string">'easing'</span>: <span class="variable">options</span>.<span class="variable">easing</span> || <span class="variable">easing</span>.<span class="variable">sine</span> });
-  };
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Parse colour strings.  For example: <code>assert.equal('rgb(255, 0, 255)', turing.anim.parseColour('#ff00ff').toString());</code></p>
 
-  <span class="variable">anim</span>.<span class="variable">parseColour</span> = <span class="keyword">function</span>(<span class="variable">colourString</span>) { <span class="keyword">return</span> <span class="keyword">new</span> <span class="class">Colour</span>(<span class="variable">colourString</span>); };
-  <span class="variable">anim</span>.<span class="variable">pause</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>) {};
-  <span class="variable">anim</span>.<span class="variable">easing</span> = <span class="variable">easing</span>;
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  colourString A hex colour string</p></li><li><p><strong>returns</strong>: <em>String</em>  RGB string</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">anim</span>.<span class="variable">parseColour</span> = <span class="keyword">function</span>(<span class="variable">colourString</span>) { <span class="keyword">return</span> <span class="keyword">new</span> <span class="class">Colour</span>(<span class="variable">colourString</span>); };
+  <span class="variable">anim</span>.<span class="variable">pause</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">options</span>) {};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Easing functions: linear, sine, reverse, spring, bounce.
+   </p>
+</td>
+<td class="code">
+<pre><code><span class="variable">anim</span>.<span class="variable">easing</span> = <span class="variable">easing</span>;
 
   <span class="class">Chainer</span> = <span class="keyword">function</span>(<span class="variable">element</span>) {
     <span class="this">this</span>.<span class="variable">element</span> = <span class="variable">element</span>;
@@ -513,9 +590,29 @@ code .this { color: #19469D; }</style>
         <span class="keyword">return</span> <span class="this">this</span>;
       };
     })(<span class="variable">methodName</span>);
-  }
+  }</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Chain animation module calls, for example:</p>
 
-  <span class="variable">anim</span>.<span class="variable">chain</span> = <span class="keyword">function</span>(<span class="variable">element</span>) {
+<pre><code>turing.anim.chain(element)
+  .highlight()
+  .pause(250)
+  .move(100, { x: '100px', y: '100px', easing: 'ease-in-out' })
+  .animate(250, { width: '1000px' })
+  .fadeOut(250)
+  .pause(250)
+  .fadeIn(250)
+  .animate(250, { width: '20px' });</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>returns</strong>: <em>Chainer</em>  Chained API object</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">anim</span>.<span class="variable">chain</span> = <span class="keyword">function</span>(<span class="variable">element</span>) {
     <span class="keyword">return</span> <span class="keyword">new</span> <span class="class">Chainer</span>(<span class="variable">element</span>);
   };
 
@@ -534,11 +631,11 @@ code .this { color: #19469D; }</style>
 </tr>
 <tr class="code">
 <td class="docs">
-<p>The turing object.</p>
+<p>The turing object.  Use <code>turing('selector')</code> for quick DOM access when built with the DOM module.</p>
 
 <h2></h2>
 
-<ul><li><p><strong>returns</strong>: <em>Object</em>  The turing object, run through init</p></li></ul>
+<ul><li><p><strong>returns</strong>: <em>Object</em>  The turing object, run through <code>init</code></p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="keyword">function</span> <span class="variable">turing</span>() {
@@ -1014,16 +1111,35 @@ used internally by <code>turing.alias.js</code>.</p>
     <span class="comment">// Helps IE release memory associated with the div</span>
     <span class="variable">div</span> = <span class="keyword">null</span>;
     <span class="keyword">return</span> <span class="variable">false</span>;
-  });
+  });</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Finds DOM elements based on a CSS selector.</p>
 
-  <span class="variable">dom</span>.<span class="variable">get</span> = <span class="keyword">function</span>(<span class="variable">selector</span>) {
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  selector A CSS selector</p></li><li><p><strong>returns</strong>: <em>Array</em>  The elements</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">get</span> = <span class="keyword">function</span>(<span class="variable">selector</span>) {
     <span class="keyword">var</span> <span class="variable">root</span> = <span class="keyword">typeof</span> <span class="variable">arguments</span>[<span class="number integer">1</span>] === <span class="string">'undefined'</span> ? <span class="variable">document</span> : <span class="variable">arguments</span>[<span class="number integer">1</span>];
     <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">toArray</span>(<span class="variable">turing</span>.<span class="variable">detect</span>(<span class="string">'querySelectorAll'</span>) ?
       <span class="variable">root</span>.<span class="variable">querySelectorAll</span>(<span class="variable">selector</span>) : <span class="variable">get</span>(<span class="variable">selector</span>, <span class="variable">root</span>));
-  };
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Does an element satify a selector, based on root element?</p>
 
-  <span class="comment">// Does an element satify a selector, based on root element?</span>
-  <span class="variable">dom</span>.<span class="variable">findElement</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>, <span class="variable">root</span>) {
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  selector A CSS selector</p></li><li><p><strong>param</strong>: <em>Object</em>  root The root DOM element</p></li><li><p><strong>returns</strong>: <em>Object</em>  The matching DOM element</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">findElement</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>, <span class="variable">root</span>) {
     <span class="keyword">var</span> <span class="variable">tokens</span> = <span class="variable">dom</span>.<span class="variable">tokenize</span>(<span class="variable">selector</span>).<span class="variable">tokens</span>,
         <span class="variable">searcher</span> = <span class="keyword">new</span> <span class="class">Searcher</span>(<span class="variable">root</span>, []);
     <span class="variable">searcher</span>.<span class="variable">tokens</span> = <span class="variable">tokens</span>;
@@ -1037,7 +1153,7 @@ used internally by <code>turing.alias.js</code>.</p>
 
   <span class="comment">// Chained calls</span>
   <span class="variable">turing</span>.<span class="variable">init</span> = <span class="keyword">function</span>(<span class="variable">selector</span>) {
-    <span class="keyword">return</span> <span class="keyword">new</span> <span class="variable">turing</span>.<span class="variable">domChain</span>.<span class="variable">init</span>(<span class="variable">selector</span>);    
+    <span class="keyword">return</span> <span class="keyword">new</span> <span class="variable">turing</span>.<span class="variable">domChain</span>.<span class="variable">init</span>(<span class="variable">selector</span>);
   };
 
   <span class="variable">turing</span>.<span class="variable">domChain</span> = {
@@ -1101,10 +1217,32 @@ used internally by <code>turing.alias.js</code>.</p>
  </p>
 </td>
 <td class="code">
-<pre><code><span class="variable">turing</span>.<span class="variable">enumerable</span> = {
-  <span class="class">Break</span>: {},
+<pre><code><span class="variable">turing</span>.<span class="variable">enumerable</span> = {</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Throw to break out of iterators.
+   </p>
+</td>
+<td class="code">
+<pre><code><span class="class">Break</span>: {},</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Iterates using a function over a set of items.  Example:</p>
 
-  <span class="variable">each</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
+<pre><code> turing.enumerable.each([1, 2, 3], function(n) {
+   console.log(n);
+ });</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Object</em>  The passed in enumerable object</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">each</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
     <span class="keyword">try</span> {
       <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">forEach</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">forEach</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">forEach</span>) {
         <span class="variable">enumerable</span>.<span class="variable">forEach</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
@@ -1120,18 +1258,49 @@ used internally by <code>turing.alias.js</code>.</p>
     }
 
     <span class="keyword">return</span> <span class="variable">enumerable</span>;
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Changes a set of item using a function. Example:</p>
 
-  <span class="variable">map</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
+<pre><code> turing.enumerable.map([1, 2, 3], function(n) {
+   return n + 1;
+ });</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Array</em>  The changed items</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">map</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
     <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">map</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">map</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">map</span>) <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">map</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
     <span class="keyword">var</span> <span class="variable">results</span> = [];
     <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
       <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>));
     });
     <span class="keyword">return</span> <span class="variable">results</span>;
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Removes items based on a callback.  For example:</p>
 
-  <span class="variable">filter</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
+<pre><code> var a = [1, 2, 3, 4, 5, 6, 7, 8];
+ turing.enumerable.filter(a, function(n) {
+   return n % 2 === 0;
+ });
+
+ =&gt; [2, 4, 6, 8]</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Array</em>  The filtered items</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">filter</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
     <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">filter</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">filter</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">filter</span>)
       <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">filter</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
     <span class="keyword">var</span> <span class="variable">results</span>   = [],
@@ -1146,15 +1315,49 @@ used internally by <code>turing.alias.js</code>.</p>
       }
     });
     <span class="keyword">return</span> <span class="variable">results</span>;
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>The opposite of filter.  For example:</p>
 
-  <span class="variable">reject</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
+<pre><code> var a = [1, 2, 3, 4, 5, 6, 7, 8];
+ turing.enumerable.reject(a, function(n) {
+   return n % 2 === 0;
+ });
+
+ =&gt; [1, 3, 5, 7]</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Array</em>  The rejected items</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">reject</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
     <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">filter</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>() {
       <span class="keyword">return</span> !<span class="variable">callback</span>.<span class="variable">apply</span>(<span class="variable">context</span>, <span class="variable">arguments</span>);
     }, <span class="variable">context</span>);
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Find a single item.  For example:</p>
 
-  <span class="variable">detect</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
+<pre><code> var a = [1, 2, 3, 4, 5, 6, 7, 8];
+ turing.enumerable.detect(a, function(n) {
+   return n === 3;
+ });
+
+ =&gt; 3</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Object</em>  The item, if found</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">detect</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
     <span class="keyword">var</span> <span class="variable">result</span>;
     <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
       <span class="keyword">if</span> (<span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>)) {
@@ -1163,44 +1366,133 @@ used internally by <code>turing.alias.js</code>.</p>
       }
     });
     <span class="keyword">return</span> <span class="variable">result</span>;
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Runs a function over each item, collecting the results:</p>
 
-  <span class="variable">reduce</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">memo</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
+<pre><code> var a = [1, 2, 3, 4, 5, 6, 7, 8];
+ turing.enumerable.reduce(a, 0, function(memo, n) {
+   return memo + n;
+ });
+
+ =&gt; 36</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Object</em>  memo The initial accumulator value</p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Object</em>  The accumulated results</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">reduce</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">memo</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
     <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">reduce</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">reduce</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">reduce</span>)
       <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">reduce</span>(<span class="variable">turing</span>.<span class="variable">bind</span>(<span class="variable">callback</span>, <span class="variable">context</span>), <span class="variable">memo</span>);
     <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
       <span class="variable">memo</span> = <span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">memo</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>);
     });
     <span class="keyword">return</span> <span class="variable">memo</span>;
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Flattens multidimensional arrays:</p>
 
-  <span class="variable">flatten</span>: <span class="keyword">function</span>(<span class="variable">array</span>) {
+<pre><code> turing.enumerable.flatten([[2, 4], [[6], 8]]);
+
+ =&gt; [2, 4, 6, 8]</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>returns</strong>: <em>Object</em>  The flat array</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">flatten</span>: <span class="keyword">function</span>(<span class="variable">array</span>) {
     <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">reduce</span>(<span class="variable">array</span>, [], <span class="keyword">function</span>(<span class="variable">memo</span>, <span class="variable">value</span>) {
       <span class="keyword">if</span> (<span class="variable">turing</span>.<span class="variable">isArray</span>(<span class="variable">value</span>)) <span class="keyword">return</span> <span class="variable">memo</span>.<span class="variable">concat</span>(<span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">flatten</span>(<span class="variable">value</span>));
       <span class="variable">memo</span>.<span class="variable">push</span>(<span class="variable">value</span>);
       <span class="keyword">return</span> <span class="variable">memo</span>;
     });
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Return the last items from a list:</p>
 
-  <span class="variable">tail</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">start</span>) {
+<pre><code> turing.enumerable.tail([1, 2, 3, 4, 5], 3);
+
+ =&gt; [4, 5]</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Number</em>  start The index of the item to 'cut' the array</p></li><li><p><strong>returns</strong>: <em>Object</em>  A list of items</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">tail</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">start</span>) {
     <span class="variable">start</span> = <span class="keyword">typeof</span> <span class="variable">start</span> === <span class="string">'undefined'</span> ? <span class="number integer">1</span> : <span class="variable">start</span>;
     <span class="keyword">return</span> <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">apply</span>(<span class="variable">enumerable</span>, [<span class="variable">start</span>]);
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Invokes <code>method</code> on a list of items:</p>
 
-  <span class="variable">invoke</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">method</span>) {
+<pre><code> turing.enumerable.invoke(['hello', 'world'], 'substring', 0, 3);
+
+ =&gt; ['hel', 'wor']</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  method The method to invoke on each item</p></li><li><p><strong>returns</strong>: <em>Object</em>  The changed list</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">invoke</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">method</span>) {
     <span class="keyword">var</span> <span class="variable">args</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">tail</span>(<span class="variable">arguments</span>, <span class="number integer">2</span>); 
     <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">map</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>) {
       <span class="keyword">return</span> (<span class="variable">method</span> ? <span class="variable">value</span>[<span class="variable">method</span>] : <span class="variable">value</span>).<span class="variable">apply</span>(<span class="variable">value</span>, <span class="variable">args</span>);
     });
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Pluck a property from each item of a list:</p>
 
-  <span class="variable">pluck</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">key</span>) {
+<pre><code> turing.enumerable.pluck(['hello', 'world'], 'length');
+
+ =&gt; [5, 5]</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>String</em>  key The property to pluck</p></li><li><p><strong>returns</strong>: <em>Object</em>  The plucked properties</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">pluck</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">key</span>) {
     <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">map</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>) {
       <span class="keyword">return</span> <span class="variable">value</span>[<span class="variable">key</span>];
     });
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Determines if a list matches some items based on a callback:</p>
 
-  <span class="variable">some</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
+<pre><code> turing.enumerable.some([1, 2, 3], function(value) {
+   return value === 3;
+ });
+
+ =&gt; true</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback A function to run against each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  True if an item was matched</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">some</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
     <span class="variable">callback</span> = <span class="variable">callback</span> || <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">identity</span>;
     <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">some</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">some</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">some</span>)
       <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">some</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
@@ -1211,9 +1503,25 @@ used internally by <code>turing.alias.js</code>.</p>
       }
     });
     <span class="keyword">return</span> <span class="variable">result</span>;
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Checks if all items match the callback:</p>
 
-  <span class="variable">all</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
+<pre><code> turing.enumerable.all([1, 2, 3], function(value) {
+   return value &lt; 4;
+ })
+
+ =&gt; true</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback A function to run against each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  True if all items match</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">all</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
     <span class="variable">callback</span> = <span class="variable">callback</span> || <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">identity</span>;
     <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">every</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">every</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">every</span>)
       <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">every</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
@@ -1224,9 +1532,23 @@ used internally by <code>turing.alias.js</code>.</p>
       }
     });
     <span class="keyword">return</span> <span class="variable">result</span>;
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Checks if one item matches a value:</p>
 
-  <span class="variable">include</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">target</span>) {
+<pre><code> turing.enumerable.include([1, 2, 3], 3);
+
+ =&gt; true</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Object</em>  target A value to find</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  True if an item was found</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">include</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">target</span>) {
     <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">indexOf</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">indexOf</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">indexOf</span>)
       <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">indexOf</span>(<span class="variable">target</span>) != -<span class="number integer">1</span>;
     <span class="keyword">var</span> <span class="variable">found</span> = <span class="variable">false</span>;
@@ -1236,9 +1558,26 @@ used internally by <code>turing.alias.js</code>.</p>
       }
     });
     <span class="keyword">return</span> <span class="variable">found</span>;
-  },
+  },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Chain enumerable calls:</p>
 
-  <span class="variable">chain</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>) {
+<pre><code> turing.enumerable.chain([1, 2, 3, 4])
+   .filter(function(n) { return n % 2 == 0; })
+   .map(function(n) { return n * 10; })
+   .values();
+
+ =&gt; [20, 40]</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>returns</strong>: <em>Object</em>  The chained enumerable API</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">chain</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>) {
     <span class="keyword">return</span> <span class="keyword">new</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="class">Chainer</span>(<span class="variable">enumerable</span>);
   },
 
@@ -1345,10 +1684,10 @@ used internally by <code>turing.alias.js</code>.</p>
 
   <span class="keyword">function</span> <span class="variable">ready</span>() {
     <span class="keyword">if</span> (!<span class="variable">isReady</span>) {
-			<span class="comment">// Make sure body exists</span>
-			<span class="keyword">if</span> (!<span class="variable">document</span>.<span class="variable">body</span>) {
-				<span class="keyword">return</span> <span class="variable">setTimeout</span>(<span class="variable">ready</span>, <span class="number integer">13</span>);
-			}
+      <span class="comment">// Make sure body exists</span>
+      <span class="keyword">if</span> (!<span class="variable">document</span>.<span class="variable">body</span>) {
+        <span class="keyword">return</span> <span class="variable">setTimeout</span>(<span class="variable">ready</span>, <span class="number integer">13</span>);
+      }
 
       <span class="variable">isReady</span> = <span class="variable">true</span>;
 
@@ -1399,26 +1738,26 @@ used internally by <code>turing.alias.js</code>.</p>
     <span class="keyword">if</span> (<span class="variable">onReadyBound</span>) <span class="keyword">return</span>;
     <span class="variable">onReadyBound</span> = <span class="variable">true</span>;
 
-		<span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">readyState</span> === <span class="string">'complete'</span>) {
-			<span class="variable">ready</span>();
-		} <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">addEventListener</span>) {
-			<span class="variable">document</span>.<span class="variable">addEventListener</span>(<span class="string">'DOMContentLoaded'</span>, <span class="class">DOMContentLoaded</span>, <span class="variable">false</span> );
-			<span class="variable">window</span>.<span class="variable">addEventListener</span>(<span class="string">'load'</span>, <span class="variable">ready</span>, <span class="variable">false</span>);
-		} <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">attachEvent</span>) {
-			<span class="variable">document</span>.<span class="variable">attachEvent</span>(<span class="string">'onreadystatechange'</span>, <span class="class">DOMContentLoaded</span>);
+    <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">readyState</span> === <span class="string">'complete'</span>) {
+      <span class="variable">ready</span>();
+    } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">addEventListener</span>) {
+      <span class="variable">document</span>.<span class="variable">addEventListener</span>(<span class="string">'DOMContentLoaded'</span>, <span class="class">DOMContentLoaded</span>, <span class="variable">false</span> );
+      <span class="variable">window</span>.<span class="variable">addEventListener</span>(<span class="string">'load'</span>, <span class="variable">ready</span>, <span class="variable">false</span>);
+    } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">attachEvent</span>) {
+      <span class="variable">document</span>.<span class="variable">attachEvent</span>(<span class="string">'onreadystatechange'</span>, <span class="class">DOMContentLoaded</span>);
 
-			<span class="variable">window</span>.<span class="variable">attachEvent</span>(<span class="string">'onload'</span>, <span class="variable">ready</span>);
+      <span class="variable">window</span>.<span class="variable">attachEvent</span>(<span class="string">'onload'</span>, <span class="variable">ready</span>);
 
-			<span class="comment">// Check to see if the document is ready</span>
-			<span class="keyword">var</span> <span class="variable">toplevel</span> = <span class="variable">false</span>;
-			<span class="keyword">try</span> {
-				<span class="variable">toplevel</span> = <span class="variable">window</span>.<span class="variable">frameElement</span> == <span class="keyword">null</span>;
-			} <span class="keyword">catch</span>(<span class="variable">e</span>) {}
+      <span class="comment">// Check to see if the document is ready</span>
+      <span class="keyword">var</span> <span class="variable">toplevel</span> = <span class="variable">false</span>;
+      <span class="keyword">try</span> {
+        <span class="variable">toplevel</span> = <span class="variable">window</span>.<span class="variable">frameElement</span> == <span class="keyword">null</span>;
+      } <span class="keyword">catch</span>(<span class="variable">e</span>) {}
 
-			<span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">documentElement</span>.<span class="variable">doScroll</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">toplevel</span>) {
-				<span class="class">DOMReadyScrollCheck</span>();
-			}
-		}
+      <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">documentElement</span>.<span class="variable">doScroll</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">toplevel</span>) {
+        <span class="class">DOMReadyScrollCheck</span>();
+      }
+    }
   }
 
   <span class="keyword">function</span> <span class="class">IEType</span>(<span class="variable">type</span>) {
@@ -1426,9 +1765,23 @@ used internally by <code>turing.alias.js</code>.</p>
       <span class="keyword">return</span> <span class="variable">type</span>;
     }
     <span class="keyword">return</span> <span class="string">'on'</span> + <span class="variable">type</span>;
-  }
+  }</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Bind an event to an element.</p>
 
-  <span class="variable">events</span>.<span class="variable">add</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">type</span>, <span class="variable">handler</span>) {
+<pre><code> turing.events.add(element, 'click', function() {
+   console.log('Clicked');
+ });</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  type The event name</p></li><li><p><strong>param</strong>: <em>Function</em>  handler The event handler</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">events</span>.<span class="variable">add</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">type</span>, <span class="variable">handler</span>) {
     <span class="keyword">if</span> (!<span class="variable">isValidElement</span>(<span class="variable">element</span>)) <span class="keyword">return</span>;
 
     <span class="keyword">var</span> <span class="variable">responder</span> = <span class="variable">createResponder</span>(<span class="variable">element</span>, <span class="variable">handler</span>);
@@ -1443,9 +1796,21 @@ used internally by <code>turing.alias.js</code>.</p>
         <span class="variable">element</span>.<span class="variable">attachEvent</span>(<span class="class">IEType</span>(<span class="variable">type</span>), <span class="variable">responder</span>);
       }
     }
-  };
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Remove an event from an element.</p>
 
-  <span class="variable">events</span>.<span class="variable">remove</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">type</span>, <span class="variable">handler</span>) {
+<pre><code> turing.events.add(element, 'click', callback);</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  type The event name</p></li><li><p><strong>param</strong>: <em>Function</em>  handler The event handler</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">events</span>.<span class="variable">remove</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">type</span>, <span class="variable">handler</span>) {
     <span class="keyword">if</span> (!<span class="variable">isValidElement</span>(<span class="variable">element</span>)) <span class="keyword">return</span>;
     <span class="keyword">var</span> <span class="variable">responder</span> = <span class="variable">removeCachedResponder</span>(<span class="variable">element</span>, <span class="variable">type</span>, <span class="variable">handler</span>);
 
@@ -1454,9 +1819,21 @@ used internally by <code>turing.alias.js</code>.</p>
     } <span class="keyword">else</span> {
       <span class="variable">element</span>.<span class="variable">detachEvent</span>(<span class="class">IEType</span>(<span class="variable">type</span>), <span class="variable">responder</span>);
     }
-  };
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Fires an event.</p>
 
-  <span class="variable">events</span>.<span class="variable">fire</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">type</span>) {
+<pre><code> turing.events.fire(element, 'click');</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  type The event name</p></li><li><p><strong>returns</strong>: <em>Object</em>  The browser's <code>fireEvent</code> or <code>dispatchEvent</code> result</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">events</span>.<span class="variable">fire</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">type</span>) {
     <span class="keyword">var</span> <span class="variable">event</span>;
     <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">createEventObject</span>) {
       <span class="variable">event</span> = <span class="variable">document</span>.<span class="variable">createEventObject</span>();
@@ -1477,9 +1854,23 @@ used internally by <code>turing.alias.js</code>.</p>
       <span class="variable">event</span>.<span class="variable">initEvent</span>(<span class="variable">type</span>, <span class="variable">true</span>, <span class="variable">true</span>);
       <span class="keyword">return</span> !<span class="variable">element</span>.<span class="variable">dispatchEvent</span>(<span class="variable">event</span>);
     }
-  };
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Add a 'DOM ready' callback.</p>
 
-  <span class="variable">events</span>.<span class="variable">ready</span> = <span class="keyword">function</span>(<span class="variable">callback</span>) {
+<pre><code> turing.events.ready(function() {
+   // The DOM is ready
+ });</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Function</em>  callback A callback to run</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">events</span>.<span class="variable">ready</span> = <span class="keyword">function</span>(<span class="variable">callback</span>) {
     <span class="variable">bindOnReady</span>();
     <span class="variable">readyCallbacks</span>.<span class="variable">push</span>(<span class="variable">callback</span>);
   };
@@ -1493,9 +1884,21 @@ used internally by <code>turing.alias.js</code>.</p>
         }
       });
     };
-  }
+  }</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Events can be chained with DOM calls:</p>
 
-  <span class="variable">events</span>.<span class="variable">addDOMethods</span> = <span class="keyword">function</span>() {
+<pre><code>  turing('p').bind('click', function(e) {
+    alert('ouch');
+  });
+
+</code></pre>
+</td>
+<td class="code">
+<pre><code><span class="variable">events</span>.<span class="variable">addDOMethods</span> = <span class="keyword">function</span>() {
     <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">turing</span>.<span class="variable">domChain</span> === <span class="string">'undefined'</span>) <span class="keyword">return</span>;
 
     <span class="variable">turing</span>.<span class="variable">domChain</span>.<span class="variable">bind</span> = <span class="keyword">function</span>(<span class="variable">type</span>, <span class="variable">handler</span>) {
@@ -1572,9 +1975,17 @@ used internally by <code>turing.alias.js</code>.</p>
 </td>
 <td class="code">
 <pre><code>(<span class="keyword">function</span>() {
-  <span class="keyword">var</span> <span class="variable">net</span> = {};
+  <span class="keyword">var</span> <span class="variable">net</span> = {};</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Ajax request options:</p>
 
-  <span class="keyword">function</span> <span class="variable">xhr</span>() {
+<ul><li><code>method</code>: {String} HTTP method - GET, POST, etc.</li><li><code>asynchronous</code>: {Boolean} Defaults to asynchronous</li><li><code>postBody</code>: {String} The HTTP POST body</li><li><code>success</code>: {Function} A callback to run when a request is successful</li><li><p><code>error</code>: {Function} A callback to run when the request fails</p><p></p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="keyword">function</span> <span class="variable">xhr</span>() {
     <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="class">XMLHttpRequest</span> !== <span class="string">'undefined'</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; (<span class="variable">window</span>.<span class="variable">location</span>.<span class="variable">protocol</span> !== <span class="string">'file:'</span> || !<span class="variable">window</span>.<span class="class">ActiveXObject</span>)) {
       <span class="keyword">return</span> <span class="keyword">new</span> <span class="class">XMLHttpRequest</span>();
     } <span class="keyword">else</span> {
@@ -1614,12 +2025,24 @@ used internally by <code>turing.alias.js</code>.</p>
       }
     }
 
+    <span class="comment">// The HTTP headers to accept</span>
     <span class="keyword">function</span> <span class="variable">setHeaders</span>() {
       <span class="keyword">var</span> <span class="variable">headers</span> = {
-        <span class="string">'Accept'</span>: <span class="string">'text/javascript, text/html, application/xml, text/xml, */*'</span>
-      };
+        <span class="string">'Accept'</span>: '<span class="regexp">/javascript, text/html</span>, <span class="regexp">/xml, text/xml</span>, *</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>'
+      };</p>
 
-      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">name</span> <span class="keyword">in</span> <span class="variable">headers</span>) {
+<pre><code>  /**</code></pre>
+
+<p>Set other headers
+       </p>
+</td>
+<td class="code">
+<pre><code><span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">name</span> <span class="keyword">in</span> <span class="variable">headers</span>) {
         <span class="variable">request</span>.<span class="variable">setRequestHeader</span>(<span class="variable">name</span>, <span class="variable">headers</span>[<span class="variable">name</span>]);
       }
     }
@@ -1675,19 +2098,58 @@ used internally by <code>turing.alias.js</code>.</p>
     <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">scriptTag</span>) {
       <span class="variable">document</span>.<span class="variable">body</span>.<span class="variable">removeChild</span>(<span class="this">this</span>.<span class="variable">scriptTag</span>);
     }
-  }
+  }</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>An Ajax GET request.</p>
 
-  <span class="variable">net</span>.<span class="variable">get</span> = <span class="keyword">function</span>(<span class="variable">url</span>, <span class="variable">options</span>) {
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  url The URL to request</p></li><li><p><strong>param</strong>: <em>Object</em>  options The Ajax request options</p></li><li><p><strong>returns</strong>: <em>Object</em>  The Ajax request object</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">net</span>.<span class="variable">get</span> = <span class="keyword">function</span>(<span class="variable">url</span>, <span class="variable">options</span>) {
     <span class="variable">options</span>.<span class="variable">method</span> = <span class="string">'get'</span>;
     <span class="keyword">return</span> <span class="variable">ajax</span>(<span class="variable">url</span>, <span class="variable">options</span>);
-  };
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>An Ajax POST request.</p>
 
-  <span class="variable">net</span>.<span class="variable">post</span> = <span class="keyword">function</span>(<span class="variable">url</span>, <span class="variable">options</span>) {
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  url The URL to request</p></li><li><p><strong>param</strong>: <em>Object</em>  options The Ajax request options (<code>postBody</code> may come in handy here)</p></li><li><p><strong>returns</strong>: <em>Object</em>  The Ajax request object</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">net</span>.<span class="variable">post</span> = <span class="keyword">function</span>(<span class="variable">url</span>, <span class="variable">options</span>) {
     <span class="variable">options</span>.<span class="variable">method</span> = <span class="string">'post'</span>;
     <span class="keyword">return</span> <span class="variable">ajax</span>(<span class="variable">url</span>, <span class="variable">options</span>);
-  };
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>A jsonp request.  Example:</p>
 
-  <span class="variable">net</span>.<span class="variable">jsonp</span> = <span class="keyword">function</span>(<span class="variable">url</span>, <span class="variable">options</span>) {
+<pre><code>var url = 'http://feeds.delicious.com/v1/json/';
+url += 'alex_young/javascript?callback={callback}';
+
+turing.net.jsonp(url, {
+  success: function(json) {
+    console.log(json);
+  }
+});</code></pre>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  url The URL to request</p></li><li><p><strong>param</strong>: <em>Object</em>  options The Ajax request options</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">net</span>.<span class="variable">jsonp</span> = <span class="keyword">function</span>(<span class="variable">url</span>, <span class="variable">options</span>) {
     <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">options</span> === <span class="string">'undefined'</span>) {
       <span class="variable">options</span> = {};
     }
@@ -1705,8 +2167,42 @@ used internally by <code>turing.alias.js</code>.</p>
 </td>
 </tr><tr class="filename"><td><h2 id="turing.oo.js"><a href="#">turing.oo</a></h2></td><td>turing.oo.js</td></tr><tr class="code">
 <td class="docs">
-<p>The Turing OO module.
- </p>
+<h2>The Turing Class</h2>
+
+<pre><code>User = turing.Class({
+  initialize: function(name, age) {
+    this.name = name;
+    this.age  = age;
+  }
+});
+
+new User('Alice', '26');</code></pre>
+
+<h2>Inheritance</h2>
+
+<p>Pass an object to <code>turing.Class</code> to inherit from it.</p>
+
+<pre><code>SuperUser = turing.Class(User, {
+  initialize: function() {
+    this.$super('initialize', arguments);
+  },
+
+  toString: function() {
+    return "SuperUser: " + this.$super('toString');
+  }
+});</code></pre>
+
+<h2>Mixins</h2>
+
+<p>Objects can be embedded within each other:</p>
+
+<pre><code>MixinUser = turing.Class({
+  include: User,
+
+  initialize: function(log) {
+    this.log = log;
+  }
+});</code></pre>
 </td>
 <td class="code">
 <pre><code><span class="variable">turing</span>.<span class="class">Class</span> = <span class="keyword">function</span>() {
@@ -1761,7 +2257,6 @@ used internally by <code>turing.alias.js</code>.</p>
       <span class="variable">destination</span>[<span class="variable">property</span>] = <span class="variable">source</span>[<span class="variable">property</span>];
     <span class="keyword">return</span> <span class="variable">destination</span>;
   },
-
   $<span class="keyword">super</span>: <span class="keyword">function</span>(<span class="variable">parentClass</span>, <span class="variable">instance</span>, <span class="variable">method</span>, <span class="variable">args</span>) {
     <span class="keyword">return</span> <span class="variable">parentClass</span>[<span class="variable">method</span>].<span class="variable">apply</span>(<span class="variable">instance</span>, <span class="variable">args</span>);
   }
@@ -1770,8 +2265,29 @@ used internally by <code>turing.alias.js</code>.</p>
 </td>
 </tr><tr class="filename"><td><h2 id="turing.touch.js"><a href="#">turing.touch</a></h2></td><td>turing.touch.js</td></tr><tr class="code">
 <td class="docs">
-<p>Support for touchscreen devices.
- </p>
+<p>Support for touchscreen devices.  Run <code>turing.touch.register()</code> to get touch event support.</p>
+
+<h2>Tap</h2>
+
+<pre><code>turing.events.add(element, 'tap', function(e) {
+  alert('tap');
+});</code></pre>
+
+<h2>Swipe</h2>
+
+<pre><code>turing.events.add(element, 'swipe', function(e) {
+  alert('swipe');
+});</code></pre>
+
+<h2>Orientation Changes</h2>
+
+<p>Device orientation is available in <code>turing.touch.orientation()</code>.</p>
+
+<pre><code>turing.events.add(element, 'orientationchange', function(e) {
+  alert('Orientation is now: ' + turing.touch.orientation());
+});</code></pre>
+
+<p> </p>
 </td>
 <td class="code">
 <pre><code>(<span class="keyword">function</span>() {

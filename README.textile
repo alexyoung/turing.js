@@ -23,3 +23,9 @@ git submodule update
 
 Remember to run <code>git submodule update</code> to get the latest version referenced by the project.
 
+h3. TODO
+
+* Work the animation module into the top-level aliases so this is possible: <code>$t('p').fadeOut()</code>
+* Add benchmarks to Turing Test
+* Update benchmarks to use Turing Test
+* Remove Riot

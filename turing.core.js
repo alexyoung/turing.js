@@ -9,9 +9,9 @@
  */
 (function(global) {
   /**
-   * The turing object.
+   * The turing object.  Use `turing('selector')` for quick DOM access when built with the DOM module.
    *
-   * @returns {Object} The turing object, run through init
+   * @returns {Object} The turing object, run through `init`
    */
   function turing() {
     return turing.init.apply(turing, arguments);

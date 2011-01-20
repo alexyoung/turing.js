@@ -5,9 +5,44 @@
  */
 
 /**
- * The Turing OO module.
- */
-
+ * The Turing Class:
+ * 
+ *     User = turing.Class({
+ *       initialize: function(name, age) {
+ *         this.name = name;
+ *         this.age  = age;
+ *       }
+ *     });
+ *
+ *     new User('Alice', '26');
+ *
+ * Inheritance:
+ *
+ * Pass an object to `turing.Class` to inherit from it.
+ *
+ *     SuperUser = turing.Class(User, {
+ *       initialize: function() {
+ *         this.$super('initialize', arguments);
+ *       },
+ *
+ *       toString: function() {
+ *         return "SuperUser: " + this.$super('toString');
+ *       }
+ *     });
+ *
+ * Mixins: 
+ * 
+ * Objects can be embedded within each other:
+ *
+ *     MixinUser = turing.Class({
+ *       include: User,
+ *
+ *       initialize: function(log) {
+ *         this.log = log;
+ *       }
+ *     });
+ *
+ **/
 turing.Class = function() {
   return turing.oo.create.apply(this, arguments);
 }
@@ -60,7 +95,6 @@ turing.oo = {
       destination[property] = source[property];
     return destination;
   },
-
   $super: function(parentClass, instance, method, args) {
     return parentClass[method].apply(instance, args);
   }
