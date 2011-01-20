@@ -1,17 +1,28 @@
 h2. About Turing
 
-Turing is an educational JavaScript framework developed for an article series on "DailyJS":http://dailyjs.com/.
+Turing is an JavaScript framework.
+
+* Web: "turingjs.com":http://turingjs.com/
+* License: "MIT License":https://github.com/alexyoung/turing.js/blob/master/LICENSE.txt
+* Documentation: "API Documentation":http://turingjs.com/
+* Tests: "test/":https://github.com/alexyoung/turing.js/tree/master/test
+* Articles: "DailyJS Turing Articles":http://dailyjs.com/tags.html#lmaf
+* eBook: "Let's Make a Framework":http://dailyjs.com/2010/12/02/framework-review/
 
 Features include:
 
 * Classes, with extend and mixins
 * Functional programming methods: each, map
+* Events
+* Animation
+* Chained API design
+* "Turing Test":https://github.com/alexyoung/turing-test.js/ test framework
 
 h3. Documentation
 
-Turing's API documentation is here: "alexyoung.github.com/turing.js":http://alexyoung.github.com/turing.js/.
+Turing's API documentation is here: "turingjs.com":http://turingjs.com.
 
-Every part of the series has been tagged with _lmaf_ on DailyJS: "dailyjs.com/tags.html#lmaf":http://dailyjs.com/tags.html#lmaf.
+Development has been blogged on DailyJS.  Each article is tagged with _lmaf_ on DailyJS: "dailyjs.com/tags.html#lmaf":http://dailyjs.com/tags.html#lmaf.
 
 h3. Running Tests
 
@@ -31,3 +42,4 @@ h3. TODO
 * Add benchmarks to Turing Test
 * Update benchmarks to use Turing Test
 * Remove Riot
+
