@@ -1,3 +1,5 @@
+h1. About Turing
+
 Turing is an JavaScript framework.
 
 * Web: "turingjs.com":http://turingjs.com/
