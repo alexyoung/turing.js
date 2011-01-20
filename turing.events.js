@@ -1,3 +1,12 @@
+/*!
+ * Turing Events
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * The Turing Events module.
+ */
 (function() {
   var events = {}, cache = [], onReadyBound = false, isReady = false, DOMContentLoaded, readyCallbacks = [];
 

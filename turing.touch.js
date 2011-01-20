@@ -1,3 +1,12 @@
+/*!
+ * Turing Touch
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * Support for touchscreen devices.
+ */
 (function() {
   var touch = {}, state = {};
 

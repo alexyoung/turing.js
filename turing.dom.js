@@ -1,29 +1,12 @@
-/*jslint indent: 2, white: false, plusplus: false */
+/*!
+ * Turing DOM
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
 
-/*
-
-* CSS2 selectors
-* Generates a parser based on property lists that contain matchers
-* Tokenizes
-
-Notes:
-
-http://www.w3.org/TR/CSS2/grammar.html
-http://en.wikipedia.org/wiki/Lexical_analysis
-http://nokogiri.org/lib/nokogiri/css/tokenizer_rex.html
-http://github.com/jeresig/sizzle/blob/master/sizzle.js
-http://github.com/digitarald/sly/blob/master/Sly.js
-http://gnosis.cx/TPiP/chap4.txt
-http://www.w3.org/TR/CSS2/selector.html
-
-Algorithms:
-
-https://developer.mozilla.org/en/Writing_Efficient_CSS
-http://blog.twoalex.com/2010/02/26/a-shocking-truth-about-css/
-http://dl.dropbox.com/u/598365/css3-compat/css3-compat.html?engine=sly#target
-
-*/
-
+/**
+ * The Turing DOM module.
+ */
 (function() {
   var dom = {}, InvalidFinder = Error, macros, rules, tokenMap,
       find, matchMap, findMap, filter, scannerRegExp;

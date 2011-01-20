@@ -1,3 +1,12 @@
+/*!
+ * Turing Net
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * The Turing Net module (Ajax).
+ */
 (function() {
   var net = {};
 

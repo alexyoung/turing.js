@@ -1,16 +1,47 @@
+/*!
+ * Turing Core
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * A private namespace to set things up against the global object.
+ */
 (function(global) {
+  /**
+   * The turing object.
+   *
+   * @returns {Object} The turing object, run through init
+   */
   function turing() {
     return turing.init.apply(turing, arguments);
   }
 
-  turing.VERSION = '0.0.41';
-  turing.lesson = 'Part 41: Insane Testing Stuff';
+  turing.VERSION = '0.0.47';
+  turing.lesson = 'Part 47: Writing Documentation';
+
+  /**
+   * This alias will be used as an alternative to `turing.*`
+   */
   turing.alias = '$t';
 
+  /**
+   * Determine if an object is an `Array`.
+   *
+   * @param {Object} object An object that may or may not be an array
+   * @returns {Boolean} True if the parameter is an array
+   */
   turing.isArray = Array.isArray || function(object) {
-    return !!(object && object.concat && object.unshift && !object.callee);
+    return !!(object && object.concat
+              && object.unshift && !object.callee);
   };
 
+  /**
+   * Convert an `Array`-like collection into an `Array`.
+   *
+   * @param {Object} collection A collection of items that responds to length
+   * @returns {Array} An `Array` of items
+   */
   turing.toArray = function(collection) {
     var results = [];
     for (var i = 0; i < collection.length; i++) {
@@ -22,10 +53,23 @@
   // This can be overriden by libraries that extend turing(...)
   turing.init = function() { };
 
+  /**
+   * Determines if an object is a `Number`.
+   *
+   * @param {Object} object A value to test
+   * @returns {Boolean} True if the object is a Number
+   */
   turing.isNumber = function(object) {
     return (object === +object) || (toString.call(object) === '[object Number]');
   };
 
+  /**
+   * Binds a function to an object.
+   *
+   * @param {Function} fn A function
+   * @param {Object} object An object to bind to
+   * @returns {Function} A rebound method
+   */
   turing.bind = function(fn, object) {
     var slice = Array.prototype.slice,
         args  = slice.apply(arguments, [2]);
@@ -34,6 +78,13 @@
     };
   };
 
+  /**
+   * Allows aliases for `turing.*` to be bound to the global,
+   * used internally by `turing.alias.js`.
+   *
+   * @param {String} alias A name for the alias
+   * @param {Function} method A function that sets up the alias
+   */
   turing.exportAlias = function(aliasName, method) {
     global[aliasName] = method();
   };
@@ -41,11 +92,23 @@
   var testCache = {},
       detectionTests = {};
 
+  /**
+   * Used to add feature-detection methods.
+   *
+   * @param {String} name The name of the test
+   * @param {Function} fn The function that performs the test
+   */
   turing.addDetectionTest = function(name, fn) {
     if (!detectionTests[name])
       detectionTests[name] = fn;
   };
 
+  /**
+   * Run a feature detection name.
+   *
+   * @param {String} name The name of the test
+   * @returns {Boolean} The outcome of the test
+   */
   turing.detect = function(testName) {
     if (typeof testCache[testCache] === 'undefined') {
       testCache[testName] = detectionTests[testName]();
