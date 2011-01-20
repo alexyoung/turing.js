@@ -26,6 +26,8 @@ Remember to run <code>git submodule update</code> to get the latest version refe
 
 h3. TODO
 
+* The alias module shouldn't change behaviour $t() should be the same as turing()
+* The enumeration methods should be easy to use through changes, i.e.: turing([1, 2, 3]).each, turing([1, 2, 3]).map, turing('p').each, etc.  Some logic will have to determine if DOM selectors or arrays/objects are being iterated over
 * Add benchmarks to Turing Test
 * Update benchmarks to use Turing Test
 * Remove Riot
