@@ -5,7 +5,36 @@
  */
 
 /**
- * The Turing animation module.
+ * The main animation method is `turing.anim.animate`.  The animate method animates CSS properties.
+ *
+ * There are also animation helper methods, like `turing.anim.fadeIn` and `turing.anim.move`.  
+ *
+ * Animation Examples:
+ *
+ * Turn a paragraph red:
+ *
+ *      turing.anim.animate($t('p')[0], 2000, {
+ *        'color': '#ff0000'
+ *      });
+ *
+ * Move a paragraph:
+ *
+ *      turing.anim.animate($t('p')[0], 2000, {
+ *        'margin-left': '400px'
+ *      });
+ *
+ * It's possible to chain animation module calls with `turing.anim.chain`, but it's easier to use the DOM chained methods:
+ *
+ *      turing('p').fadeIn(2000).animate(1000, {
+ *        'margin-left': '200px'
+ *      })
+ *
+ * Or:
+ *
+ *      $t('p').fadeIn(2000).animate(1000, {
+ *        'margin-left': '200px'
+ *      })
+ *
  */
 
 (function() {
@@ -394,7 +423,10 @@
   };
 
   /**
-   * Parse colour strings.  For example: `assert.equal('rgb(255, 0, 255)', turing.anim.parseColour('#ff00ff').toString());`
+   * Parse colour strings.  For example:
+   *
+   *      assert.equal('rgb(255, 0, 255)',
+   *                   turing.anim.parseColour('#ff00ff').toString());
    *
    * @param {String} colourString A hex colour string
    * @returns {String} RGB string
@@ -448,6 +480,34 @@
   anim.chain = function(element) {
     return new Chainer(element);
   };
+
+  /**
+    * Animations can be chained with DOM calls:
+    *
+    *       turing('p').animate(2000, {
+    *         color: '#ff0000'
+    *       });
+    *
+    */
+  anim.addDOMethods = function() {
+    if (typeof turing.domChain === 'undefined') return;
+
+    var chainedAliases = ('animate fade fadeIn fadeOut highlight ' +
+                          'move parseColour pause easing').split(' ');
+
+    for (var i = 0; i < chainedAliases.length; i++) {
+      (function(name) {
+        turing.domChain[name] = function(handler) {
+          var args = turing.toArray(arguments);
+          args.unshift(this.first());
+          anim[name].apply(this, args);
+          return this;
+        };
+      })(chainedAliases[i]);
+    }
+  };
+
+  anim.addDOMethods();
 
   turing.anim = anim;
 })();

@@ -108,7 +108,16 @@ code .this { color: #19469D; }</style>
 		</script>
 	</head>
 	<body>
-<table id="source"><tbody><tr><td><h1>Turing</h1><p>Turing is a JavaScript framework.  The source is available from GitHub at <a href="https://github.com/alexyoung/turing.js/">alexyoung/turing.js</a>.</p></td><td></td></tr><tr class="filename"><td><h2 id="turing.alias.js"><a href="#">turing.alias</a></h2></td><td>turing.alias.js</td></tr><tr class="code">
+<table id="source"><tbody><tr><td><h1>Turing</h1><p>Turing is a JavaScript framework.  The source is available from GitHub at <a href="https://github.com/alexyoung/turing.js/">alexyoung/turing.js</a>.</p>
+
+<p>The DOM, Events, and Anim modules are chainable, like this:</p>
+
+<pre><code>    turing('p')
+      .fadeIn(2000)
+      .animate(1000, { color: '#ff0000' })
+      .click(function() { alert('clicked'); });</code></pre>
+
+<p>This is the easiest way to use Turing.</p></td><td></td></tr><tr class="filename"><td><h2 id="turing.alias.js"><a href="#">turing.alias</a></h2></td><td>turing.alias.js</td></tr><tr class="code">
 <td class="docs">
 <p>Manages aliases for the framework (<code>turing.*</code> becomes <code>$t</code> by default).
  </p>
@@ -143,8 +152,37 @@ code .this { color: #19469D; }</style>
 </td>
 </tr><tr class="filename"><td><h2 id="turing.anim.js"><a href="#">turing.anim</a></h2></td><td>turing.anim.js</td></tr><tr class="code">
 <td class="docs">
-<p>The Turing animation module.
- </p>
+<p>The main animation method is <code>turing.anim.animate</code>.  The animate method animates CSS properties.</p>
+
+<p>There are also animation helper methods, like <code>turing.anim.fadeIn</code> and <code>turing.anim.move</code>.  </p>
+
+<h2>Animation Examples</h2>
+
+<p>Turn a paragraph red:</p>
+
+<pre><code> turing.anim.animate($t('p')[0], 2000, {
+   'color': '#ff0000'
+ });</code></pre>
+
+<p>Move a paragraph:</p>
+
+<pre><code> turing.anim.animate($t('p')[0], 2000, {
+   'margin-left': '400px'
+ });</code></pre>
+
+<p>It's possible to chain animation module calls with <code>turing.anim.chain</code>, but it's easier to use the DOM chained methods:</p>
+
+<pre><code> turing('p').fadeIn(2000).animate(1000, {
+   'margin-left': '200px'
+ })</code></pre>
+
+<h2>Or</h2>
+
+<pre><code> $t('p').fadeIn(2000).animate(1000, {
+   'margin-left': '200px'
+ })</code></pre>
+
+<p> </p>
 </td>
 <td class="code">
 <pre><code>(<span class="keyword">function</span>() {
@@ -551,7 +589,10 @@ code .this { color: #19469D; }</style>
 </tr>
 <tr class="code">
 <td class="docs">
-<p>Parse colour strings.  For example: <code>assert.equal('rgb(255, 0, 255)', turing.anim.parseColour('#ff00ff').toString());</code></p>
+<p>Parse colour strings.  For example:</p>
+
+<pre><code> assert.equal('rgb(255, 0, 255)',
+              turing.anim.parseColour('#ff00ff').toString());</code></pre>
 
 <h2></h2>
 
@@ -614,7 +655,39 @@ code .this { color: #19469D; }</style>
 <td class="code">
 <pre><code><span class="variable">anim</span>.<span class="variable">chain</span> = <span class="keyword">function</span>(<span class="variable">element</span>) {
     <span class="keyword">return</span> <span class="keyword">new</span> <span class="class">Chainer</span>(<span class="variable">element</span>);
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Animations can be chained with DOM calls:</p>
+
+<pre><code>  turing('p').animate(2000, {
+    color: '#ff0000'
+  });
+
+</code></pre>
+</td>
+<td class="code">
+<pre><code><span class="variable">anim</span>.<span class="variable">addDOMethods</span> = <span class="keyword">function</span>() {
+    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">turing</span>.<span class="variable">domChain</span> === <span class="string">'undefined'</span>) <span class="keyword">return</span>;
+
+    <span class="keyword">var</span> <span class="variable">chainedAliases</span> = (<span class="string">'animate fade fadeIn fadeOut highlight '</span> +
+                          <span class="string">'move parseColour pause easing'</span>).<span class="variable">split</span>(<span class="string">' '</span>);
+
+    <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">chainedAliases</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+      (<span class="keyword">function</span>(<span class="variable">name</span>) {
+        <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">name</span>] = <span class="keyword">function</span>(<span class="variable">handler</span>) {
+          <span class="keyword">var</span> <span class="variable">args</span> = <span class="variable">turing</span>.<span class="variable">toArray</span>(<span class="variable">arguments</span>);
+          <span class="variable">args</span>.<span class="variable">unshift</span>(<span class="this">this</span>.<span class="variable">first</span>());
+          <span class="variable">anim</span>[<span class="variable">name</span>].<span class="variable">apply</span>(<span class="this">this</span>, <span class="variable">args</span>);
+          <span class="keyword">return</span> <span class="this">this</span>;
+        };
+      })(<span class="variable">chainedAliases</span>[<span class="variable">i</span>]);
+    }
   };
+
+  <span class="variable">anim</span>.<span class="variable">addDOMethods</span>();
 
   <span class="variable">turing</span>.<span class="variable">anim</span> = <span class="variable">anim</span>;
 })();

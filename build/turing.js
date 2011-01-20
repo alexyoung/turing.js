@@ -132,9 +132,44 @@
  */
 
 /**
- * The Turing OO module.
- */
-
+ * The Turing Class:
+ * 
+ *     User = turing.Class({
+ *       initialize: function(name, age) {
+ *         this.name = name;
+ *         this.age  = age;
+ *       }
+ *     });
+ *
+ *     new User('Alice', '26');
+ *
+ * Inheritance:
+ *
+ * Pass an object to `turing.Class` to inherit from it.
+ *
+ *     SuperUser = turing.Class(User, {
+ *       initialize: function() {
+ *         this.$super('initialize', arguments);
+ *       },
+ *
+ *       toString: function() {
+ *         return "SuperUser: " + this.$super('toString');
+ *       }
+ *     });
+ *
+ * Mixins: 
+ * 
+ * Objects can be embedded within each other:
+ *
+ *     MixinUser = turing.Class({
+ *       include: User,
+ *
+ *       initialize: function(log) {
+ *         this.log = log;
+ *       }
+ *     });
+ *
+ **/
 turing.Class = function() {
   return turing.oo.create.apply(this, arguments);
 }
@@ -187,7 +222,6 @@ turing.oo = {
       destination[property] = source[property];
     return destination;
   },
-
   $super: function(parentClass, instance, method, args) {
     return parentClass[method].apply(instance, args);
   }
@@ -1076,10 +1110,10 @@ turing.functional = {
 
   function ready() {
     if (!isReady) {
-			// Make sure body exists
-			if (!document.body) {
-				return setTimeout(ready, 13);
-			}
+      // Make sure body exists
+      if (!document.body) {
+        return setTimeout(ready, 13);
+      }
 
       isReady = true;
 
@@ -1130,26 +1164,26 @@ turing.functional = {
     if (onReadyBound) return;
     onReadyBound = true;
 
-		if (document.readyState === 'complete') {
-			ready();
-		} else if (document.addEventListener) {
-			document.addEventListener('DOMContentLoaded', DOMContentLoaded, false );
-			window.addEventListener('load', ready, false);
-		} else if (document.attachEvent) {
-			document.attachEvent('onreadystatechange', DOMContentLoaded);
+    if (document.readyState === 'complete') {
+      ready();
+    } else if (document.addEventListener) {
+      document.addEventListener('DOMContentLoaded', DOMContentLoaded, false );
+      window.addEventListener('load', ready, false);
+    } else if (document.attachEvent) {
+      document.attachEvent('onreadystatechange', DOMContentLoaded);
 
-			window.attachEvent('onload', ready);
+      window.attachEvent('onload', ready);
 
-			// Check to see if the document is ready
-			var toplevel = false;
-			try {
-				toplevel = window.frameElement == null;
-			} catch(e) {}
+      // Check to see if the document is ready
+      var toplevel = false;
+      try {
+        toplevel = window.frameElement == null;
+      } catch(e) {}
 
-			if (document.documentElement.doScroll && toplevel) {
-				DOMReadyScrollCheck();
-			}
-		}
+      if (document.documentElement.doScroll && toplevel) {
+        DOMReadyScrollCheck();
+      }
+    }
   }
 
   function IEType(type) {
@@ -1159,6 +1193,17 @@ turing.functional = {
     return 'on' + type;
   }
 
+  /**
+   * Bind an event to an element.
+   *
+   *      turing.events.add(element, 'click', function() {
+   *        console.log('Clicked');
+   *      });
+   *
+   * @param {Object} element A DOM element
+   * @param {String} type The event name
+   * @param {Function} handler The event handler
+   */
   events.add = function(element, type, handler) {
     if (!isValidElement(element)) return;
 
@@ -1176,6 +1221,15 @@ turing.functional = {
     }
   };
 
+  /**
+   * Remove an event from an element.
+   *
+   *      turing.events.add(element, 'click', callback);
+   *
+   * @param {Object} element A DOM element
+   * @param {String} type The event name
+   * @param {Function} handler The event handler
+   */
   events.remove = function(element, type, handler) {
     if (!isValidElement(element)) return;
     var responder = removeCachedResponder(element, type, handler);
@@ -1187,6 +1241,15 @@ turing.functional = {
     }
   };
 
+  /**
+   * Fires an event.
+   *
+   *      turing.events.fire(element, 'click');
+   *
+   * @param {Object} element A DOM element
+   * @param {String} type The event name
+   * @returns {Object} The browser's `fireEvent` or `dispatchEvent` result
+   */
   events.fire = function(element, type) {
     var event;
     if (document.createEventObject) {
@@ -1210,6 +1273,15 @@ turing.functional = {
     }
   };
 
+  /**
+   * Add a 'DOM ready' callback.
+   *
+   *      turing.events.ready(function() {
+   *        // The DOM is ready
+   *      });
+   *
+   * @param {Function} callback A callback to run
+   */
   events.ready = function(callback) {
     bindOnReady();
     readyCallbacks.push(callback);
@@ -1226,6 +1298,14 @@ turing.functional = {
     };
   }
 
+  /**
+    * Events can be chained with DOM calls:
+    *
+    *       turing('p').bind('click', function(e) {
+    *         alert('ouch');
+    *       });
+    *
+    */
   events.addDOMethods = function() {
     if (typeof turing.domChain === 'undefined') return;
 
@@ -1278,7 +1358,27 @@ turing.functional = {
  */
 
 /**
- * Support for touchscreen devices.
+ * Support for touchscreen devices.  Run `turing.touch.register()` to get touch event support.
+ *
+ * Tap:
+ *
+ *     turing.events.add(element, 'tap', function(e) {
+ *       alert('tap');
+ *     });
+ *
+ * Swipe:
+ *
+ *     turing.events.add(element, 'swipe', function(e) {
+ *       alert('swipe');
+ *     });
+ *
+ * Orientation Changes:
+ *
+ * Device orientation is available in `turing.touch.orientation()`.
+ *
+ *     turing.events.add(element, 'orientationchange', function(e) {
+ *       alert('Orientation is now: ' + turing.touch.orientation());
+ *     });
  */
 (function() {
   var touch = {}, state = {};
@@ -1393,7 +1493,36 @@ turing.functional = {
  */
 
 /**
- * The Turing animation module.
+ * The main animation method is `turing.anim.animate`.  The animate method animates CSS properties.
+ *
+ * There are also animation helper methods, like `turing.anim.fadeIn` and `turing.anim.move`.  
+ *
+ * Animation Examples:
+ *
+ * Turn a paragraph red:
+ *
+ *      turing.anim.animate($t('p')[0], 2000, {
+ *        'color': '#ff0000'
+ *      });
+ *
+ * Move a paragraph:
+ *
+ *      turing.anim.animate($t('p')[0], 2000, {
+ *        'margin-left': '400px'
+ *      });
+ *
+ * It's possible to chain animation module calls with `turing.anim.chain`, but it's easier to use the DOM chained methods:
+ *
+ *      turing('p').fadeIn(2000).animate(1000, {
+ *        'margin-left': '200px'
+ *      })
+ *
+ * Or:
+ *
+ *      $t('p').fadeIn(2000).animate(1000, {
+ *        'margin-left': '200px'
+ *      })
+ *
  */
 
 (function() {
@@ -1782,7 +1911,10 @@ turing.functional = {
   };
 
   /**
-   * Parse colour strings.  For example: `assert.equal('rgb(255, 0, 255)', turing.anim.parseColour('#ff00ff').toString());`
+   * Parse colour strings.  For example:
+   *
+   *      assert.equal('rgb(255, 0, 255)',
+   *                   turing.anim.parseColour('#ff00ff').toString());
    *
    * @param {String} colourString A hex colour string
    * @returns {String} RGB string
@@ -1836,6 +1968,34 @@ turing.functional = {
   anim.chain = function(element) {
     return new Chainer(element);
   };
+
+  /**
+    * Animations can be chained with DOM calls:
+    *
+    *       turing('p').animate(2000, {
+    *         color: '#ff0000'
+    *       });
+    *
+    */
+  anim.addDOMethods = function() {
+    if (typeof turing.domChain === 'undefined') return;
+
+    var chainedAliases = ('animate fade fadeIn fadeOut highlight ' +
+                          'move parseColour pause easing').split(' ');
+
+    for (var i = 0; i < chainedAliases.length; i++) {
+      (function(name) {
+        turing.domChain[name] = function(handler) {
+          var args = turing.toArray(arguments);
+          args.unshift(this.first());
+          anim[name].apply(this, args);
+          return this;
+        };
+      })(chainedAliases[i]);
+    }
+  };
+
+  anim.addDOMethods();
 
   turing.anim = anim;
 })();

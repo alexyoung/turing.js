@@ -5,7 +5,19 @@ var sys = require('sys'),
     exec = require('child_process').exec;
 
 function generateDocs() {
-  exec('dox --title Turing turing.*.js --desc "Turing is a JavaScript framework.  The source is available from GitHub at [alexyoung/turing.js](https://github.com/alexyoung/turing.js/)." > docs/index.html');
+  var desc = '';
+ 
+  desc += 'Turing is a JavaScript framework.  The source is available from GitHub at [alexyoung/turing.js](https://github.com/alexyoung/turing.js/).\n\n';
+  desc += 'The DOM, Events, and Anim modules are chainable, like this:\n\n';
+  desc += '        turing(\'p\')\n';
+  desc += '          .fadeIn(2000)\n';
+  desc += '          .animate(1000, { color: \'#ff0000\' })\n';
+  desc += '          .click(function() { alert(\'clicked\'); });\n';
+  desc += '\n';
+  desc += 'This is the easiest way to use Turing.';
+
+
+  exec('dox --title Turing turing.*.js --desc "' + desc + '" > docs/index.html');
 }
 
 desc('Builds build/turing.js.');
