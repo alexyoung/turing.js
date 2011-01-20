@@ -5,7 +5,7 @@ var sys = require('sys'),
     exec = require('child_process').exec;
 
 function generateDocs() {
-  exec('dox --title Turing turing.*.js  > docs/index.html');
+  exec('dox --title Turing turing.*.js --desc "Turing is a JavaScript framework.  The source is available from GitHub at [alexyoung/turing.js](https://github.com/alexyoung/turing.js/)." > docs/index.html');
 }
 
 desc('Builds build/turing.js.');
