@@ -1,5 +1,3 @@
-h2. About Turing
-
 Turing is an JavaScript framework.
 
 * Web: "turingjs.com":http://turingjs.com/
@@ -18,13 +16,13 @@ Features include:
 * Chained API design
 * "Turing Test":https://github.com/alexyoung/turing-test.js/ test framework
 
-h3. Documentation
+h2. Documentation
 
 Turing's API documentation is here: "turingjs.com":http://turingjs.com.
 
 Development has been blogged on DailyJS.  Each article is tagged with _lmaf_ on DailyJS: "dailyjs.com/tags.html#lmaf":http://dailyjs.com/tags.html#lmaf.
 
-h3. Running Tests
+h2. Running Tests
 
 To run tests, ensure you've got the required submodules from git:
 
@@ -35,7 +33,7 @@ git submodule update
 
 Remember to run <code>git submodule update</code> to get the latest version referenced by the project.
 
-h3. TODO
+h2. TODO
 
 * The alias module shouldn't change behaviour $t() should be the same as turing()
 * The enumeration methods should be easy to use through changes, i.e.: turing([1, 2, 3]).each, turing([1, 2, 3]).map, turing('p').each, etc.  Some logic will have to determine if DOM selectors or arrays/objects are being iterated over
