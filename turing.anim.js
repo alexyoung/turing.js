@@ -506,7 +506,6 @@
       })(chainedAliases[i]);
     }
   };
-
   anim.addDOMethods();
 
   turing.anim = anim;

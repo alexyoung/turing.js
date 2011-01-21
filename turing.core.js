@@ -14,7 +14,13 @@
    * @returns {Object} The turing object, run through `init`
    */
   function turing() {
-    return turing.init.apply(turing, arguments);
+    if (arguments.length === 1
+        && typeof arguments[0] === 'function'
+        && turing.events) {
+      return turing.events.ready(arguments[0]);
+    } else {
+      return turing.init.apply(turing, arguments);
+    }
   }
 
   turing.VERSION = '0.0.47';

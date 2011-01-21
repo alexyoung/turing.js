@@ -296,6 +296,18 @@
 
   events.addDOMethods();
 
+  /**
+    * DOM ready event handlers can also be set with:
+    *
+    *      turing.ready(function() { });
+    *
+    * Or just by passing a function to `turing()`:
+    *
+    *      turing(function() {} );
+    *
+    */
+  turing.ready = events.ready;
+
   turing.events = events;
 
   if (typeof window !== 'undefined' && window.attachEvent && !window.addEventListener) {

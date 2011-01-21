@@ -14,10 +14,11 @@
     * Ajax request options:
     *
     *   - `method`: {String} HTTP method - GET, POST, etc.
-    *   - `asynchronous`: {Boolean} Defaults to asynchronous
-    *   - `postBody`: {String} The HTTP POST body
     *   - `success`: {Function} A callback to run when a request is successful
     *   - `error`: {Function} A callback to run when the request fails
+    *   - `asynchronous`: {Boolean} Defaults to asynchronous
+    *   - `postBody`: {String} The HTTP POST body
+    *   - `contentType`: {String} The content type of the request, default is `application/x-www-form-urlencoded`
     *
     */
 
@@ -57,28 +58,37 @@
       }
     }
 
-    // The HTTP headers to accept
+    // Set the HTTP headers
     function setHeaders() {
-      var headers = {
-        'Accept': 'text/javascript, text/html, application/xml, text/xml, */*'
+      var defaults = {
+        'Accept': 'text/javascript, application/json, text/html, application/xml, text/xml, */*',
+        'Content-Type': 'application/x-www-form-urlencoded'
       };
 
       /**
-       * Set other headers
+       * Merge headers with defaults. 
        */
 
-      for (var name in headers) {
-        request.setRequestHeader(name, headers[name]);
+      for (var name in defaults) {
+        options.headers[name] = defaults[name];
+      }
+
+      for (var name in options.headers) {
+        request.setRequestHeader(name, options.headers[name]);
       }
     }
 
     if (typeof options === 'undefined') options = {};
+
     options.method = options.method ? options.method.toLowerCase() : 'get';
     options.asynchronous = options.asynchronous || true;
     options.postBody = options.postBody || '';
-
     request.onreadystatechange = respondToReadyState;
     request.open(options.method, url, options.asynchronous);
+
+    if (options.contentType)
+      options.headers['Content-Type'] = options.contentType;
+    options.headers = options.headers || {};
     setHeaders();
 
     try {
@@ -125,6 +135,11 @@
   /**
    * An Ajax GET request.
    *
+   *     turing.net.get('/url', {
+   *       success: function(request) {
+   *       }
+   *     });
+   *
    * @param {String} url The URL to request
    * @param {Object} options The Ajax request options
    * @returns {Object} The Ajax request object
@@ -136,6 +151,13 @@
 
   /**
    * An Ajax POST request.
+   *
+   *
+   *     turing.net.post('/url', {
+   *       postBody: 'params',
+   *       success: function(request) {
+   *       }
+   *     });
    *
    * @param {String} url The URL to request
    * @param {Object} options The Ajax request options (`postBody` may come in handy here)
@@ -166,6 +188,18 @@
     var callback = new JSONPCallback(url, options.success, options.failure);
     callback.run();
   };
+
+  /**
+    * The Ajax methods are mapped to the `turing` object:
+    *
+    *      turing.get();
+    *      turing.post();
+    *      turing.json();
+    *
+    */
+  turing.get = net.get;
+  turing.post = net.post;
+  turing.jsonp = net.jsonp;
 
   net.ajax = ajax;
   turing.net = net;
