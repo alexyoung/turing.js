@@ -1,0 +1,10 @@
+h1. Turing Documentation
+
+The documentation is generated in the master branch and updated here.
+
+Documentation can be viewed at "turingjs.com":http://turingjs.com.
+
+h2. Updating Documentation
+
+Run <code>jake docs</code> to update the documentation.
+
