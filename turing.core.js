@@ -21,9 +21,12 @@
   turing.lesson = 'Part 47: Writing Documentation';
 
   /**
-   * This alias will be used as an alternative to `turing.*`
+   * This alias will be used as an alternative to `turing()`.
+   * If `__turing_alias` is present in the global scope this will be used instead. 
+   * 
    */
-  turing.alias = '$t';
+  turing.alias = global.__turing_alias || '$t';
+  global[turing.alias] = turing;
 
   /**
    * Determine if an object is an `Array`.
@@ -76,17 +79,6 @@
     return function() {
       return fn.apply(object || {}, args.concat(slice.apply(arguments)));
     };
-  };
-
-  /**
-   * Allows aliases for `turing.*` to be bound to the global,
-   * used internally by `turing.alias.js`.
-   *
-   * @param {String} alias A name for the alias
-   * @param {Function} method A function that sets up the alias
-   */
-  turing.exportAlias = function(aliasName, method) {
-    global[aliasName] = method();
   };
 
   var testCache = {},

@@ -24,7 +24,7 @@ desc('Builds build/turing.js.');
 task('concat', [], function() {
   var files = ('turing.core.js turing.oo.js turing.enumerable.js '
               + 'turing.functional.js turing.dom.js turing.events.js '
-              + 'turing.touch.js turing.alias.js turing.anim.js').split(' '),
+              + 'turing.touch.js turing.anim.js').split(' '),
       filesLeft = files.length,
       pathName = '.',
       outFile = fs.openSync('build/turing.js', 'w+');
