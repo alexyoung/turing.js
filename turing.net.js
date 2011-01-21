@@ -50,13 +50,9 @@
     function respondToReadyState(readyState) {
       if (request.readyState == 4) {
         if (successfulRequest(request)) {
-          if (options.success) {
-            options.success(request);
-          }
+          if (options.success) options.success(request);
         } else {
-          if (options.error) {
-            options.error(request);
-          }
+          if (options.error) options.error(request);
         }
       }
     }
@@ -76,10 +72,7 @@
       }
     }
 
-    if (typeof options === 'undefined') {
-      options = {};
-    }
-
+    if (typeof options === 'undefined') options = {};
     options.method = options.method ? options.method.toLowerCase() : 'get';
     options.asynchronous = options.asynchronous || true;
     options.postBody = options.postBody || '';
@@ -169,16 +162,12 @@
    * @param {Object} options The Ajax request options
    */
   net.jsonp = function(url, options) {
-    if (typeof options === 'undefined') {
-      options = {};
-    }
-
+    if (typeof options === 'undefined') options = {};
     var callback = new JSONPCallback(url, options.success, options.failure);
     callback.run();
   };
 
   net.ajax = ajax;
-
   turing.net = net;
 })();
 
