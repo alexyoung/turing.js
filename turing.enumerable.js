@@ -6,6 +6,13 @@
 
 /**
  * The Turing Enumerable module.
+ *
+ * This is bound to DOM objects:
+ *
+ *     turing('p').each(function() {
+ *       // `this` contains a DOM element
+ *     });
+ * 
  */
 turing.enumerable = {
   /**
@@ -343,8 +350,8 @@ turing.enumerable.inject = turing.enumerable.reduce;
 turing.enumerable.rest = turing.enumerable.tail;
 turing.enumerable.any = turing.enumerable.some;
 turing.enumerable.every = turing.enumerable.all;
-turing.chainableMethods = ['map', 'collect', 'detect', 'filter', 'reduce',
-                           'tail', 'rest', 'reject', 'pluck', 'any', 'some'];
+turing.chainableMethods = ['map', 'collect', 'detect', 'filter', 'reduce', 'each',
+                           'tail', 'rest', 'reject', 'pluck', 'any', 'some', 'all'];
 
 // Chainer class
 turing.enumerable.Chainer = function(values) {
@@ -364,3 +371,4 @@ turing.enumerable.each(turing.chainableMethods, function(methodName) {
     return this;
   }
 });
+

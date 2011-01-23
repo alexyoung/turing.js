@@ -232,6 +232,13 @@ turing.oo = {
 
 /**
  * The Turing Enumerable module.
+ *
+ * This is bound to DOM objects:
+ *
+ *     turing('p').each(function() {
+ *       // `this` contains a DOM element
+ *     });
+ * 
  */
 turing.enumerable = {
   /**
@@ -569,8 +576,8 @@ turing.enumerable.inject = turing.enumerable.reduce;
 turing.enumerable.rest = turing.enumerable.tail;
 turing.enumerable.any = turing.enumerable.some;
 turing.enumerable.every = turing.enumerable.all;
-turing.chainableMethods = ['map', 'collect', 'detect', 'filter', 'reduce',
-                           'tail', 'rest', 'reject', 'pluck', 'any', 'some'];
+turing.chainableMethods = ['map', 'collect', 'detect', 'filter', 'reduce', 'each',
+                           'tail', 'rest', 'reject', 'pluck', 'any', 'some', 'all'];
 
 // Chainer class
 turing.enumerable.Chainer = function(values) {
@@ -590,6 +597,7 @@ turing.enumerable.each(turing.chainableMethods, function(methodName) {
     return this;
   }
 });
+
 /*!
  * Turing Functional
  * Copyright (C) 2010-2011 Alex R. Young
@@ -980,8 +988,14 @@ turing.functional = {
   };
 
   // Chained calls
-  turing.init = function(selector) {
-    return new turing.domChain.init(selector);
+  turing.init = function(arg) {
+    if (typeof arg === 'string' || typeof arg === 'undefined') {
+      // CSS selector
+      return new turing.domChain.init(arg);
+    } else if (arg && arg.length && turing.enumerable) {
+      // A list of some kind
+      return turing.enumerable.chain(arg);
+    }
   };
 
   turing.domChain = {
@@ -1034,6 +1048,34 @@ turing.functional = {
 
   turing.domChain.init.prototype = turing.domChain;
 
+  /**
+    * Enumerable methods can be chained with DOM calls:
+    *
+    *       turing('p').each(function() {
+    *         console.log(this);
+    *       });
+    *
+    */
+  if (typeof turing.enumerable !== 'undefined') {
+    turing.domChain['values'] = function() {
+      return this.elements;
+    };
+
+    turing.enumerable.each(turing.chainableMethods, function(methodName) {
+      turing.domChain[methodName] = function(fn) {
+        var elements = turing.enumerable[methodName](this, fn),
+            ret = turing();
+        this.elements = elements;
+        ret.elements = elements;
+        ret.selector = this.selector;
+        ret.length = elements.length;
+        ret.prevObject = this;
+        ret.writeElements();
+        return ret;
+      };
+    });
+  }
+
   turing.dom = dom;
 })();
 
@@ -1045,6 +1087,7 @@ turing.functional = {
 
 /**
  * The Turing Events module.
+ *
  */
 (function() {
   var events = {}, cache = [], onReadyBound = false, isReady = false, DOMContentLoaded, readyCallbacks = [];
@@ -1377,11 +1420,11 @@ turing.functional = {
     * Ajax request options:
     *
     *   - `method`: {String} HTTP method - GET, POST, etc.
+    *   - `success`: {Function} A callback to run when a request is successful
+    *   - `error`: {Function} A callback to run when the request fails
     *   - `asynchronous`: {Boolean} Defaults to asynchronous
     *   - `postBody`: {String} The HTTP POST body
     *   - `contentType`: {String} The content type of the request, default is `application/x-www-form-urlencoded`
-    *   - `success`: {Function} A callback to run when a request is successful
-    *   - `error`: {Function} A callback to run when the request fails
     *
     */
 

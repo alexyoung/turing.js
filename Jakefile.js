@@ -4,22 +4,6 @@ var sys = require('sys'),
     jsmin = require('jsmin').jsmin,
     exec = require('child_process').exec;
 
-function generateDocs() {
-  var desc = '';
- 
-  desc += 'Turing is a JavaScript framework.  The source is available from GitHub at [alexyoung/turing.js](https://github.com/alexyoung/turing.js/).\n\n';
-  desc += 'The DOM, Events, and Anim modules are chainable, like this:\n\n';
-  desc += '        turing(\'p\')\n';
-  desc += '          .fadeIn(2000)\n';
-  desc += '          .animate(1000, { color: \'#ff0000\' })\n';
-  desc += '          .click(function() { alert(\'clicked\'); });\n';
-  desc += '\n';
-  desc += 'This is the easiest way to use Turing.';
-
-
-  exec('dox --title Turing turing.*.js --desc "' + desc + '" > docs/index.html');
-}
-
 desc('Builds build/turing.js.');
 task('concat', [], function() {
   var files = ('turing.core.js turing.oo.js turing.enumerable.js '
@@ -44,7 +28,7 @@ task('minify', [], function() {
 
 desc('Documentation');
 task('docs', [], function() {
-  generateDocs();
+  exec('dox --title Turing turing.*.js --intro docs/intro.md > docs/index.html');
 });
 
 desc('Run tests');

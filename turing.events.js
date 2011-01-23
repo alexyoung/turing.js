@@ -6,6 +6,7 @@
 
 /**
  * The Turing Events module.
+ *
  */
 (function() {
   var events = {}, cache = [], onReadyBound = false, isReady = false, DOMContentLoaded, readyCallbacks = [];
