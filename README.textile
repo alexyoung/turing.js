@@ -37,10 +37,11 @@ Remember to run <code>git submodule update</code> to get the latest version refe
 
 h2. TODO
 
-* CSS properties should be used instead of DOM properties (margin-left vs. marginLeft)
-* The Ajax requests should really return data instead of the request object if possible (json/etc)
-* Make turing tests able to work with asynchronous tests (i.e., Ajax)
-* Add benchmarks to Turing Test
-* Update benchmarks to use Turing Test
-* Remove Riot
+* [anim] CSS properties should be used instead of DOM properties (margin-left vs. marginLeft)
+* [anim] DOM chained animations should be correctly scheduled
+* [ajax] The Ajax requests should really return data instead of the request object if possible (json/etc)
+* [test] Make turing tests able to work with asynchronous tests (i.e., Ajax)
+* [test] Add benchmarks to Turing Test
+* [test] Update benchmarks to use Turing Test
+* [test] Remove Riot
 
