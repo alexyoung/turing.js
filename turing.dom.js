@@ -394,8 +394,18 @@
       }
     },
 
+    /**
+      * `first` will return a domChain with a length of 1 or 0.
+      */
     first: function() {
-      return this.elements.length === 0 ? null : this.elements[0];
+      var elements = [],
+          ret = turing();
+      ret.elements = this.elements.length === 0 ? [] : [this.elements[0]];
+      ret.selector = this.selector;
+      ret.length = ret.elements.length;
+      ret.prevObject = this;
+      ret.writeElements();
+      return ret;
     },
 
     find: function(selector) {
@@ -427,8 +437,8 @@
   /**
     * Enumerable methods can be chained with DOM calls:
     *
-    *       turing('p').each(function() {
-    *         console.log(this);
+    *       turing('p').each(function(element) {
+    *         console.log(element);
     *       });
     *
     */

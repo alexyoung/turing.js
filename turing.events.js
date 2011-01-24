@@ -265,12 +265,14 @@
     *         alert('ouch');
     *       });
     *
+    * The event will be bound to each matching element.
+    *
     */
   events.addDOMethods = function() {
     if (typeof turing.domChain === 'undefined') return;
 
     turing.domChain.bind = function(type, handler) {
-      var element = this.first();
+      var element;
       for (var i = 0; i < this.length; i++) {
         element = this[i];
         if (handler) {

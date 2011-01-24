@@ -37,8 +37,8 @@ Remember to run <code>git submodule update</code> to get the latest version refe
 
 h2. TODO
 
+* CSS properties should be used instead of DOM properties (margin-left vs. marginLeft)
 * The Ajax requests should really return data instead of the request object if possible (json/etc)
-* The enumeration methods should be easy to use through changes, i.e.: turing([1, 2, 3]).each, turing([1, 2, 3]).map, turing('p').each, etc.  Some logic will have to determine if DOM selectors or arrays/objects are being iterated over
 * Make turing tests able to work with asynchronous tests (i.e., Ajax)
 * Add benchmarks to Turing Test
 * Update benchmarks to use Turing Test

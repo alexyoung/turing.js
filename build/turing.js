@@ -1018,8 +1018,18 @@ turing.functional = {
       }
     },
 
+    /**
+      * `first` will return a domChain with a length of 1 or 0.
+      */
     first: function() {
-      return this.elements.length === 0 ? null : this.elements[0];
+      var elements = [],
+          ret = turing();
+      ret.elements = this.elements.length === 0 ? [] : [this.elements[0]];
+      ret.selector = this.selector;
+      ret.length = ret.elements.length;
+      ret.prevObject = this;
+      ret.writeElements();
+      return ret;
     },
 
     find: function(selector) {
@@ -1051,8 +1061,8 @@ turing.functional = {
   /**
     * Enumerable methods can be chained with DOM calls:
     *
-    *       turing('p').each(function() {
-    *         console.log(this);
+    *       turing('p').each(function(element) {
+    *         console.log(element);
     *       });
     *
     */
@@ -1346,12 +1356,14 @@ turing.functional = {
     *         alert('ouch');
     *       });
     *
+    * The event will be bound to each matching element.
+    *
     */
   events.addDOMethods = function() {
     if (typeof turing.domChain === 'undefined') return;
 
     turing.domChain.bind = function(type, handler) {
-      var element = this.first();
+      var element;
       for (var i = 0; i < this.length; i++) {
         element = this[i];
         if (handler) {
@@ -1734,19 +1746,19 @@ turing.functional = {
  * Move a paragraph:
  *
  *      turing.anim.animate($t('p')[0], 2000, {
- *        'margin-left': '400px'
+ *        'marginLeft': '400px'
  *      });
  *
  * It's possible to chain animation module calls with `turing.anim.chain`, but it's easier to use the DOM chained methods:
  *
  *      turing('p').fadeIn(2000).animate(1000, {
- *        'margin-left': '200px'
+ *        'marginLeft': '200px'
  *      })
  *
  * Or:
  *
  *      $t('p').fadeIn(2000).animate(1000, {
- *        'margin-left': '200px'
+ *        'marginLeft': '200px'
  *      })
  *
  */
@@ -1885,8 +1897,10 @@ turing.functional = {
                           colour.base.g < colour.value.g ? 1 : -1,
                           colour.base.b < colour.value.b ? 1 : -1];
       return colour;
-    } else {
+    } else if (typeof value !== 'object') {
       return parseNumericalValue(value);
+    } else {
+      return value;
     }
   }
 
@@ -1926,7 +1940,6 @@ turing.functional = {
       return 7.6 * (position -= (2.625 / 2.75)) * position + 0.98;
     }
   };
-
 
   /**
    * Animates an element using CSS properties.
@@ -2212,9 +2225,13 @@ turing.functional = {
     for (var i = 0; i < chainedAliases.length; i++) {
       (function(name) {
         turing.domChain[name] = function(handler) {
-          var args = turing.toArray(arguments);
-          args.unshift(this.first());
-          anim[name].apply(this, args);
+          var j, args = turing.toArray(arguments);
+          args.unshift(null);
+
+          for (j = 0; j < this.length; j++) {
+            args[0] = this[j];
+            anim[name].apply(this, args);
+          }
           return this;
         };
       })(chainedAliases[i]);

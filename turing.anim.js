@@ -20,19 +20,19 @@
  * Move a paragraph:
  *
  *      turing.anim.animate($t('p')[0], 2000, {
- *        'margin-left': '400px'
+ *        'marginLeft': '400px'
  *      });
  *
  * It's possible to chain animation module calls with `turing.anim.chain`, but it's easier to use the DOM chained methods:
  *
  *      turing('p').fadeIn(2000).animate(1000, {
- *        'margin-left': '200px'
+ *        'marginLeft': '200px'
  *      })
  *
  * Or:
  *
  *      $t('p').fadeIn(2000).animate(1000, {
- *        'margin-left': '200px'
+ *        'marginLeft': '200px'
  *      })
  *
  */
@@ -171,8 +171,10 @@
                           colour.base.g < colour.value.g ? 1 : -1,
                           colour.base.b < colour.value.b ? 1 : -1];
       return colour;
-    } else {
+    } else if (typeof value !== 'object') {
       return parseNumericalValue(value);
+    } else {
+      return value;
     }
   }
 
@@ -212,7 +214,6 @@
       return 7.6 * (position -= (2.625 / 2.75)) * position + 0.98;
     }
   };
-
 
   /**
    * Animates an element using CSS properties.
@@ -498,9 +499,13 @@
     for (var i = 0; i < chainedAliases.length; i++) {
       (function(name) {
         turing.domChain[name] = function(handler) {
-          var args = turing.toArray(arguments);
-          args.unshift(this.first());
-          anim[name].apply(this, args);
+          var j, args = turing.toArray(arguments);
+          args.unshift(null);
+
+          for (j = 0; j < this.length; j++) {
+            args[0] = this[j];
+            anim[name].apply(this, args);
+          }
           return this;
         };
       })(chainedAliases[i]);
