@@ -11,11 +11,15 @@
 var express = require('express'),
     app = express.createServer(),
     fs = require('fs'),
+    path = require('path'),
     jade = require('jade');
 
 app.configure(function() {
+  app.use(express.logger({ format: '\x1b[1m:method\x1b[0m \x1b[33m:url\x1b[0m :response-time ms' }));
   app.use(express.methodOverride());
   app.use(express.bodyDecoder());
+  app.use(express.staticProvider(path.join(__dirname, 'public')));
+  app.use(express.staticProvider(path.join(__dirname, '..', '..', 'build')));
   app.use(app.router);
   app.set('view engine', 'jade');
 });
@@ -30,13 +34,9 @@ function staticFile(url, path) {
 }
 
 app.get('/', function(req, res) {
-  fs.readFile(__dirname + '/ajax.jade', function(err, data) {
-    res.send(jade.render(data));
-  });
+  res.render('index', { layout: false });
 });
 
-staticFile('/turing.js', '/../../build/turing.js');
-staticFile('/test.js', '/ajax-client.js');
 staticFile('/turing-test.js', '/../turing-test/turing-test.js');
 staticFile('/turing-test/lib/test.js', '/../turing-test/lib/test.js');
 staticFile('/turing-test/lib/assert.js', '/../turing-test/lib/assert.js');
@@ -51,6 +51,14 @@ app.get('/get-test', function(req, res) {
 
 app.post('/post-test', function(req, res) {
   res.send(req.body.key);
+});
+
+app.post('/post-array', function(req, res) {
+  res.send(req.body[0]);
+});
+
+app.post('/give-me-json', function(req, res) {
+  res.send({ key: 'value' });
 });
 
 app.listen(3000);

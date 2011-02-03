@@ -45,11 +45,51 @@
         (request.status == 0 && request.responseText);
   }
 
+  /**
+    * Serialize JavaScript for HTTP requests.
+    *
+    * @param {Object} object An Array or Object
+    * @returns {String} A string suitable for a GET or POST request
+    */
+  net.serialize = function(object) {
+    if (!object) return;
+
+		var results = [];
+    for (var key in object) {
+      results.push(encodeURIComponent(key) + '=' + encodeURIComponent(object[key]));
+    }
+		return results.join('&');
+  };
+
+  /**
+    * JSON.parse support can be inferred using `turing.detect('JSON.parse')`.
+    */
+  turing.addDetectionTest('JSON.parse', function() {
+    return window.JSON && window.JSON.parse;
+  });
+
+  /**
+    * Parses JSON represented as a string.
+    *
+    * @param {String} string The original string
+    * @returns {Object} A JavaScript object
+    */
+  net.parseJSON = function(string) {
+		if (typeof string !== 'string' || !string) return null;
+		string = string.trim();
+    return turing.detect('JSON.parse') ?
+      window.JSON.parse(string) :
+      (new Function('return ' + string))();
+  };
+
   function ajax(url, options) {
     var request = xhr();
 
     function respondToReadyState(readyState) {
       if (request.readyState == 4) {
+        if (request.getResponseHeader('content-type') === 'application/json')
+          request.responseJSON = net.parseJSON(request.responseText);
+
         if (successfulRequest(request)) {
           if (options.success) options.success(request);
         } else {
@@ -68,9 +108,9 @@
       /**
        * Merge headers with defaults. 
        */
-
       for (var name in defaults) {
-        options.headers[name] = defaults[name];
+        if (!options.headers.hasOwnProperty(name))
+          options.headers[name] = defaults[name];
       }
 
       for (var name in options.headers) {
@@ -86,9 +126,16 @@
     request.onreadystatechange = respondToReadyState;
     request.open(options.method, url, options.asynchronous);
 
-    if (options.contentType)
-      options.headers['Content-Type'] = options.contentType;
     options.headers = options.headers || {};
+    if (options.contentType) {
+      options.headers['Content-Type'] = options.contentType;
+    }
+
+    if (typeof options.postBody !== 'string') {
+      // Serialize JavaScript
+      options.postBody = net.serialize(options.postBody);
+    }
+
     setHeaders();
 
     try {
