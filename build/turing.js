@@ -23,8 +23,8 @@
     }
   }
 
-  turing.VERSION = '0.0.47';
-  turing.lesson = 'Part 47: Writing Documentation';
+  turing.VERSION = '0.0.51';
+  turing.lesson = 'Part 51: Plugins 2';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -1127,8 +1127,8 @@ turing.functional = {
    * Throws turing.plugins.AlreadyRegistered if a
    * plugin with the same name has been registered.
    *
-   * @param {String} The name of your plugin method 
-   * @param {Object} Your plugin
+   * @param {String} methodName The name of your plugin method 
+   * @param {Object} metadata Your plugin
    */
   plugins.register = function(methodName, metadata) {
     if (plugins.registered[methodName]) {
@@ -1143,7 +1143,7 @@ turing.functional = {
    * Removes a plugin.  Throws turing.plugins.NotFound if
    * the plugin could not be found.
    *
-   * @param {String} selector A CSS selector
+   * @param {String} methodName The name of the plugin
    */
   plugins.remove = function(methodName) {
     if (!plugins.registered.hasOwnProperty(methodName)) {

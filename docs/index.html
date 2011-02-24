@@ -709,8 +709,8 @@ code .this { color: #19469D; }</style>
     }
   }
 
-  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.47'</span>;
-  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 47: Writing Documentation'</span>;</code></pre>
+  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.51'</span>;
+  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 51: Plugins 2'</span>;</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -2521,7 +2521,7 @@ plugin with the same name has been registered.</p>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>String</em>  The name of your plugin method </p></li><li><p><strong>param</strong>: <em>Object</em>  Your plugin</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>String</em>  methodName The name of your plugin method </p></li><li><p><strong>param</strong>: <em>Object</em>  metadata Your plugin</p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">plugins</span>.<span class="variable">register</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>, <span class="variable">metadata</span>) {
@@ -2541,7 +2541,7 @@ the plugin could not be found.</p>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>String</em>  selector A CSS selector</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>String</em>  methodName The name of the plugin</p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">plugins</span>.<span class="variable">remove</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>) {
