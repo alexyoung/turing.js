@@ -2482,6 +2482,82 @@ new User('Alice', '26');</code></pre>
 };
 </code></pre>
 </td>
+</tr><tr class="filename"><td><h2 id="turing.plugins.js"><a href="#">turing.plugins</a></h2></td><td>turing.plugins.js</td></tr><tr class="code">
+<td class="docs">
+<p>The Turing plugin module.</p>
+
+<p>This is an example plugin:</p>
+
+<pre><code>turing.plugins.register('turnRed', {
+  name: 'Turn Things Red',
+  version: '1.0.0',
+  description: 'Turns the background red',
+  author: 'Alex Young &lt;alex@example.com&gt;',
+  licenses: [ { type: 'MIT' } ],
+
+  turnRed: function() {
+    this[0].style.backgroundColor = '#ff0000';
+    return this;
+  }
+});</code></pre>
+
+<p> </p>
+</td>
+<td class="code">
+<pre><code>(<span class="keyword">function</span>() {
+  <span class="keyword">var</span> <span class="variable">plugins</span> = {};
+  <span class="variable">plugins</span>.<span class="variable">registered</span> = {};
+  <span class="variable">plugins</span>.<span class="class">AlreadyRegistered</span> = <span class="class">Error</span>;
+  <span class="variable">plugins</span>.<span class="class">NotFound</span> = <span class="class">Error</span>;</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Registers a plugin, making it available for
+chained DOM calls.</p>
+
+<p>Throws turing.plugins.AlreadyRegistered if a
+plugin with the same name has been registered.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  The name of your plugin method </p></li><li><p><strong>param</strong>: <em>Object</em>  Your plugin</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">plugins</span>.<span class="variable">register</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>, <span class="variable">metadata</span>) {
+    <span class="keyword">if</span> (<span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>]) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="variable">plugins</span>.<span class="class">AlreadyRegistered</span>(<span class="string">'Already registered a plugin called: '</span> + <span class="variable">methodName</span>);
+    }
+
+    <span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>] = <span class="variable">metadata</span>;
+    <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>] = <span class="variable">metadata</span>[<span class="variable">methodName</span>];
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Removes a plugin.  Throws turing.plugins.NotFound if
+the plugin could not be found.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  selector A CSS selector</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">plugins</span>.<span class="variable">remove</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>) {
+    <span class="keyword">if</span> (!<span class="variable">plugins</span>.<span class="variable">registered</span>.<span class="variable">hasOwnProperty</span>(<span class="variable">methodName</span>)) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="variable">plugins</span>.<span class="class">NotFound</span>(<span class="string">'Plugin not found: '</span> + <span class="variable">methodName</span>);
+    } <span class="keyword">else</span> {
+      <span class="keyword">delete</span> <span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>]
+      <span class="keyword">delete</span> <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>];
+    }
+  };
+
+  <span class="variable">turing</span>.<span class="variable">plugins</span> = <span class="variable">plugins</span>;
+})();
+
+</code></pre>
+</td>
 </tr><tr class="filename"><td><h2 id="turing.touch.js"><a href="#">turing.touch</a></h2></td><td>turing.touch.js</td></tr><tr class="code">
 <td class="docs">
 <p>Support for touchscreen devices.  Run <code>turing.touch.register()</code> to get touch event support.</p>
