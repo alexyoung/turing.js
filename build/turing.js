@@ -8,18 +8,20 @@
  * A private namespace to set things up against the global object.
  */
 (function(global) {
+  var middleware = [];
+
   /**
    * The turing object.  Use `turing('selector')` for quick DOM access when built with the DOM module.
    *
    * @returns {Object} The turing object, run through `init`
    */
   function turing() {
-    if (arguments.length === 1
-        && typeof arguments[0] === 'function'
-        && turing.events) {
-      return turing.events.ready(arguments[0]);
-    } else {
-      return turing.init.apply(turing, arguments);
+    if (arguments.length > 0) {
+      var result;
+      for (var i = 0; i < middleware.length; i++) {
+        result = middleware[i].apply(turing, arguments);
+        if (result) return result;
+      }
     }
   }
 
@@ -60,7 +62,9 @@
   };
 
   // This can be overriden by libraries that extend turing(...)
-  turing.init = function() { };
+  turing.init = function(fn) {
+    middleware.push(fn);
+  };
 
   /**
    * Determines if an object is a `Number`.
@@ -598,6 +602,12 @@ turing.enumerable.each(turing.chainableMethods, function(methodName) {
   }
 });
 
+turing.init(function(arg) {
+  if (arg.hasOwnProperty.length && typeof arg !== 'string') {
+    return turing.enumerable.chain(arg);
+  }
+});
+
 /*!
  * Turing Functional
  * Copyright (C) 2010-2011 Alex R. Young
@@ -988,15 +998,12 @@ turing.functional = {
   };
 
   // Chained calls
-  turing.init = function(arg) {
+  turing.init(function(arg) {
     if (typeof arg === 'string' || typeof arg === 'undefined') {
       // CSS selector
-      return new turing.domChain.init(arg);
-    } else if (arg && arg.length && turing.enumerable) {
-      // A list of some kind
-      return turing.enumerable.chain(arg);
+      return turing.domChain.init(arg);
     }
-  };
+  });
 
   turing.domChain = {
     init: function(selector) {
@@ -1023,7 +1030,7 @@ turing.functional = {
       */
     first: function() {
       var elements = [],
-          ret = turing();
+          ret = turing.domChain;
       ret.elements = this.elements.length === 0 ? [] : [this.elements[0]];
       ret.selector = this.selector;
       ret.length = ret.elements.length;
@@ -1034,7 +1041,7 @@ turing.functional = {
 
     find: function(selector) {
       var elements = [],
-          ret = turing(),
+          ret = turing.domChain,
           root = document;
 
       if (this.prevObject) {
@@ -1074,7 +1081,7 @@ turing.functional = {
     turing.enumerable.each(turing.chainableMethods, function(methodName) {
       turing.domChain[methodName] = function(fn) {
         var elements = turing.enumerable[methodName](this, fn),
-            ret = turing();
+            ret = turing.domChain;
         this.elements = elements;
         ret.elements = elements;
         ret.selector = this.selector;
@@ -1444,7 +1451,7 @@ turing.functional = {
     };
 
     var chainedAliases = ('click dblclick mouseover mouseout mousemove ' +
-                          'mousedown mouseup blur focus change keydown ' +
+                          'mousedowe mouseup blur focus change keydown ' +
                           'keypress keyup resize scroll').split(' ');
 
     for (var i = 0; i < chainedAliases.length; i++) {
@@ -1469,8 +1476,14 @@ turing.functional = {
     *
     */
   turing.ready = events.ready;
-
   turing.events = events;
+
+  turing.init(function(arg) {
+    if (arguments.length === 1
+        && typeof arguments[0] === 'function') {
+      turing.events.ready(arguments[0]);
+    }
+  });
 
   if (typeof window !== 'undefined' && window.attachEvent && !window.addEventListener) {
     window.attachEvent('onunload', function() {

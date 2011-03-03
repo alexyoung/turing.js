@@ -15,7 +15,7 @@ exports.testAnimations = {
   },
 
   'test RGB colours are left alone': function() {
-    assert.equal('regb(255, 255, 255)', turing.anim.parseColour('rgb(255, 255, 255)').toString());
+    assert.equal('rgb(255, 255, 255)', turing.anim.parseColour('rgb(255, 255, 255)').toString());
   },
 
   'test chained animations': function() {

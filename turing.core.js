@@ -8,18 +8,20 @@
  * A private namespace to set things up against the global object.
  */
 (function(global) {
+  var middleware = [];
+
   /**
    * The turing object.  Use `turing('selector')` for quick DOM access when built with the DOM module.
    *
    * @returns {Object} The turing object, run through `init`
    */
   function turing() {
-    if (arguments.length === 1
-        && typeof arguments[0] === 'function'
-        && turing.events) {
-      return turing.events.ready(arguments[0]);
-    } else {
-      return turing.init.apply(turing, arguments);
+    if (arguments.length > 0) {
+      var result;
+      for (var i = 0; i < middleware.length; i++) {
+        result = middleware[i].apply(turing, arguments);
+        if (result) return result;
+      }
     }
   }
 
@@ -60,7 +62,9 @@
   };
 
   // This can be overriden by libraries that extend turing(...)
-  turing.init = function() { };
+  turing.init = function(fn) {
+    middleware.unshift(fn);
+  };
 
   /**
    * Determines if an object is a `Number`.

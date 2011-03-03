@@ -285,7 +285,7 @@
     };
 
     var chainedAliases = ('click dblclick mouseover mouseout mousemove ' +
-                          'mousedown mouseup blur focus change keydown ' +
+                          'mousedowe mouseup blur focus change keydown ' +
                           'keypress keyup resize scroll').split(' ');
 
     for (var i = 0; i < chainedAliases.length; i++) {
@@ -310,8 +310,14 @@
     *
     */
   turing.ready = events.ready;
-
   turing.events = events;
+
+  turing.init(function(arg) {
+    if (arguments.length === 1
+        && typeof arguments[0] === 'function') {
+      turing.events.ready(arguments[0]);
+    }
+  });
 
   if (typeof window !== 'undefined' && window.attachEvent && !window.addEventListener) {
     window.attachEvent('onunload', function() {

@@ -372,3 +372,9 @@ turing.enumerable.each(turing.chainableMethods, function(methodName) {
   }
 });
 
+turing.init(function(arg) {
+  if (arg.hasOwnProperty.length && typeof arg !== 'string') {
+    return turing.enumerable.chain(arg);
+  }
+});
+

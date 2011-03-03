@@ -687,7 +687,8 @@ code .this { color: #19469D; }</style>
  </p>
 </td>
 <td class="code">
-<pre><code>(<span class="keyword">function</span>(<span class="variable">global</span>) {</code></pre>
+<pre><code>(<span class="keyword">function</span>(<span class="variable">global</span>) {
+  <span class="keyword">var</span> <span class="variable">middleware</span> = [];</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -700,12 +701,12 @@ code .this { color: #19469D; }</style>
 </td>
 <td class="code">
 <pre><code><span class="keyword">function</span> <span class="variable">turing</span>() {
-    <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">1</span>
-        &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="keyword">typeof</span> <span class="variable">arguments</span>[<span class="number integer">0</span>] === <span class="string">'function'</span>
-        &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">turing</span>.<span class="variable">events</span>) {
-      <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">events</span>.<span class="variable">ready</span>(<span class="variable">arguments</span>[<span class="number integer">0</span>]);
-    } <span class="keyword">else</span> {
-      <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">init</span>.<span class="variable">apply</span>(<span class="variable">turing</span>, <span class="variable">arguments</span>);
+    <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">0</span>) {
+      <span class="keyword">var</span> <span class="variable">result</span>;
+      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">middleware</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+        <span class="variable">result</span> = <span class="variable">middleware</span>[<span class="variable">i</span>].<span class="variable">apply</span>(<span class="variable">turing</span>, <span class="variable">arguments</span>);
+        <span class="keyword">if</span> (<span class="variable">result</span>) <span class="keyword">return</span> <span class="variable">result</span>;
+      }
     }
   }
 
@@ -758,7 +759,9 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
   };
 
   <span class="comment">// This can be overriden by libraries that extend turing(...)</span>
-  <span class="variable">turing</span>.<span class="variable">init</span> = <span class="keyword">function</span>() { };</code></pre>
+  <span class="variable">turing</span>.<span class="variable">init</span> = <span class="keyword">function</span>(<span class="variable">fn</span>) {
+    <span class="variable">middleware</span>.<span class="variable">push</span>(<span class="variable">fn</span>);
+  };</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -1207,15 +1210,12 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
   };
 
   <span class="comment">// Chained calls</span>
-  <span class="variable">turing</span>.<span class="variable">init</span> = <span class="keyword">function</span>(<span class="variable">arg</span>) {
+  <span class="variable">turing</span>.<span class="variable">init</span>(<span class="keyword">function</span>(<span class="variable">arg</span>) {
     <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">arg</span> === <span class="string">'string'</span> || <span class="keyword">typeof</span> <span class="variable">arg</span> === <span class="string">'undefined'</span>) {
       <span class="comment">// CSS selector</span>
-      <span class="keyword">return</span> <span class="keyword">new</span> <span class="variable">turing</span>.<span class="variable">domChain</span>.<span class="variable">init</span>(<span class="variable">arg</span>);
-    } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">arg</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">arg</span>.<span class="variable">length</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">turing</span>.<span class="variable">enumerable</span>) {
-      <span class="comment">// A list of some kind</span>
-      <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">chain</span>(<span class="variable">arg</span>);
+      <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">domChain</span>.<span class="variable">init</span>(<span class="variable">arg</span>);
     }
-  };
+  });
 
   <span class="variable">turing</span>.<span class="variable">domChain</span> = {
     <span class="variable">init</span>: <span class="keyword">function</span>(<span class="variable">selector</span>) {
@@ -1246,7 +1246,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 <td class="code">
 <pre><code><span class="variable">first</span>: <span class="keyword">function</span>() {
       <span class="keyword">var</span> <span class="variable">elements</span> = [],
-          <span class="variable">ret</span> = <span class="variable">turing</span>();
+          <span class="variable">ret</span> = <span class="variable">turing</span>.<span class="variable">domChain</span>;
       <span class="variable">ret</span>.<span class="variable">elements</span> = <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> === <span class="number integer">0</span> ? [] : [<span class="this">this</span>.<span class="variable">elements</span>[<span class="number integer">0</span>]];
       <span class="variable">ret</span>.<span class="variable">selector</span> = <span class="this">this</span>.<span class="variable">selector</span>;
       <span class="variable">ret</span>.<span class="variable">length</span> = <span class="variable">ret</span>.<span class="variable">elements</span>.<span class="variable">length</span>;
@@ -1257,7 +1257,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
     <span class="variable">find</span>: <span class="keyword">function</span>(<span class="variable">selector</span>) {
       <span class="keyword">var</span> <span class="variable">elements</span> = [],
-          <span class="variable">ret</span> = <span class="variable">turing</span>(),
+          <span class="variable">ret</span> = <span class="variable">turing</span>.<span class="variable">domChain</span>,
           <span class="variable">root</span> = <span class="variable">document</span>;
 
       <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">prevObject</span>) {
@@ -1301,7 +1301,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">turing</span>.<span class="variable">chainableMethods</span>, <span class="keyword">function</span>(<span class="variable">methodName</span>) {
       <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>] = <span class="keyword">function</span>(<span class="variable">fn</span>) {
         <span class="keyword">var</span> <span class="variable">elements</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>[<span class="variable">methodName</span>](<span class="this">this</span>, <span class="variable">fn</span>),
-            <span class="variable">ret</span> = <span class="variable">turing</span>();
+            <span class="variable">ret</span> = <span class="variable">turing</span>.<span class="variable">domChain</span>;
         <span class="this">this</span>.<span class="variable">elements</span> = <span class="variable">elements</span>;
         <span class="variable">ret</span>.<span class="variable">elements</span> = <span class="variable">elements</span>;
         <span class="variable">ret</span>.<span class="variable">selector</span> = <span class="this">this</span>.<span class="variable">selector</span>;
@@ -1729,6 +1729,12 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
   }
 });
 
+<span class="variable">turing</span>.<span class="variable">init</span>(<span class="keyword">function</span>(<span class="variable">arg</span>) {
+  <span class="keyword">if</span> (<span class="variable">arg</span>.<span class="variable">hasOwnProperty</span>.<span class="variable">length</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="keyword">typeof</span> <span class="variable">arg</span> !== <span class="string">'string'</span>) {
+    <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">chain</span>(<span class="variable">arg</span>);
+  }
+});
+
 </code></pre>
 </td>
 </tr><tr class="filename"><td><h2 id="turing.events.js"><a href="#">turing.events</a></h2></td><td>turing.events.js</td></tr><tr class="code">
@@ -2033,7 +2039,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     };
 
     <span class="keyword">var</span> <span class="variable">chainedAliases</span> = (<span class="string">'click dblclick mouseover mouseout mousemove '</span> +
-                          <span class="string">'mousedown mouseup blur focus change keydown '</span> +
+                          <span class="string">'mousedowe mouseup blur focus change keydown '</span> +
                           <span class="string">'keypress keyup resize scroll'</span>).<span class="variable">split</span>(<span class="string">' '</span>);
 
     <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">chainedAliases</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
@@ -2062,8 +2068,14 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 </td>
 <td class="code">
 <pre><code><span class="variable">turing</span>.<span class="variable">ready</span> = <span class="variable">events</span>.<span class="variable">ready</span>;
-
   <span class="variable">turing</span>.<span class="variable">events</span> = <span class="variable">events</span>;
+
+  <span class="variable">turing</span>.<span class="variable">init</span>(<span class="keyword">function</span>(<span class="variable">arg</span>) {
+    <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">1</span>
+        &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="keyword">typeof</span> <span class="variable">arguments</span>[<span class="number integer">0</span>] === <span class="string">'function'</span>) {
+      <span class="variable">turing</span>.<span class="variable">events</span>.<span class="variable">ready</span>(<span class="variable">arguments</span>[<span class="number integer">0</span>]);
+    }
+  });
 
   <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">window</span> !== <span class="string">'undefined'</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">window</span>.<span class="variable">attachEvent</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; !<span class="variable">window</span>.<span class="variable">addEventListener</span>) {
     <span class="variable">window</span>.<span class="variable">attachEvent</span>(<span class="string">'onunload'</span>, <span class="keyword">function</span>() {

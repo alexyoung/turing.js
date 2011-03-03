@@ -364,15 +364,12 @@
   };
 
   // Chained calls
-  turing.init = function(arg) {
+  turing.init(function(arg) {
     if (typeof arg === 'string' || typeof arg === 'undefined') {
       // CSS selector
-      return new turing.domChain.init(arg);
-    } else if (arg && arg.length && turing.enumerable) {
-      // A list of some kind
-      return turing.enumerable.chain(arg);
+      return turing.domChain.init(arg);
     }
-  };
+  });
 
   turing.domChain = {
     init: function(selector) {
@@ -399,7 +396,7 @@
       */
     first: function() {
       var elements = [],
-          ret = turing();
+          ret = turing.domChain;
       ret.elements = this.elements.length === 0 ? [] : [this.elements[0]];
       ret.selector = this.selector;
       ret.length = ret.elements.length;
@@ -410,7 +407,7 @@
 
     find: function(selector) {
       var elements = [],
-          ret = turing(),
+          ret = turing.domChain,
           root = document;
 
       if (this.prevObject) {
@@ -450,7 +447,7 @@
     turing.enumerable.each(turing.chainableMethods, function(methodName) {
       turing.domChain[methodName] = function(fn) {
         var elements = turing.enumerable[methodName](this, fn),
-            ret = turing();
+            ret = turing.domChain;
         this.elements = elements;
         ret.elements = elements;
         ret.selector = this.selector;
