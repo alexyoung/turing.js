@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.51';
-  turing.lesson = 'Part 51: Plugins 2';
+  turing.VERSION = '0.0.55';
+  turing.lesson = 'Part 55: DOM manipulation';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -63,7 +63,7 @@
 
   // This can be overriden by libraries that extend turing(...)
   turing.init = function(fn) {
-    middleware.push(fn);
+    middleware.unshift(fn);
   };
 
   /**
@@ -670,6 +670,17 @@ turing.functional = {
     'pseudo class':   '(:#{ident})'
   };
 
+  wrapMap = {
+    option: [ 1, "<select multiple='multiple'>", "</select>" ],
+    legend: [ 1, "<fieldset>", "</fieldset>" ],
+    thead: [ 1, "<table>", "</table>" ],
+    tr: [ 2, "<table><tbody>", "</tbody></table>" ],
+    td: [ 3, "<table><tbody><tr>", "</tr></tbody></table>" ],
+    col: [ 2, "<table><tbody></tbody><colgroup>", "</colgroup></table>" ],
+    area: [ 1, "<map>", "</map>" ],
+    _default: [ 0, "", "" ]
+  };
+
   function scanner() {
     function replacePattern(pattern, patterns) {
       var matched = true, match;
@@ -846,19 +857,22 @@ turing.functional = {
   };
 
   Searcher.prototype.matchesAllRules = function(element) {
-    var tokens = this.tokens.slice(), token = tokens.pop(),
-        matchFound = false;
-    if (!token || !element) return false;
+    if (this.tokens.length === 0) return;
 
-    while (element && token) {
+    var i = this.tokens.length - 1,
+        token = this.tokens[i],
+        matchFound = false;
+
+    while (i >= 0 && element) {
       if (this.matchesToken(element, token)) {
         matchFound = true;
-        token = tokens.pop();
+        i--;
+        token = this.tokens[i];
       }
       element = element.parentNode;
     }
 
-    return matchFound && tokens.length === 0;
+    return matchFound && i < 0;
   };
 
   Searcher.prototype.parse = function() {
@@ -997,7 +1011,41 @@ turing.functional = {
     }
   };
 
-  // Chained calls
+  /**
+   * Replaces the content of an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} html A string containing HTML
+   */
+  dom.replace = function(element, html) {
+    var context = document,
+        isTable = element.nodeName === 'TABLE',
+        insert,
+        div;
+
+    div = context.createElement('div');
+    div.innerHTML = '<' + element.nodeName + '>' + html + '</' + element.nodeName + '>';
+    insert = isTable ? div.lastChild.lastChild : div.lastChild;
+
+    element.replaceChild(insert, element.firstChild);
+    div = null;
+  };
+
+  /**
+   * Sets innerHTML.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} html A string containing HTML
+   */
+  dom.html = function(element, html) {
+    try {
+      element.innerHTML = html;
+    } catch (e) {
+      dom.replace(element, html);
+    }
+  };
+
+  // Chained API
   turing.init(function(arg) {
     if (typeof arg === 'string' || typeof arg === 'undefined') {
       // CSS selector
@@ -1037,6 +1085,19 @@ turing.functional = {
       ret.prevObject = this;
       ret.writeElements();
       return ret;
+    },
+
+    /**
+     * Chained DOM manipulation.  Applied to every element.
+     *
+     * @param {String} html A string containing HTML
+     * @returns {Object} `this`
+     */
+    html: function(html) {
+      for (var i = 0; i < this.elements.length; i++) {
+        dom.html(this[i], html);
+      }
+      return this;
     },
 
     find: function(selector) {

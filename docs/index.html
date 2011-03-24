@@ -710,8 +710,8 @@ code .this { color: #19469D; }</style>
     }
   }
 
-  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.51'</span>;
-  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 51: Plugins 2'</span>;</code></pre>
+  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.55'</span>;
+  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 55: DOM manipulation'</span>;</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -760,7 +760,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
   <span class="comment">// This can be overriden by libraries that extend turing(...)</span>
   <span class="variable">turing</span>.<span class="variable">init</span> = <span class="keyword">function</span>(<span class="variable">fn</span>) {
-    <span class="variable">middleware</span>.<span class="variable">push</span>(<span class="variable">fn</span>);
+    <span class="variable">middleware</span>.<span class="variable">unshift</span>(<span class="variable">fn</span>);
   };</code></pre>
 </td>
 </tr>
@@ -874,6 +874,17 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     <span class="string">'name and class'</span>: <span class="string">'(#{ident}\\.#{ident})'</span>,
     <span class="string">'element'</span>:        <span class="string">'(#{ident})'</span>,
     <span class="string">'pseudo class'</span>:   <span class="string">'(:#{ident})'</span>
+  };
+
+  <span class="variable">wrapMap</span> = {
+    <span class="variable">option</span>: [ <span class="number integer">1</span>, &<span class="variable">quot</span>;&<span class="variable">lt</span>;<span class="variable">select</span> <span class="variable">multiple</span>=<span class="string">'multiple'</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>;, &<span class="variable">quot</span>;&<span class="variable">lt</span>;/<span class="variable">select</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>; ],
+    <span class="variable">legend</span>: [ <span class="number integer">1</span>, &<span class="variable">quot</span>;&<span class="variable">lt</span>;<span class="variable">fieldset</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>;, &<span class="variable">quot</span>;&<span class="variable">lt</span>;/<span class="variable">fieldset</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>; ],
+    <span class="variable">thead</span>: [ <span class="number integer">1</span>, &<span class="variable">quot</span>;&<span class="variable">lt</span>;<span class="variable">table</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>;, &<span class="variable">quot</span>;&<span class="variable">lt</span>;/<span class="variable">table</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>; ],
+    <span class="variable">tr</span>: [ <span class="number integer">2</span>, &<span class="variable">quot</span>;&<span class="variable">lt</span>;<span class="variable">table</span>&<span class="variable">gt</span>;&<span class="variable">lt</span>;<span class="variable">tbody</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>;, &<span class="variable">quot</span>;&<span class="variable">lt</span>;<span class="regexp">/tbody&gt;&lt;/table</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>; ],
+    <span class="variable">td</span>: [ <span class="number integer">3</span>, &<span class="variable">quot</span>;&<span class="variable">lt</span>;<span class="variable">table</span>&<span class="variable">gt</span>;&<span class="variable">lt</span>;<span class="variable">tbody</span>&<span class="variable">gt</span>;&<span class="variable">lt</span>;<span class="variable">tr</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>;, &<span class="variable">quot</span>;&<span class="variable">lt</span>;<span class="regexp">/tr&gt;&lt;/tbody</span>&<span class="variable">gt</span>;&<span class="variable">lt</span>;/<span class="variable">table</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>; ],
+    <span class="variable">col</span>: [ <span class="number integer">2</span>, &<span class="variable">quot</span>;&<span class="variable">lt</span>;<span class="variable">table</span>&<span class="variable">gt</span>;&<span class="variable">lt</span>;<span class="variable">tbody</span>&<span class="variable">gt</span>;&<span class="variable">lt</span>;<span class="regexp">/tbody&gt;&lt;colgroup&gt;&quot;, &quot;&lt;/colgroup</span>&<span class="variable">gt</span>;&<span class="variable">lt</span>;/<span class="variable">table</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>; ],
+    <span class="variable">area</span>: [ <span class="number integer">1</span>, &<span class="variable">quot</span>;&<span class="variable">lt</span>;<span class="variable">map</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>;, &<span class="variable">quot</span>;&<span class="variable">lt</span>;/<span class="variable">map</span>&<span class="variable">gt</span>;&<span class="variable">quot</span>; ],
+    <span class="variable">_default</span>: [ <span class="number integer">0</span>, &<span class="variable">quot</span>;&<span class="variable">quot</span>;, &<span class="variable">quot</span>;&<span class="variable">quot</span>; ]
   };
 
   <span class="keyword">function</span> <span class="variable">scanner</span>() {
@@ -1052,19 +1063,22 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
   };
 
   <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">matchesAllRules</span> = <span class="keyword">function</span>(<span class="variable">element</span>) {
-    <span class="keyword">var</span> <span class="variable">tokens</span> = <span class="this">this</span>.<span class="variable">tokens</span>.<span class="variable">slice</span>(), <span class="variable">token</span> = <span class="variable">tokens</span>.<span class="variable">pop</span>(),
-        <span class="variable">matchFound</span> = <span class="variable">false</span>;
-    <span class="keyword">if</span> (!<span class="variable">token</span> || !<span class="variable">element</span>) <span class="keyword">return</span> <span class="variable">false</span>;
+    <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">tokens</span>.<span class="variable">length</span> === <span class="number integer">0</span>) <span class="keyword">return</span>;
 
-    <span class="keyword">while</span> (<span class="variable">element</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">token</span>) {
+    <span class="keyword">var</span> <span class="variable">i</span> = <span class="this">this</span>.<span class="variable">tokens</span>.<span class="variable">length</span> - <span class="number integer">1</span>,
+        <span class="variable">token</span> = <span class="this">this</span>.<span class="variable">tokens</span>[<span class="variable">i</span>],
+        <span class="variable">matchFound</span> = <span class="variable">false</span>;
+
+    <span class="keyword">while</span> (<span class="variable">i</span> &<span class="variable">gt</span>;= <span class="number integer">0</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>) {
       <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">matchesToken</span>(<span class="variable">element</span>, <span class="variable">token</span>)) {
         <span class="variable">matchFound</span> = <span class="variable">true</span>;
-        <span class="variable">token</span> = <span class="variable">tokens</span>.<span class="variable">pop</span>();
+        <span class="variable">i</span>--;
+        <span class="variable">token</span> = <span class="this">this</span>.<span class="variable">tokens</span>[<span class="variable">i</span>];
       }
       <span class="variable">element</span> = <span class="variable">element</span>.<span class="variable">parentNode</span>;
     }
 
-    <span class="keyword">return</span> <span class="variable">matchFound</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">tokens</span>.<span class="variable">length</span> === <span class="number integer">0</span>;
+    <span class="keyword">return</span> <span class="variable">matchFound</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="number integer">0</span>;
   };
 
   <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">parse</span> = <span class="keyword">function</span>() {
@@ -1207,9 +1221,51 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
       }
       <span class="variable">element</span> = <span class="variable">element</span>.<span class="variable">parentNode</span>;
     }
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Replaces the content of an element.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">replace</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">html</span>) {
+    <span class="keyword">var</span> <span class="variable">context</span> = <span class="variable">document</span>,
+        <span class="variable">isTable</span> = <span class="variable">element</span>.<span class="variable">nodeName</span> === <span class="string">'TABLE'</span>,
+        <span class="variable">insert</span>,
+        <span class="variable">div</span>;
+
+    <span class="variable">div</span> = <span class="variable">context</span>.<span class="variable">createElement</span>(<span class="string">'div'</span>);
+    <span class="variable">div</span>.<span class="variable">innerHTML</span> = <span class="string">'&lt;'</span> + <span class="variable">element</span>.<span class="variable">nodeName</span> + <span class="string">'&gt;'</span> + <span class="variable">html</span> + <span class="string">'&lt;/'</span> + <span class="variable">element</span>.<span class="variable">nodeName</span> + <span class="string">'&gt;'</span>;
+    <span class="variable">insert</span> = <span class="variable">isTable</span> ? <span class="variable">div</span>.<span class="variable">lastChild</span>.<span class="variable">lastChild</span> : <span class="variable">div</span>.<span class="variable">lastChild</span>;
+
+    <span class="variable">element</span>.<span class="variable">replaceChild</span>(<span class="variable">insert</span>, <span class="variable">element</span>.<span class="variable">firstChild</span>);
+    <span class="variable">div</span> = <span class="keyword">null</span>;
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Sets innerHTML.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">html</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">html</span>) {
+    <span class="keyword">try</span> {
+      <span class="variable">element</span>.<span class="variable">innerHTML</span> = <span class="variable">html</span>;
+    } <span class="keyword">catch</span> (<span class="variable">e</span>) {
+      <span class="variable">dom</span>.<span class="variable">replace</span>(<span class="variable">element</span>, <span class="variable">html</span>);
+    }
   };
 
-  <span class="comment">// Chained calls</span>
+  <span class="comment">// Chained API</span>
   <span class="variable">turing</span>.<span class="variable">init</span>(<span class="keyword">function</span>(<span class="variable">arg</span>) {
     <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">arg</span> === <span class="string">'string'</span> || <span class="keyword">typeof</span> <span class="variable">arg</span> === <span class="string">'undefined'</span>) {
       <span class="comment">// CSS selector</span>
@@ -1253,6 +1309,23 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
       <span class="variable">ret</span>.<span class="variable">prevObject</span> = <span class="this">this</span>;
       <span class="variable">ret</span>.<span class="variable">writeElements</span>();
       <span class="keyword">return</span> <span class="variable">ret</span>;
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Chained DOM manipulation.  Applied to every element.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li><li><p><strong>returns</strong>: <em>Object</em>  <code>this</code></p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">html</span>: <span class="keyword">function</span>(<span class="variable">html</span>) {
+      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+        <span class="variable">dom</span>.<span class="variable">html</span>(<span class="this">this</span>[<span class="variable">i</span>], <span class="variable">html</span>);
+      }
+      <span class="keyword">return</span> <span class="this">this</span>;
     },
 
     <span class="variable">find</span>: <span class="keyword">function</span>(<span class="variable">selector</span>) {
