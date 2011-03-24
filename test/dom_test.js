@@ -39,6 +39,28 @@ exports.testDOM = {
 
     assert.equal(element, turing.dom.findElement(element, '#dom-test a.link', document), 'find elements with the right selector');
     assert.equal(undefined, turing.dom.findElement(turing.dom.get('#dom-test .example1 p')[0], 'a.link', document), 'not find elements with the wrong selector');
+  },
+
+  'test HTML can be written': function() {
+    var element = turing.dom.get('#dom-html-tests')[0];
+    turing.dom.html(element, '<p><a href="#">This is a link</a>');
+    assert.equal(turing.dom.get('#dom-html-tests p').length, 1);
+    assert.equal(turing.dom.get('#dom-html-tests a').length, 1);
+  },
+
+  'test chained HTML works on multiple elements': function() {
+    turing('#dom-html-chain-test p').html('<a href="#">Link</a>');
+    assert.equal(turing.dom.get('#dom-html-chain-test p a').length, 4);
+  },
+
+  'test manipulating table rows': function() {
+    turing('#dom-html-table-test').html('<tr><td>1</td></tr><tr><td>2</td></tr>');
+    assert.equal(turing.dom.get('#dom-html-table-test tr').length, 2);
+  },
+
+  'test manipulating table rows with tbody': function() {
+    turing('#dom-html-table-tbody-test').html('<tr><td>3</td></tr><tr><td>4</td></tr>');
+    assert.equal(turing.dom.get('#dom-html-table-tbody-test tr').length, 2);
   }
 };
 
