@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.51';
-  turing.lesson = 'Part 51: Plugins 2';
+  turing.VERSION = '0.0.55';
+  turing.lesson = 'Part 55: DOM manipulation';
 
   /**
    * This alias will be used as an alternative to `turing()`.
