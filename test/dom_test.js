@@ -61,6 +61,20 @@ exports.testDOM = {
   'test manipulating table rows with tbody': function() {
     turing('#dom-html-table-tbody-test').html('<tr><td>3</td></tr><tr><td>4</td></tr>');
     assert.equal(turing.dom.get('#dom-html-table-tbody-test tr').length, 2);
+  },
+
+  'test HTML can be read': function() {
+    assert.ok(turing('#dom-html-read-test').html().match(/<p>Example/i));
+  },
+
+  'test HTML can be appended': function() {
+    turing('#dom-html-append').append('<p>Example 2</p>');
+    assert.ok(turing('#dom-html-append').html().match(/Example[^E]*Example 2/));
+  },
+
+  'test HTML can be appended to tables': function() {
+    turing('#dom-table-append').append('<tr><td>X2</td></tr>');
+    assert.ok(turing('#dom-table-append').html().match(/X1[^X]*X2/));
   }
 };
 

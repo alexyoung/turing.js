@@ -36,17 +36,6 @@
     'pseudo class':   '(:#{ident})'
   };
 
-  wrapMap = {
-    option: [ 1, "<select multiple='multiple'>", "</select>" ],
-    legend: [ 1, "<fieldset>", "</fieldset>" ],
-    thead: [ 1, "<table>", "</table>" ],
-    tr: [ 2, "<table><tbody>", "</tbody></table>" ],
-    td: [ 3, "<table><tbody><tr>", "</tr></tbody></table>" ],
-    col: [ 2, "<table><tbody></tbody><colgroup>", "</colgroup></table>" ],
-    area: [ 1, "<map>", "</map>" ],
-    _default: [ 0, "", "" ]
-  };
-
   function scanner() {
     function replacePattern(pattern, patterns) {
       var matched = true, match;
@@ -377,6 +366,19 @@
     }
   };
 
+  manipulateDOM = function(element, html, callback) {
+    var context = document,
+        isTable = element.nodeName === 'TABLE',
+        shim,
+        div;
+
+    div = context.createElement('div');
+    div.innerHTML = '<' + element.nodeName + '>' + html + '</' + element.nodeName + '>';
+    shim = isTable ? div.lastChild.lastChild : div.lastChild;
+    callback(isTable ? element.lastChild : element, shim);
+    div = null;
+  };
+
   /**
    * Replaces the content of an element.
    *
@@ -384,26 +386,33 @@
    * @param {String} html A string containing HTML
    */
   dom.replace = function(element, html) {
-    var context = document,
-        isTable = element.nodeName === 'TABLE',
-        insert,
-        div;
-
-    div = context.createElement('div');
-    div.innerHTML = '<' + element.nodeName + '>' + html + '</' + element.nodeName + '>';
-    insert = isTable ? div.lastChild.lastChild : div.lastChild;
-
-    element.replaceChild(insert, element.firstChild);
-    div = null;
+    manipulateDOM(element, html, function(insert, shim) {
+      element.replaceChild(shim, insert);
+    });
   };
 
   /**
-   * Sets innerHTML.
+   * Appends an element to the end of an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} html A string containing HTML
+   */
+  dom.append = function(element, html) {
+    manipulateDOM(element, html, function(insertTo, shim) {
+      insertTo.appendChild(shim.firstChild);
+    });
+  };
+
+  /**
+   * Set or get innerHTML.
    *
    * @param {Object} element A DOM element
    * @param {String} html A string containing HTML
    */
   dom.html = function(element, html) {
+    if (arguments.length === 1) {
+      return element.innerHTML;
+    }
     try {
       element.innerHTML = html;
     } catch (e) {
@@ -460,8 +469,25 @@
      * @returns {Object} `this`
      */
     html: function(html) {
+      if (arguments.length === 0) {
+        return this.elements.length === 0 ? null : dom.html(this[0]);
+      } else {
+        for (var i = 0; i < this.elements.length; i++) {
+          dom.html(this[i], html);
+        }
+      }
+      return this;
+    },
+
+    /**
+     * Append HTML to an element.  Applied to every element.
+     *
+     * @param {String} html A string containing HTML
+     * @returns {Object} `this`
+     */
+    append: function(html) {
       for (var i = 0; i < this.elements.length; i++) {
-        dom.html(this[i], html);
+        dom.append(this[i], html);
       }
       return this;
     },
