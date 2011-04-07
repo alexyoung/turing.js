@@ -25,7 +25,7 @@
     }
   }
 
-  turing.VERSION = '0.0.55';
+  turing.VERSION = '0.0.57';
   turing.lesson = 'Part 55: DOM manipulation';
 
   /**
@@ -643,7 +643,7 @@ turing.functional = {
  */
 (function() {
   var dom = {}, InvalidFinder = Error, macros, rules, tokenMap,
-      find, matchMap, findMap, filter, scannerRegExp;
+      find, matchMap, findMap, filter, scannerRegExp, nodeTypes;
 
   macros = {
     'nl':        '\n|\r\n|\r|\f',
@@ -661,6 +661,21 @@ turing.functional = {
     'string':    '#{string1}|#{string2}'
   };
 
+  nodeTypes = {
+    ELEMENT_NODE:                  1,
+    ATTRIBUTE_NODE:                2,
+    TEXT_NODE:                     3,
+    CDATA_SECTION_NODE:            4,
+    ENTITY_REFERENCE_NODE:         5,
+    ENTITY_NODE:                   6,
+    PROCESSING_INSTRUCTION_NODE:   7,
+    COMMENT_NODE:                  8,
+    DOCUMENT_NODE:                 9,
+    DOCUMENT_TYPE_NODE:            10,
+    DOCUMENT_FRAGMENT_NODE:        11,
+    NOTATION_NODE:                 12
+  };
+
   rules = {
     'name and id':    '(#{ident}##{ident})',
     'id':             '(##{ident})',
@@ -668,17 +683,6 @@ turing.functional = {
     'name and class': '(#{ident}\\.#{ident})',
     'element':        '(#{ident})',
     'pseudo class':   '(:#{ident})'
-  };
-
-  wrapMap = {
-    option: [ 1, "<select multiple='multiple'>", "</select>" ],
-    legend: [ 1, "<fieldset>", "</fieldset>" ],
-    thead: [ 1, "<table>", "</table>" ],
-    tr: [ 2, "<table><tbody>", "</tbody></table>" ],
-    td: [ 3, "<table><tbody><tr>", "</tr></tbody></table>" ],
-    col: [ 2, "<table><tbody></tbody><colgroup>", "</colgroup></table>" ],
-    area: [ 1, "<map>", "</map>" ],
-    _default: [ 0, "", "" ]
   };
 
   function scanner() {
@@ -1011,6 +1015,35 @@ turing.functional = {
     }
   };
 
+  function manipulateDOM(element, html, callback) {
+    var context = document,
+        isTable = element.nodeName === 'TABLE',
+        shim,
+        div;
+
+    div = context.createElement('div');
+    div.innerHTML = '<' + element.nodeName + '>' + html + '</' + element.nodeName + '>';
+    shim = isTable ? div.lastChild.lastChild : div.lastChild;
+    callback(isTable ? element.lastChild : element, shim);
+    div = null;
+  };
+
+  function getText(elements) {
+    var results = '', element, i;
+
+    for (i = 0; elements[i]; i++) {
+      element = elements[i];
+      if (element.nodeType === nodeTypes.TEXT_NODE 
+          || element.nodeType === nodeTypes.CDATA_SECTION_NODE) {
+        results += element.nodeValue;
+      } else if (element.nodeType !== nodeTypes.COMMENT_NODE) {
+        results += getText(element.childNodes);
+      }
+    }
+
+    return results;
+  };
+
   /**
    * Replaces the content of an element.
    *
@@ -1018,30 +1051,64 @@ turing.functional = {
    * @param {String} html A string containing HTML
    */
   dom.replace = function(element, html) {
-    var context = document,
-        isTable = element.nodeName === 'TABLE',
-        insert,
-        div;
-
-    div = context.createElement('div');
-    div.innerHTML = '<' + element.nodeName + '>' + html + '</' + element.nodeName + '>';
-    insert = isTable ? div.lastChild.lastChild : div.lastChild;
-
-    element.replaceChild(insert, element.firstChild);
-    div = null;
+    manipulateDOM(element, html, function(insert, shim) {
+      element.replaceChild(shim, insert);
+    });
   };
 
   /**
-   * Sets innerHTML.
+   * Appends an element to the end of an element.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} html A string containing HTML
+   */
+  dom.append = function(element, html) {
+    manipulateDOM(element, html, function(insertTo, shim) {
+      insertTo.appendChild(shim.firstChild);
+    });
+  };
+
+  /**
+   * Set or get innerHTML.
    *
    * @param {Object} element A DOM element
    * @param {String} html A string containing HTML
    */
   dom.html = function(element, html) {
+    if (arguments.length === 1) {
+      return element.innerHTML;
+    }
+
     try {
       element.innerHTML = html;
     } catch (e) {
       dom.replace(element, html);
+    }
+  };
+
+  /**
+   * Set or get text nodes.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} text A string containing text
+   */
+  dom.text = function(element, text) {
+    if (arguments.length === 1) {
+      return getText(element);
+    } else {
+      dom.empty(element);
+      element.appendChild(document.createTextNode(text));
+    }
+  };
+
+  /**
+   * Empty nodes.
+   *
+   * @param {Object} element A DOM element
+   */
+  dom.empty = function(element) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
     }
   };
 
@@ -1088,14 +1155,48 @@ turing.functional = {
     },
 
     /**
-     * Chained DOM manipulation.  Applied to every element.
+     * Get or set innerHTML.  Applied to every element.
+     *
+     * @param {String} html A string containing HTML
+     * @returns {Object} `this` or the innerHTML
+     */
+    html: function(html) {
+      if (arguments.length === 0) {
+        return this.elements.length === 0 ? null : dom.html(this[0]);
+      } else {
+        for (var i = 0; i < this.elements.length; i++) {
+          dom.html(this[i], html);
+        }
+      }
+      return this;
+    },
+
+    /**
+     * Get or set text nodes.  Applied to every element.
+     *
+     * @param {String} text A string containing text to set
+     * @returns {Object} `this` or the text content
+     */
+    text: function(text) {
+      if (arguments.length === 0) {
+        return this.elements.length === 0 ? null : getText(this.elements);
+      } else {
+        for (var i = 0; i < this.elements.length; i++) {
+          dom.text(this.elements[i], text);
+        }
+      }
+      return this;
+    },
+
+    /**
+     * Append HTML to an element.  Applied to every element.
      *
      * @param {String} html A string containing HTML
      * @returns {Object} `this`
      */
-    html: function(html) {
+    append: function(html) {
       for (var i = 0; i < this.elements.length; i++) {
-        dom.html(this[i], html);
+        dom.append(this[i], html);
       }
       return this;
     },
@@ -1154,6 +1255,7 @@ turing.functional = {
     });
   }
 
+  dom.nodeTypes = nodeTypes;
   turing.dom = dom;
 })();
 
