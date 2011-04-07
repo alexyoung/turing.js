@@ -75,6 +75,25 @@ exports.testDOM = {
   'test HTML can be appended to tables': function() {
     turing('#dom-table-append').append('<tr><td>X2</td></tr>');
     assert.ok(turing('#dom-table-append').html().match(/X1[^X]*X2/));
+  },
+
+  'test text nodes can be read': function() {
+    assert.ok(turing('#dom-html-read-test').text().match(/Example/));
+  },
+
+  'test text nodes can be written': function() {
+    turing.dom.text(turing.dom.get('#dom-text-write-test p')[0], 'Written');
+    assert.ok(turing.dom.get('#dom-text-write-test p')[0].innerHTML.match(/Written/));
+  },
+
+  'test chained text nodes can be written': function() {
+    turing('#dom-text-write-test p').text('Written again');
+    assert.ok(turing.dom.get('#dom-text-write-test p')[0].innerHTML.match(/Written again/));
+  },
+
+  'test nodes can be emptied': function() {
+    turing.dom.empty(turing.dom.get('#dom-html-empty-test')[0]);
+    assert.equal(turing.dom.get('#dom-html-empty-test')[0].innerHTML, '');
   }
 };
 

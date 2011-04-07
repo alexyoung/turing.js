@@ -25,7 +25,7 @@
     }
   }
 
-  turing.VERSION = '0.0.55';
+  turing.VERSION = '0.0.57';
   turing.lesson = 'Part 55: DOM manipulation';
 
   /**

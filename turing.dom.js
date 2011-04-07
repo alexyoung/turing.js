@@ -9,7 +9,7 @@
  */
 (function() {
   var dom = {}, InvalidFinder = Error, macros, rules, tokenMap,
-      find, matchMap, findMap, filter, scannerRegExp;
+      find, matchMap, findMap, filter, scannerRegExp, nodeTypes;
 
   macros = {
     'nl':        '\n|\r\n|\r|\f',
@@ -25,6 +25,21 @@
     'string1':   '"([^\n\r\f"]|#{nl}|#{nonascii}|#{escape})*"',
     'string2':   "'([^\n\r\f']|#{nl}|#{nonascii}|#{escape})*'",
     'string':    '#{string1}|#{string2}'
+  };
+
+  nodeTypes = {
+    ELEMENT_NODE:                  1,
+    ATTRIBUTE_NODE:                2,
+    TEXT_NODE:                     3,
+    CDATA_SECTION_NODE:            4,
+    ENTITY_REFERENCE_NODE:         5,
+    ENTITY_NODE:                   6,
+    PROCESSING_INSTRUCTION_NODE:   7,
+    COMMENT_NODE:                  8,
+    DOCUMENT_NODE:                 9,
+    DOCUMENT_TYPE_NODE:            10,
+    DOCUMENT_FRAGMENT_NODE:        11,
+    NOTATION_NODE:                 12
   };
 
   rules = {
@@ -366,7 +381,7 @@
     }
   };
 
-  manipulateDOM = function(element, html, callback) {
+  function manipulateDOM(element, html, callback) {
     var context = document,
         isTable = element.nodeName === 'TABLE',
         shim,
@@ -377,6 +392,22 @@
     shim = isTable ? div.lastChild.lastChild : div.lastChild;
     callback(isTable ? element.lastChild : element, shim);
     div = null;
+  };
+
+  function getText(elements) {
+    var results = '', element, i;
+
+    for (i = 0; elements[i]; i++) {
+      element = elements[i];
+      if (element.nodeType === nodeTypes.TEXT_NODE 
+          || element.nodeType === nodeTypes.CDATA_SECTION_NODE) {
+        results += element.nodeValue;
+      } else if (element.nodeType !== nodeTypes.COMMENT_NODE) {
+        results += getText(element.childNodes);
+      }
+    }
+
+    return results;
   };
 
   /**
@@ -413,10 +444,37 @@
     if (arguments.length === 1) {
       return element.innerHTML;
     }
+
     try {
       element.innerHTML = html;
     } catch (e) {
       dom.replace(element, html);
+    }
+  };
+
+  /**
+   * Set or get text nodes.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} text A string containing text
+   */
+  dom.text = function(element, text) {
+    if (arguments.length === 1) {
+      return getText(element);
+    } else {
+      dom.empty(element);
+      element.appendChild(document.createTextNode(text));
+    }
+  };
+
+  /**
+   * Empty nodes.
+   *
+   * @param {Object} element A DOM element
+   */
+  dom.empty = function(element) {
+    while (element.firstChild) {
+      element.removeChild(element.firstChild);
     }
   };
 
@@ -463,10 +521,10 @@
     },
 
     /**
-     * Chained DOM manipulation.  Applied to every element.
+     * Get or set innerHTML.  Applied to every element.
      *
      * @param {String} html A string containing HTML
-     * @returns {Object} `this`
+     * @returns {Object} `this` or the innerHTML
      */
     html: function(html) {
       if (arguments.length === 0) {
@@ -474,6 +532,23 @@
       } else {
         for (var i = 0; i < this.elements.length; i++) {
           dom.html(this[i], html);
+        }
+      }
+      return this;
+    },
+
+    /**
+     * Get or set text nodes.  Applied to every element.
+     *
+     * @param {String} text A string containing text to set
+     * @returns {Object} `this` or the text content
+     */
+    text: function(text) {
+      if (arguments.length === 0) {
+        return this.elements.length === 0 ? null : getText(this.elements);
+      } else {
+        for (var i = 0; i < this.elements.length; i++) {
+          dom.text(this.elements[i], text);
         }
       }
       return this;
@@ -546,6 +621,7 @@
     });
   }
 
+  dom.nodeTypes = nodeTypes;
   turing.dom = dom;
 })();
 
