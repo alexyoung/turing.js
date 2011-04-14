@@ -94,6 +94,20 @@ exports.testDOM = {
   'test nodes can be emptied': function() {
     turing.dom.empty(turing.dom.get('#dom-html-empty-test')[0]);
     assert.equal(turing.dom.get('#dom-html-empty-test')[0].innerHTML, '');
+  },
+
+  'test reading style properties': function() {
+    var element = turing.dom.get('#dom-test')[0],
+        expected = element.currentStyle ? '#f0f0f0' : 'rgb(240, 240, 240)';
+    assert.equal(turing.dom.css(element, 'background-color'), expected);
+    assert.equal(turing.dom.css(element, 'backgroundColor'), expected);
+  },
+
+  'test chained reading style properties': function() {
+    var element = turing.dom.get('#dom-test')[0],
+        expected = element.currentStyle ? '#f0f0f0' : 'rgb(240, 240, 240)';
+    assert.equal(turing('#dom-test').css('background-color'), expected);
+    assert.equal(turing('#dom-test').css('backgroundColor'), expected);
   }
 };
 
