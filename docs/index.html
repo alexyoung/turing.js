@@ -710,8 +710,8 @@ code .this { color: #19469D; }</style>
     }
   }
 
-  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.57'</span>;
-  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 55: DOM manipulation'</span>;</code></pre>
+  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.58'</span>;
+  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 58: DOM manipulation'</span>;</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -838,6 +838,757 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
   }
 })(<span class="keyword">typeof</span> <span class="variable">window</span> === <span class="string">'undefined'</span> ? <span class="this">this</span> : <span class="variable">window</span>);
 
+
+</code></pre>
+</td>
+</tr><tr class="filename"><td><h2 id="turing.dom.js"><a href="#">turing.dom</a></h2></td><td>turing.dom.js</td></tr><tr class="code">
+<td class="docs">
+<p>The Turing DOM module.
+ </p>
+</td>
+<td class="code">
+<pre><code>(<span class="keyword">function</span>() {
+  <span class="keyword">var</span> <span class="variable">dom</span> = {}, <span class="class">InvalidFinder</span> = <span class="class">Error</span>, <span class="variable">macros</span>, <span class="variable">rules</span>, <span class="variable">tokenMap</span>,
+      <span class="variable">find</span>, <span class="variable">matchMap</span>, <span class="variable">findMap</span>, <span class="variable">filter</span>, <span class="variable">scannerRegExp</span>, <span class="variable">nodeTypes</span>,
+      <span class="variable">getStyle</span>;
+
+  <span class="variable">macros</span> = {
+    <span class="string">'nl'</span>:        <span class="string">'\n|\r\n|\r|\f'</span>,
+    <span class="string">'w'</span>:         <span class="string">'[\s\r\n\f]*'</span>,
+    <span class="string">'nonascii'</span>:  <span class="string">'[^\0-\177]'</span>,
+    <span class="string">'num'</span>:       <span class="string">'-?([0-9]+|[0-9]*\.[0-9]+)'</span>,
+    <span class="string">'unicode'</span>:   <span class="string">'\\[0-9A-Fa-f]{1,6}(\r\n|[\s\n\r\t\f])?'</span>,
+    <span class="string">'escape'</span>:    <span class="string">'#{unicode}|\\[^\n\r\f0-9A-Fa-f]'</span>,
+    <span class="string">'nmchar'</span>:    <span class="string">'[_A-Za-z0-9-]|#{nonascii}|#{escape}'</span>,
+    <span class="string">'nmstart'</span>:   <span class="string">'[_A-Za-z]|#{nonascii}|#{escape}'</span>,
+    <span class="string">'ident'</span>:     <span class="string">'[-@]?(#{nmstart})(#{nmchar})*'</span>,
+    <span class="string">'name'</span>:      <span class="string">'(#{nmchar})+'</span>,
+    <span class="string">'string1'</span>:   <span class="string">'&quot;([^\n\r\f&quot;]|#{nl}|#{nonascii}|#{escape})*&quot;'</span>,
+    <span class="string">'string2'</span>:   &<span class="variable">quot</span>;<span class="string">'([^\n\r\f'</span>]|#{<span class="variable">nl</span>}|#{<span class="variable">nonascii</span>}|#{<span class="variable">escape</span>})*'&<span class="variable">quot</span>;,
+    <span class="string">'string'</span>:    <span class="string">'#{string1}|#{string2}'</span>
+  };
+
+  <span class="variable">nodeTypes</span> = {
+    <span class="class">ELEMENT_NODE</span>:                  <span class="number integer">1</span>,
+    <span class="class">ATTRIBUTE_NODE</span>:                <span class="number integer">2</span>,
+    <span class="class">TEXT_NODE</span>:                     <span class="number integer">3</span>,
+    <span class="class">CDATA_SECTION_NODE</span>:            <span class="number integer">4</span>,
+    <span class="class">ENTITY_REFERENCE_NODE</span>:         <span class="number integer">5</span>,
+    <span class="class">ENTITY_NODE</span>:                   <span class="number integer">6</span>,
+    <span class="class">PROCESSING_INSTRUCTION_NODE</span>:   <span class="number integer">7</span>,
+    <span class="class">COMMENT_NODE</span>:                  <span class="number integer">8</span>,
+    <span class="class">DOCUMENT_NODE</span>:                 <span class="number integer">9</span>,
+    <span class="class">DOCUMENT_TYPE_NODE</span>:            <span class="number integer">10</span>,
+    <span class="class">DOCUMENT_FRAGMENT_NODE</span>:        <span class="number integer">11</span>,
+    <span class="class">NOTATION_NODE</span>:                 <span class="number integer">12</span>
+  };
+
+  <span class="variable">rules</span> = {
+    <span class="string">'name and id'</span>:    <span class="string">'(#{ident}##{ident})'</span>,
+    <span class="string">'id'</span>:             <span class="string">'(##{ident})'</span>,
+    <span class="string">'class'</span>:          <span class="string">'(\\.#{ident})'</span>,
+    <span class="string">'name and class'</span>: <span class="string">'(#{ident}\\.#{ident})'</span>,
+    <span class="string">'element'</span>:        <span class="string">'(#{ident})'</span>,
+    <span class="string">'pseudo class'</span>:   <span class="string">'(:#{ident})'</span>
+  };
+
+  <span class="keyword">function</span> <span class="variable">scanner</span>() {
+    <span class="keyword">function</span> <span class="variable">replacePattern</span>(<span class="variable">pattern</span>, <span class="variable">patterns</span>) {
+      <span class="keyword">var</span> <span class="variable">matched</span> = <span class="variable">true</span>, <span class="variable">match</span>;
+      <span class="keyword">while</span> (<span class="variable">matched</span>) {
+        <span class="variable">match</span> = <span class="variable">pattern</span>.<span class="variable">match</span>(<span class="regexp">/#\{([^}]+)\}/</span>);
+        <span class="keyword">if</span> (<span class="variable">match</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">match</span>[<span class="number integer">1</span>]) {
+          <span class="variable">pattern</span> = <span class="variable">pattern</span>.<span class="variable">replace</span>(<span class="keyword">new</span> <span class="class">RegExp</span>(<span class="string">'#\{'</span> + <span class="variable">match</span>[<span class="number integer">1</span>] + <span class="string">'\}'</span>, <span class="string">'g'</span>), <span class="variable">patterns</span>[<span class="variable">match</span>[<span class="number integer">1</span>]]);
+          <span class="variable">matched</span> = <span class="variable">true</span>;
+        } <span class="keyword">else</span> {
+          <span class="variable">matched</span> = <span class="variable">false</span>;
+        }
+      }
+      <span class="keyword">return</span> <span class="variable">pattern</span>;
+    }
+
+    <span class="keyword">function</span> <span class="variable">escapePattern</span>(<span class="variable">text</span>) {
+      <span class="keyword">return</span> <span class="variable">text</span>.<span class="variable">replace</span>(<span class="regexp">/\/</span><span class="regexp">/g, '/</span>/');
+    }
+
+    <span class="keyword">function</span> <span class="variable">convertPatterns</span>() {
+      <span class="keyword">var</span> <span class="variable">key</span>, <span class="variable">pattern</span>, <span class="variable">results</span> = {}, <span class="variable">patterns</span>, <span class="variable">source</span>;
+
+      <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">2</span>) {
+        <span class="variable">source</span> = <span class="variable">arguments</span>[<span class="number integer">0</span>];
+        <span class="variable">patterns</span> = <span class="variable">arguments</span>[<span class="number integer">1</span>];
+      } <span class="keyword">else</span> {
+        <span class="variable">source</span> = <span class="variable">arguments</span>[<span class="number integer">0</span>];
+        <span class="variable">patterns</span> = <span class="variable">arguments</span>[<span class="number integer">0</span>];
+      }
+
+      <span class="keyword">for</span> (<span class="variable">key</span> <span class="keyword">in</span> <span class="variable">patterns</span>) {
+        <span class="variable">pattern</span> = <span class="variable">escapePattern</span>(<span class="variable">replacePattern</span>(<span class="variable">patterns</span>[<span class="variable">key</span>], <span class="variable">source</span>));
+        <span class="variable">results</span>[<span class="variable">key</span>] = <span class="variable">pattern</span>;
+      }
+
+      <span class="keyword">return</span> <span class="variable">results</span>;
+    }
+
+    <span class="keyword">function</span> <span class="variable">joinPatterns</span>(<span class="variable">regexps</span>) {
+      <span class="keyword">var</span> <span class="variable">results</span> = [], <span class="variable">key</span>;
+      <span class="keyword">for</span> (<span class="variable">key</span> <span class="keyword">in</span> <span class="variable">regexps</span>) {
+        <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">regexps</span>[<span class="variable">key</span>]);
+      }
+      <span class="keyword">return</span> <span class="keyword">new</span> <span class="class">RegExp</span>(<span class="variable">results</span>.<span class="variable">join</span>(<span class="string">'|'</span>), <span class="string">'g'</span>);
+    }
+
+    <span class="keyword">return</span> <span class="variable">joinPatterns</span>(
+      <span class="variable">convertPatterns</span>(<span class="variable">convertPatterns</span>(<span class="variable">macros</span>), <span class="variable">rules</span>)
+    );
+  }
+
+  <span class="variable">scannerRegExp</span> = <span class="variable">scanner</span>();
+
+  <span class="variable">find</span> = {
+    <span class="variable">byId</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">id</span>) {
+      <span class="keyword">if</span> (<span class="variable">root</span> === <span class="keyword">null</span>) <span class="keyword">return</span> [];
+      <span class="keyword">return</span> [<span class="variable">root</span>.<span class="variable">getElementById</span>(<span class="variable">id</span>)];
+    },
+
+    <span class="variable">byNodeName</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">tagName</span>) {
+      <span class="keyword">if</span> (<span class="variable">root</span> === <span class="keyword">null</span>) <span class="keyword">return</span> [];
+      <span class="keyword">var</span> <span class="variable">i</span>, <span class="variable">results</span> = [], <span class="variable">nodes</span> = <span class="variable">root</span>.<span class="variable">getElementsByTagName</span>(<span class="variable">tagName</span>);
+      <span class="keyword">for</span> (<span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">nodes</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+        <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">nodes</span>[<span class="variable">i</span>]);
+      }
+      <span class="keyword">return</span> <span class="variable">results</span>;
+    },
+
+    <span class="variable">byClassName</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">className</span>) {
+      <span class="keyword">if</span> (<span class="variable">root</span> === <span class="keyword">null</span>) <span class="keyword">return</span> [];
+      <span class="keyword">var</span> <span class="variable">i</span>, <span class="variable">results</span> = [], <span class="variable">nodes</span> = <span class="variable">root</span>.<span class="variable">getElementsByTagName</span>(<span class="string">'*'</span>);
+      <span class="keyword">for</span> (<span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">nodes</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+        <span class="keyword">if</span> (<span class="variable">nodes</span>[<span class="variable">i</span>].<span class="variable">className</span>.<span class="variable">match</span>(<span class="string">'\\b'</span> + <span class="variable">className</span> + <span class="string">'\\b'</span>)) {
+          <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">nodes</span>[<span class="variable">i</span>]);
+        }
+      }
+      <span class="keyword">return</span> <span class="variable">results</span>;
+    }
+  };
+
+  <span class="variable">findMap</span> = {
+    <span class="string">'id'</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">selector</span>) {
+      <span class="variable">selector</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'#'</span>)[<span class="number integer">1</span>];
+      <span class="keyword">return</span> <span class="variable">find</span>.<span class="variable">byId</span>(<span class="variable">root</span>, <span class="variable">selector</span>);
+    },
+
+    <span class="string">'name and id'</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">selector</span>) {
+      <span class="keyword">var</span> <span class="variable">matches</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'#'</span>), <span class="variable">name</span>, <span class="variable">id</span>;
+      <span class="variable">name</span> = <span class="variable">matches</span>[<span class="number integer">0</span>];
+      <span class="variable">id</span> = <span class="variable">matches</span>[<span class="number integer">1</span>];
+      <span class="keyword">return</span> <span class="variable">filter</span>.<span class="variable">byAttr</span>(<span class="variable">find</span>.<span class="variable">byId</span>(<span class="variable">root</span>, <span class="variable">id</span>), <span class="string">'nodeName'</span>, <span class="variable">name</span>.<span class="variable">toUpperCase</span>());
+    },
+
+    <span class="string">'name'</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">selector</span>) {
+      <span class="keyword">return</span> <span class="variable">find</span>.<span class="variable">byNodeName</span>(<span class="variable">root</span>, <span class="variable">selector</span>);
+    },
+
+    <span class="string">'class'</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">selector</span>) {
+      <span class="variable">selector</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'\.'</span>)[<span class="number integer">1</span>];
+      <span class="keyword">return</span> <span class="variable">find</span>.<span class="variable">byClassName</span>(<span class="variable">root</span>, <span class="variable">selector</span>);
+    },
+
+    <span class="string">'name and class'</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">selector</span>) {
+      <span class="keyword">var</span> <span class="variable">matches</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'\.'</span>), <span class="variable">name</span>, <span class="variable">className</span>;
+      <span class="variable">name</span> = <span class="variable">matches</span>[<span class="number integer">0</span>];
+      <span class="variable">className</span> = <span class="variable">matches</span>[<span class="number integer">1</span>];
+      <span class="keyword">return</span> <span class="variable">filter</span>.<span class="variable">byAttr</span>(<span class="variable">find</span>.<span class="variable">byClassName</span>(<span class="variable">root</span>, <span class="variable">className</span>), <span class="string">'nodeName'</span>, <span class="variable">name</span>.<span class="variable">toUpperCase</span>());
+    }
+  };
+
+  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">document</span>.<span class="variable">getElementsByClassName</span> !== <span class="string">'undefined'</span>) {
+    <span class="variable">find</span>.<span class="variable">byClassName</span> = <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">className</span>) {
+      <span class="keyword">return</span> <span class="variable">root</span>.<span class="variable">getElementsByClassName</span>(<span class="variable">className</span>);
+    };
+  }
+
+  <span class="variable">filter</span> = {
+    <span class="variable">byAttr</span>: <span class="keyword">function</span>(<span class="variable">elements</span>, <span class="variable">attribute</span>, <span class="variable">value</span>) {
+      <span class="keyword">var</span> <span class="variable">key</span>, <span class="variable">results</span> = [];
+      <span class="keyword">for</span> (<span class="variable">key</span> <span class="keyword">in</span> <span class="variable">elements</span>) {
+        <span class="keyword">if</span> (<span class="variable">elements</span>[<span class="variable">key</span>] &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">elements</span>[<span class="variable">key</span>][<span class="variable">attribute</span>] === <span class="variable">value</span>) {
+          <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">elements</span>[<span class="variable">key</span>]);
+        }
+      }
+      <span class="keyword">return</span> <span class="variable">results</span>;
+    }
+  };
+
+  <span class="variable">matchMap</span> = {
+    <span class="string">'id'</span>: <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>) {
+      <span class="variable">selector</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'#'</span>)[<span class="number integer">1</span>];
+      <span class="keyword">return</span> <span class="variable">element</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>.<span class="variable">id</span> === <span class="variable">selector</span>;
+    },
+
+    <span class="string">'name'</span>: <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">nodeName</span>) {
+      <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">nodeName</span> === <span class="variable">nodeName</span>.<span class="variable">toUpperCase</span>();
+    },
+
+    <span class="string">'name and id'</span>: <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>) {
+      <span class="keyword">return</span> <span class="variable">matchMap</span>.<span class="variable">id</span>(<span class="variable">element</span>, <span class="variable">selector</span>) &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">matchMap</span>.<span class="variable">name</span>(<span class="variable">element</span>, <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'#'</span>)[<span class="number integer">0</span>]);
+    },
+
+    <span class="string">'class'</span>: <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>) {
+      <span class="keyword">if</span> (<span class="variable">element</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>.<span class="variable">className</span>) {
+        <span class="variable">selector</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'\.'</span>)[<span class="number integer">1</span>];
+        <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">className</span>.<span class="variable">match</span>(<span class="string">'\\b'</span> + <span class="variable">selector</span> + <span class="string">'\\b'</span>); 
+      }
+    },
+
+    <span class="string">'name and class'</span>: <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>) {
+      <span class="keyword">return</span> <span class="variable">matchMap</span>[<span class="string">'class'</span>](<span class="variable">element</span>, <span class="variable">selector</span>) &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">matchMap</span>.<span class="variable">name</span>(<span class="variable">element</span>, <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'\.'</span>)[<span class="number integer">0</span>]);
+    }
+  };
+
+  <span class="keyword">function</span> <span class="class">Searcher</span>(<span class="variable">root</span>, <span class="variable">tokens</span>) {
+    <span class="this">this</span>.<span class="variable">root</span> = <span class="variable">root</span>;
+    <span class="this">this</span>.<span class="variable">key_selector</span> = <span class="variable">tokens</span>.<span class="variable">pop</span>();
+    <span class="this">this</span>.<span class="variable">tokens</span> = <span class="variable">tokens</span>;
+    <span class="this">this</span>.<span class="variable">results</span> = [];
+  }
+
+  <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">matchesToken</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">token</span>) {
+    <span class="keyword">if</span> (!<span class="variable">matchMap</span>[<span class="variable">token</span>.<span class="variable">finder</span>]) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="class">InvalidFinder</span>(<span class="string">'Invalid matcher: '</span> + <span class="variable">token</span>.<span class="variable">finder</span>); 
+    }
+    <span class="keyword">return</span> <span class="variable">matchMap</span>[<span class="variable">token</span>.<span class="variable">finder</span>](<span class="variable">element</span>, <span class="variable">token</span>.<span class="variable">identity</span>);
+  };
+
+  <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">find</span> = <span class="keyword">function</span>(<span class="variable">token</span>) {
+    <span class="keyword">if</span> (!<span class="variable">findMap</span>[<span class="variable">token</span>.<span class="variable">finder</span>]) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="class">InvalidFinder</span>(<span class="string">'Invalid finder: '</span> + <span class="variable">token</span>.<span class="variable">finder</span>); 
+    }
+    <span class="keyword">return</span> <span class="variable">findMap</span>[<span class="variable">token</span>.<span class="variable">finder</span>](<span class="this">this</span>.<span class="variable">root</span>, <span class="variable">token</span>.<span class="variable">identity</span>); 
+  };
+
+  <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">matchesAllRules</span> = <span class="keyword">function</span>(<span class="variable">element</span>) {
+    <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">tokens</span>.<span class="variable">length</span> === <span class="number integer">0</span>) <span class="keyword">return</span>;
+
+    <span class="keyword">var</span> <span class="variable">i</span> = <span class="this">this</span>.<span class="variable">tokens</span>.<span class="variable">length</span> - <span class="number integer">1</span>,
+        <span class="variable">token</span> = <span class="this">this</span>.<span class="variable">tokens</span>[<span class="variable">i</span>],
+        <span class="variable">matchFound</span> = <span class="variable">false</span>;
+
+    <span class="keyword">while</span> (<span class="variable">i</span> &<span class="variable">gt</span>;= <span class="number integer">0</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>) {
+      <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">matchesToken</span>(<span class="variable">element</span>, <span class="variable">token</span>)) {
+        <span class="variable">matchFound</span> = <span class="variable">true</span>;
+        <span class="variable">i</span>--;
+        <span class="variable">token</span> = <span class="this">this</span>.<span class="variable">tokens</span>[<span class="variable">i</span>];
+      }
+      <span class="variable">element</span> = <span class="variable">element</span>.<span class="variable">parentNode</span>;
+    }
+
+    <span class="keyword">return</span> <span class="variable">matchFound</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="number integer">0</span>;
+  };
+
+  <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">parse</span> = <span class="keyword">function</span>() {
+    <span class="comment">// Find all elements with the key selector</span>
+    <span class="keyword">var</span> <span class="variable">i</span>, <span class="variable">element</span>, <span class="variable">elements</span> = <span class="this">this</span>.<span class="variable">find</span>(<span class="this">this</span>.<span class="variable">key_selector</span>), <span class="variable">results</span> = [];
+
+    <span class="comment">// Traverse upwards from each element to see if it matches all of the rules</span>
+    <span class="keyword">for</span> (<span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+      <span class="variable">element</span> = <span class="variable">elements</span>[<span class="variable">i</span>];
+      <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">tokens</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">0</span>) {
+        <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">matchesAllRules</span>(<span class="variable">element</span>.<span class="variable">parentNode</span>)) {
+          <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">element</span>);
+        }
+      } <span class="keyword">else</span> {
+        <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">matchesToken</span>(<span class="variable">element</span>, <span class="this">this</span>.<span class="variable">key_selector</span>)) {
+          <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">element</span>);
+        }
+      }
+    }
+    <span class="keyword">return</span> <span class="variable">results</span>;
+  };
+
+  <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">values</span> = <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">results</span>;
+  };
+
+  <span class="keyword">function</span> <span class="variable">normalize</span>(<span class="variable">text</span>) {
+    <span class="keyword">return</span> <span class="variable">text</span>.<span class="variable">replace</span>(<span class="regexp">/^\s+|\s+$/g</span>, <span class="string">''</span>).<span class="variable">replace</span>(<span class="regexp">/[ \t\r\n\f]+/g</span>, <span class="string">' '</span>);
+  }
+
+  <span class="comment">// Tokens are used by the Tokenizer</span>
+  <span class="keyword">function</span> <span class="class">Token</span>(<span class="variable">identity</span>, <span class="variable">finder</span>) {
+    <span class="this">this</span>.<span class="variable">identity</span> = <span class="variable">identity</span>;
+    <span class="this">this</span>.<span class="variable">finder</span>   = <span class="variable">finder</span>;
+  }
+
+  <span class="class">Token</span>.<span class="variable">prototype</span>.<span class="variable">toString</span> = <span class="keyword">function</span>() {
+    <span class="keyword">return</span> <span class="string">'identity: '</span> + <span class="this">this</span>.<span class="variable">identity</span> + <span class="string">', finder: '</span> + <span class="this">this</span>.<span class="variable">finder</span>;
+  };
+
+  <span class="comment">// Tokenizer: classify sections of the scanner output</span>
+  <span class="keyword">function</span> <span class="class">Tokenizer</span>(<span class="variable">selector</span>) {
+    <span class="this">this</span>.<span class="variable">selector</span> = <span class="variable">normalize</span>(<span class="variable">selector</span>);
+    <span class="this">this</span>.<span class="variable">tokens</span> = [];
+    <span class="this">this</span>.<span class="variable">tokenize</span>();
+  }
+
+  <span class="class">Tokenizer</span>.<span class="variable">prototype</span>.<span class="variable">tokenize</span> = <span class="keyword">function</span>() {
+    <span class="keyword">var</span> <span class="variable">match</span>, <span class="variable">r</span>, <span class="variable">finder</span>;
+
+    <span class="variable">r</span> = <span class="variable">scannerRegExp</span>;
+    <span class="variable">r</span>.<span class="variable">lastIndex</span> = <span class="number integer">0</span>;
+
+    <span class="keyword">while</span> (<span class="variable">match</span> = <span class="variable">r</span>.<span class="variable">exec</span>(<span class="this">this</span>.<span class="variable">selector</span>)) {
+      <span class="variable">finder</span> = <span class="keyword">null</span>;
+
+      <span class="keyword">if</span> (<span class="variable">match</span>[<span class="number integer">10</span>]) {
+        <span class="variable">finder</span> = <span class="string">'id'</span>;
+      } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">match</span>[<span class="number integer">1</span>]) {
+        <span class="variable">finder</span> = <span class="string">'name and id'</span>;
+      } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">match</span>[<span class="number integer">29</span>]) {
+        <span class="variable">finder</span> = <span class="string">'name'</span>;
+      } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">match</span>[<span class="number integer">15</span>]) {
+        <span class="variable">finder</span> = <span class="string">'class'</span>;
+      } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">match</span>[<span class="number integer">20</span>]) {
+        <span class="variable">finder</span> = <span class="string">'name and class'</span>;
+      }
+      <span class="this">this</span>.<span class="variable">tokens</span>.<span class="variable">push</span>(<span class="keyword">new</span> <span class="class">Token</span>(<span class="variable">match</span>[<span class="number integer">0</span>], <span class="variable">finder</span>));
+    }
+    <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">tokens</span>;
+  };
+
+  <span class="class">Tokenizer</span>.<span class="variable">prototype</span>.<span class="variable">finders</span> = <span class="keyword">function</span>() {
+    <span class="keyword">var</span> <span class="variable">i</span>, <span class="variable">results</span> = [];
+    <span class="keyword">for</span> (<span class="variable">i</span> <span class="keyword">in</span> <span class="this">this</span>.<span class="variable">tokens</span>) {
+      <span class="variable">results</span>.<span class="variable">push</span>(<span class="this">this</span>.<span class="variable">tokens</span>[<span class="variable">i</span>].<span class="variable">finder</span>);
+    }
+    <span class="keyword">return</span> <span class="variable">results</span>;
+  };
+
+  <span class="variable">dom</span>.<span class="variable">tokenize</span> = <span class="keyword">function</span>(<span class="variable">selector</span>) {
+    <span class="keyword">var</span> <span class="variable">tokenizer</span> = <span class="keyword">new</span> <span class="class">Tokenizer</span>(<span class="variable">selector</span>);
+    <span class="keyword">return</span> <span class="variable">tokenizer</span>;
+  };
+
+  <span class="keyword">function</span> <span class="variable">get</span>(<span class="variable">selector</span>, <span class="variable">root</span>) {
+    <span class="keyword">var</span> <span class="variable">tokens</span> = <span class="variable">dom</span>.<span class="variable">tokenize</span>(<span class="variable">selector</span>).<span class="variable">tokens</span>,
+        <span class="variable">searcher</span> = <span class="keyword">new</span> <span class="class">Searcher</span>(<span class="variable">root</span>, <span class="variable">tokens</span>);
+    <span class="keyword">return</span> <span class="variable">searcher</span>.<span class="variable">parse</span>();
+  }
+
+  <span class="variable">turing</span>.<span class="variable">addDetectionTest</span>(<span class="string">'querySelectorAll'</span>, <span class="keyword">function</span>() {
+    <span class="keyword">var</span> <span class="variable">div</span> = <span class="variable">document</span>.<span class="variable">createElement</span>(<span class="string">'div'</span>);
+    <span class="variable">div</span>.<span class="variable">innerHTML</span> = <span class="string">'&lt;p class=&quot;TEST&quot;&gt;&lt;/p&gt;'</span>;
+
+    <span class="comment">// Some versions of Safari can't handle uppercase in quirks mode</span>
+    <span class="keyword">if</span> (<span class="variable">div</span>.<span class="variable">querySelectorAll</span>) {
+      <span class="keyword">if</span> (<span class="variable">div</span>.<span class="variable">querySelectorAll</span>(<span class="string">'.TEST'</span>).<span class="variable">length</span> === <span class="number integer">0</span>) <span class="keyword">return</span> <span class="variable">false</span>;
+      <span class="keyword">return</span> <span class="variable">true</span>;
+    }
+
+    <span class="comment">// Helps IE release memory associated with the div</span>
+    <span class="variable">div</span> = <span class="keyword">null</span>;
+    <span class="keyword">return</span> <span class="variable">false</span>;
+  });</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Converts property names with hyphens to camelCase.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  text A property name</p></li><li><p><strong>returns</strong>: <em>String</em>  text A camelCase property name</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="keyword">function</span> <span class="variable">camelCase</span>(<span class="variable">text</span>) {
+    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">text</span> !== <span class="string">'string'</span>) <span class="keyword">return</span>;
+    <span class="keyword">return</span> <span class="variable">text</span>.<span class="variable">replace</span>(<span class="regexp">/-([a-z])/ig</span>, <span class="keyword">function</span>(<span class="variable">all</span>, <span class="variable">letter</span>) { <span class="keyword">return</span> <span class="variable">letter</span>.<span class="variable">toUpperCase</span>(); });
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Converts property names in camelCase to ones with hyphens.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  text A property name</p></li><li><p><strong>returns</strong>: <em>String</em>  text A camelCase property name</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="keyword">function</span> <span class="variable">uncamel</span>(<span class="variable">text</span>) {
+    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">text</span> !== <span class="string">'string'</span>) <span class="keyword">return</span>;
+    <span class="keyword">return</span> <span class="variable">text</span>.<span class="variable">replace</span>(<span class="regexp">/([A-Z])/g</span>, <span class="string">'-$1'</span>).<span class="variable">toLowerCase</span>();
+  };
+
+  <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">documentElement</span>.<span class="variable">currentStyle</span>) {
+    <span class="variable">getStyle</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>) {
+      <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">currentStyle</span>[<span class="variable">camelCase</span>(<span class="variable">property</span>)];
+    };
+  } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">window</span>.<span class="variable">getComputedStyle</span>) {
+    <span class="variable">getStyle</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>) {
+      <span class="keyword">return</span> <span class="variable">document</span>.<span class="variable">defaultView</span>.<span class="variable">getComputedStyle</span>(<span class="variable">element</span>, <span class="keyword">null</span>).<span class="variable">getPropertyValue</span>(<span class="variable">uncamel</span>(<span class="variable">property</span>));
+    };
+  }</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Gets or sets style values.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element </p></li><li><p><strong>returns</strong>: <em>Object</em>  The style value</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">css</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">options</span>) {
+    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">options</span> === <span class="string">'string'</span>) {
+      <span class="keyword">return</span> <span class="variable">getStyle</span>(<span class="variable">element</span>, <span class="variable">options</span>);
+    }
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Finds DOM elements based on a CSS selector.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  selector A CSS selector</p></li><li><p><strong>returns</strong>: <em>Array</em>  The elements</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">get</span> = <span class="keyword">function</span>(<span class="variable">selector</span>) {
+    <span class="keyword">var</span> <span class="variable">root</span> = <span class="keyword">typeof</span> <span class="variable">arguments</span>[<span class="number integer">1</span>] === <span class="string">'undefined'</span> ? <span class="variable">document</span> : <span class="variable">arguments</span>[<span class="number integer">1</span>];
+    <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">toArray</span>(<span class="variable">turing</span>.<span class="variable">detect</span>(<span class="string">'querySelectorAll'</span>) ?
+      <span class="variable">root</span>.<span class="variable">querySelectorAll</span>(<span class="variable">selector</span>) : <span class="variable">get</span>(<span class="variable">selector</span>, <span class="variable">root</span>));
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Does an element satify a selector, based on root element?</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  selector A CSS selector</p></li><li><p><strong>param</strong>: <em>Object</em>  root The root DOM element</p></li><li><p><strong>returns</strong>: <em>Object</em>  The matching DOM element</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">findElement</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>, <span class="variable">root</span>) {
+    <span class="keyword">var</span> <span class="variable">tokens</span> = <span class="variable">dom</span>.<span class="variable">tokenize</span>(<span class="variable">selector</span>).<span class="variable">tokens</span>,
+        <span class="variable">searcher</span> = <span class="keyword">new</span> <span class="class">Searcher</span>(<span class="variable">root</span>, []);
+    <span class="variable">searcher</span>.<span class="variable">tokens</span> = <span class="variable">tokens</span>;
+    <span class="keyword">while</span> (<span class="variable">element</span>) {
+      <span class="keyword">if</span> (<span class="variable">searcher</span>.<span class="variable">matchesAllRules</span>(<span class="variable">element</span>)) {
+        <span class="keyword">return</span> <span class="variable">element</span>;
+      }
+      <span class="variable">element</span> = <span class="variable">element</span>.<span class="variable">parentNode</span>;
+    }
+  };
+
+  <span class="keyword">function</span> <span class="variable">manipulateDOM</span>(<span class="variable">element</span>, <span class="variable">html</span>, <span class="variable">callback</span>) {
+    <span class="keyword">var</span> <span class="variable">context</span> = <span class="variable">document</span>,
+        <span class="variable">isTable</span> = <span class="variable">element</span>.<span class="variable">nodeName</span> === <span class="string">'TABLE'</span>,
+        <span class="variable">shim</span>,
+        <span class="variable">div</span>;
+
+    <span class="variable">div</span> = <span class="variable">context</span>.<span class="variable">createElement</span>(<span class="string">'div'</span>);
+    <span class="variable">div</span>.<span class="variable">innerHTML</span> = <span class="string">'&lt;'</span> + <span class="variable">element</span>.<span class="variable">nodeName</span> + <span class="string">'&gt;'</span> + <span class="variable">html</span> + <span class="string">'&lt;/'</span> + <span class="variable">element</span>.<span class="variable">nodeName</span> + <span class="string">'&gt;'</span>;
+    <span class="variable">shim</span> = <span class="variable">isTable</span> ? <span class="variable">div</span>.<span class="variable">lastChild</span>.<span class="variable">lastChild</span> : <span class="variable">div</span>.<span class="variable">lastChild</span>;
+    <span class="variable">callback</span>(<span class="variable">isTable</span> ? <span class="variable">element</span>.<span class="variable">lastChild</span> : <span class="variable">element</span>, <span class="variable">shim</span>);
+    <span class="variable">div</span> = <span class="keyword">null</span>;
+  };
+
+  <span class="keyword">function</span> <span class="variable">getText</span>(<span class="variable">elements</span>) {
+    <span class="keyword">var</span> <span class="variable">results</span> = <span class="string">''</span>, <span class="variable">element</span>, <span class="variable">i</span>;
+
+    <span class="keyword">for</span> (<span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">elements</span>[<span class="variable">i</span>]; <span class="variable">i</span>++) {
+      <span class="variable">element</span> = <span class="variable">elements</span>[<span class="variable">i</span>];
+      <span class="keyword">if</span> (<span class="variable">element</span>.<span class="variable">nodeType</span> === <span class="variable">nodeTypes</span>.<span class="class">TEXT_NODE</span> 
+          || <span class="variable">element</span>.<span class="variable">nodeType</span> === <span class="variable">nodeTypes</span>.<span class="class">CDATA_SECTION_NODE</span>) {
+        <span class="variable">results</span> += <span class="variable">element</span>.<span class="variable">nodeValue</span>;
+      } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">element</span>.<span class="variable">nodeType</span> !== <span class="variable">nodeTypes</span>.<span class="class">COMMENT_NODE</span>) {
+        <span class="variable">results</span> += <span class="variable">getText</span>(<span class="variable">element</span>.<span class="variable">childNodes</span>);
+      }
+    }
+
+    <span class="keyword">return</span> <span class="variable">results</span>;
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Replaces the content of an element.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">replace</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">html</span>) {
+    <span class="variable">manipulateDOM</span>(<span class="variable">element</span>, <span class="variable">html</span>, <span class="keyword">function</span>(<span class="variable">insert</span>, <span class="variable">shim</span>) {
+      <span class="variable">element</span>.<span class="variable">replaceChild</span>(<span class="variable">shim</span>, <span class="variable">insert</span>);
+    });
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Appends an element to the end of an element.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">append</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">html</span>) {
+    <span class="variable">manipulateDOM</span>(<span class="variable">element</span>, <span class="variable">html</span>, <span class="keyword">function</span>(<span class="variable">insertTo</span>, <span class="variable">shim</span>) {
+      <span class="variable">insertTo</span>.<span class="variable">appendChild</span>(<span class="variable">shim</span>.<span class="variable">firstChild</span>);
+    });
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Set or get innerHTML.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">html</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">html</span>) {
+    <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">1</span>) {
+      <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">innerHTML</span>;
+    }
+
+    <span class="keyword">try</span> {
+      <span class="variable">element</span>.<span class="variable">innerHTML</span> = <span class="variable">html</span>;
+    } <span class="keyword">catch</span> (<span class="variable">e</span>) {
+      <span class="variable">dom</span>.<span class="variable">replace</span>(<span class="variable">element</span>, <span class="variable">html</span>);
+    }
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Set or get text nodes.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  text A string containing text</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">text</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">text</span>) {
+    <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">1</span>) {
+      <span class="keyword">return</span> <span class="variable">getText</span>(<span class="variable">element</span>);
+    } <span class="keyword">else</span> {
+      <span class="variable">dom</span>.<span class="variable">empty</span>(<span class="variable">element</span>);
+      <span class="variable">element</span>.<span class="variable">appendChild</span>(<span class="variable">document</span>.<span class="variable">createTextNode</span>(<span class="variable">text</span>));
+    }
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Empty nodes.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">empty</span> = <span class="keyword">function</span>(<span class="variable">element</span>) {
+    <span class="keyword">while</span> (<span class="variable">element</span>.<span class="variable">firstChild</span>) {
+      <span class="variable">element</span>.<span class="variable">removeChild</span>(<span class="variable">element</span>.<span class="variable">firstChild</span>);
+    }
+  };
+
+  <span class="comment">// Chained API</span>
+  <span class="variable">turing</span>.<span class="variable">init</span>(<span class="keyword">function</span>(<span class="variable">arg</span>) {
+    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">arg</span> === <span class="string">'string'</span> || <span class="keyword">typeof</span> <span class="variable">arg</span> === <span class="string">'undefined'</span>) {
+      <span class="comment">// CSS selector</span>
+      <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">domChain</span>.<span class="variable">init</span>(<span class="variable">arg</span>);
+    }
+  });
+
+  <span class="variable">turing</span>.<span class="variable">domChain</span> = {
+    <span class="variable">init</span>: <span class="keyword">function</span>(<span class="variable">selector</span>) {
+      <span class="this">this</span>.<span class="variable">selector</span> = <span class="variable">selector</span>;
+      <span class="this">this</span>.<span class="variable">length</span> = <span class="number integer">0</span>;
+      <span class="this">this</span>.<span class="variable">prevObject</span> = <span class="keyword">null</span>;
+      <span class="this">this</span>.<span class="variable">elements</span> = [];
+
+      <span class="keyword">if</span> (!<span class="variable">selector</span>) {
+        <span class="keyword">return</span> <span class="this">this</span>;
+      } <span class="keyword">else</span> {
+        <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">find</span>(<span class="variable">selector</span>);
+      }
+    },
+
+    <span class="variable">writeElements</span>: <span class="keyword">function</span>() {
+      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+        <span class="this">this</span>[<span class="variable">i</span>] = <span class="this">this</span>.<span class="variable">elements</span>[<span class="variable">i</span>];
+      }
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p><code>first</code> will return a domChain with a length of 1 or 0.
+      </p>
+</td>
+<td class="code">
+<pre><code><span class="variable">first</span>: <span class="keyword">function</span>() {
+      <span class="keyword">var</span> <span class="variable">elements</span> = [],
+          <span class="variable">ret</span> = <span class="variable">turing</span>.<span class="variable">domChain</span>;
+      <span class="variable">ret</span>.<span class="variable">elements</span> = <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> === <span class="number integer">0</span> ? [] : [<span class="this">this</span>.<span class="variable">elements</span>[<span class="number integer">0</span>]];
+      <span class="variable">ret</span>.<span class="variable">selector</span> = <span class="this">this</span>.<span class="variable">selector</span>;
+      <span class="variable">ret</span>.<span class="variable">length</span> = <span class="variable">ret</span>.<span class="variable">elements</span>.<span class="variable">length</span>;
+      <span class="variable">ret</span>.<span class="variable">prevObject</span> = <span class="this">this</span>;
+      <span class="variable">ret</span>.<span class="variable">writeElements</span>();
+      <span class="keyword">return</span> <span class="variable">ret</span>;
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Get or set innerHTML.  Applied to every element.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li><li><p><strong>returns</strong>: <em>Object</em>  <code>this</code> or the innerHTML</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">html</span>: <span class="keyword">function</span>(<span class="variable">html</span>) {
+      <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">0</span>) {
+        <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> === <span class="number integer">0</span> ? <span class="keyword">null</span> : <span class="variable">dom</span>.<span class="variable">html</span>(<span class="this">this</span>[<span class="number integer">0</span>]);
+      } <span class="keyword">else</span> {
+        <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+          <span class="variable">dom</span>.<span class="variable">html</span>(<span class="this">this</span>[<span class="variable">i</span>], <span class="variable">html</span>);
+        }
+      }
+      <span class="keyword">return</span> <span class="this">this</span>;
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Get or set text nodes.  Applied to every element.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  text A string containing text to set</p></li><li><p><strong>returns</strong>: <em>Object</em>  <code>this</code> or the text content</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">text</span>: <span class="keyword">function</span>(<span class="variable">text</span>) {
+      <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">0</span>) {
+        <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> === <span class="number integer">0</span> ? <span class="keyword">null</span> : <span class="variable">getText</span>(<span class="this">this</span>.<span class="variable">elements</span>);
+      } <span class="keyword">else</span> {
+        <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+          <span class="variable">dom</span>.<span class="variable">text</span>(<span class="this">this</span>.<span class="variable">elements</span>[<span class="variable">i</span>], <span class="variable">text</span>);
+        }
+      }
+      <span class="keyword">return</span> <span class="this">this</span>;
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Get or set styles.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Objects</em>  options Either options for a style to set or a property name</p></li><li><p><strong>returns</strong>: <em>Object</em>  <code>this</code> or the style property</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">css</span>: <span class="keyword">function</span>(<span class="variable">options</span>) {
+      <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">options</span> === <span class="string">'string'</span>) {
+        <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">0</span> ? <span class="variable">getStyle</span>(<span class="this">this</span>.<span class="variable">elements</span>[<span class="number integer">0</span>], <span class="variable">options</span>) : <span class="keyword">null</span>;
+      } <span class="keyword">else</span> {
+        <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+          <span class="variable">dom</span>.<span class="variable">css</span>(<span class="this">this</span>[<span class="variable">i</span>], <span class="variable">options</span>);
+        }
+      }
+      <span class="keyword">return</span> <span class="this">this</span>;
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Append HTML to an element.  Applied to every element.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li><li><p><strong>returns</strong>: <em>Object</em>  <code>this</code></p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">append</span>: <span class="keyword">function</span>(<span class="variable">html</span>) {
+      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+        <span class="variable">dom</span>.<span class="variable">append</span>(<span class="this">this</span>[<span class="variable">i</span>], <span class="variable">html</span>);
+      }
+      <span class="keyword">return</span> <span class="this">this</span>;
+    },
+
+    <span class="variable">find</span>: <span class="keyword">function</span>(<span class="variable">selector</span>) {
+      <span class="keyword">var</span> <span class="variable">elements</span> = [],
+          <span class="variable">ret</span> = <span class="variable">turing</span>.<span class="variable">domChain</span>,
+          <span class="variable">root</span> = <span class="variable">document</span>;
+
+      <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">prevObject</span>) {
+        <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">prevObject</span>.<span class="variable">elements</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">0</span>) {
+          <span class="variable">root</span> = <span class="this">this</span>.<span class="variable">prevObject</span>.<span class="variable">elements</span>[<span class="number integer">0</span>];
+        } <span class="keyword">else</span> {
+          <span class="variable">root</span> = <span class="keyword">null</span>;
+        }
+      }
+
+      <span class="variable">elements</span> = <span class="variable">dom</span>.<span class="variable">get</span>(<span class="variable">selector</span>, <span class="variable">root</span>);
+      <span class="this">this</span>.<span class="variable">elements</span> = <span class="variable">elements</span>;
+      <span class="variable">ret</span>.<span class="variable">elements</span> = <span class="variable">elements</span>;
+      <span class="variable">ret</span>.<span class="variable">selector</span> = <span class="variable">selector</span>;
+      <span class="variable">ret</span>.<span class="variable">length</span> = <span class="variable">elements</span>.<span class="variable">length</span>;
+      <span class="variable">ret</span>.<span class="variable">prevObject</span> = <span class="this">this</span>;
+      <span class="variable">ret</span>.<span class="variable">writeElements</span>();
+      <span class="keyword">return</span> <span class="variable">ret</span>;
+    }
+  };
+
+  <span class="variable">turing</span>.<span class="variable">domChain</span>.<span class="variable">init</span>.<span class="variable">prototype</span> = <span class="variable">turing</span>.<span class="variable">domChain</span>;</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Enumerable methods can be chained with DOM calls:</p>
+
+<pre><code>  turing('p').each(function(element) {
+    console.log(element);
+  });
+
+</code></pre>
+</td>
+<td class="code">
+<pre><code><span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">turing</span>.<span class="variable">enumerable</span> !== <span class="string">'undefined'</span>) {
+    <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="string">'values'</span>] = <span class="keyword">function</span>() {
+      <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">elements</span>;
+    };
+
+    <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">turing</span>.<span class="variable">chainableMethods</span>, <span class="keyword">function</span>(<span class="variable">methodName</span>) {
+      <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>] = <span class="keyword">function</span>(<span class="variable">fn</span>) {
+        <span class="keyword">var</span> <span class="variable">elements</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>[<span class="variable">methodName</span>](<span class="this">this</span>, <span class="variable">fn</span>),
+            <span class="variable">ret</span> = <span class="variable">turing</span>.<span class="variable">domChain</span>;
+        <span class="this">this</span>.<span class="variable">elements</span> = <span class="variable">elements</span>;
+        <span class="variable">ret</span>.<span class="variable">elements</span> = <span class="variable">elements</span>;
+        <span class="variable">ret</span>.<span class="variable">selector</span> = <span class="this">this</span>.<span class="variable">selector</span>;
+        <span class="variable">ret</span>.<span class="variable">length</span> = <span class="variable">elements</span>.<span class="variable">length</span>;
+        <span class="variable">ret</span>.<span class="variable">prevObject</span> = <span class="this">this</span>;
+        <span class="variable">ret</span>.<span class="variable">writeElements</span>();
+        <span class="keyword">return</span> <span class="variable">ret</span>;
+      };
+    });
+  }
+
+  <span class="variable">dom</span>.<span class="variable">nodeTypes</span> = <span class="variable">nodeTypes</span>;
+  <span class="variable">turing</span>.<span class="variable">dom</span> = <span class="variable">dom</span>;
+})();
 
 </code></pre>
 </td>
@@ -2190,679 +2941,6 @@ the plugin could not be found.</p>
   };
 
   <span class="variable">turing</span>.<span class="variable">touch</span> = <span class="variable">touch</span>;
-})();
-
-</code></pre>
-</td>
-</tr><tr class="filename"><td><h2 id="turing.dom.js"><a href="#">turing.dom</a></h2></td><td>turing.dom.js</td></tr><tr class="code">
-<td class="docs">
-<p>The Turing DOM module.
- </p>
-</td>
-<td class="code">
-<pre><code>(<span class="keyword">function</span>() {
-  <span class="keyword">var</span> <span class="variable">dom</span> = {}, <span class="class">InvalidFinder</span> = <span class="class">Error</span>, <span class="variable">macros</span>, <span class="variable">rules</span>, <span class="variable">tokenMap</span>,
-      <span class="variable">find</span>, <span class="variable">matchMap</span>, <span class="variable">findMap</span>, <span class="variable">filter</span>, <span class="variable">scannerRegExp</span>, <span class="variable">nodeTypes</span>;
-
-  <span class="variable">macros</span> = {
-    <span class="string">'nl'</span>:        <span class="string">'\n|\r\n|\r|\f'</span>,
-    <span class="string">'w'</span>:         <span class="string">'[\s\r\n\f]*'</span>,
-    <span class="string">'nonascii'</span>:  <span class="string">'[^\0-\177]'</span>,
-    <span class="string">'num'</span>:       <span class="string">'-?([0-9]+|[0-9]*\.[0-9]+)'</span>,
-    <span class="string">'unicode'</span>:   <span class="string">'\\[0-9A-Fa-f]{1,6}(\r\n|[\s\n\r\t\f])?'</span>,
-    <span class="string">'escape'</span>:    <span class="string">'#{unicode}|\\[^\n\r\f0-9A-Fa-f]'</span>,
-    <span class="string">'nmchar'</span>:    <span class="string">'[_A-Za-z0-9-]|#{nonascii}|#{escape}'</span>,
-    <span class="string">'nmstart'</span>:   <span class="string">'[_A-Za-z]|#{nonascii}|#{escape}'</span>,
-    <span class="string">'ident'</span>:     <span class="string">'[-@]?(#{nmstart})(#{nmchar})*'</span>,
-    <span class="string">'name'</span>:      <span class="string">'(#{nmchar})+'</span>,
-    <span class="string">'string1'</span>:   <span class="string">'&quot;([^\n\r\f&quot;]|#{nl}|#{nonascii}|#{escape})*&quot;'</span>,
-    <span class="string">'string2'</span>:   &<span class="variable">quot</span>;<span class="string">'([^\n\r\f'</span>]|#{<span class="variable">nl</span>}|#{<span class="variable">nonascii</span>}|#{<span class="variable">escape</span>})*'&<span class="variable">quot</span>;,
-    <span class="string">'string'</span>:    <span class="string">'#{string1}|#{string2}'</span>
-  };
-
-  <span class="variable">nodeTypes</span> = {
-    <span class="class">ELEMENT_NODE</span>:                  <span class="number integer">1</span>,
-    <span class="class">ATTRIBUTE_NODE</span>:                <span class="number integer">2</span>,
-    <span class="class">TEXT_NODE</span>:                     <span class="number integer">3</span>,
-    <span class="class">CDATA_SECTION_NODE</span>:            <span class="number integer">4</span>,
-    <span class="class">ENTITY_REFERENCE_NODE</span>:         <span class="number integer">5</span>,
-    <span class="class">ENTITY_NODE</span>:                   <span class="number integer">6</span>,
-    <span class="class">PROCESSING_INSTRUCTION_NODE</span>:   <span class="number integer">7</span>,
-    <span class="class">COMMENT_NODE</span>:                  <span class="number integer">8</span>,
-    <span class="class">DOCUMENT_NODE</span>:                 <span class="number integer">9</span>,
-    <span class="class">DOCUMENT_TYPE_NODE</span>:            <span class="number integer">10</span>,
-    <span class="class">DOCUMENT_FRAGMENT_NODE</span>:        <span class="number integer">11</span>,
-    <span class="class">NOTATION_NODE</span>:                 <span class="number integer">12</span>
-  };
-
-  <span class="variable">rules</span> = {
-    <span class="string">'name and id'</span>:    <span class="string">'(#{ident}##{ident})'</span>,
-    <span class="string">'id'</span>:             <span class="string">'(##{ident})'</span>,
-    <span class="string">'class'</span>:          <span class="string">'(\\.#{ident})'</span>,
-    <span class="string">'name and class'</span>: <span class="string">'(#{ident}\\.#{ident})'</span>,
-    <span class="string">'element'</span>:        <span class="string">'(#{ident})'</span>,
-    <span class="string">'pseudo class'</span>:   <span class="string">'(:#{ident})'</span>
-  };
-
-  <span class="keyword">function</span> <span class="variable">scanner</span>() {
-    <span class="keyword">function</span> <span class="variable">replacePattern</span>(<span class="variable">pattern</span>, <span class="variable">patterns</span>) {
-      <span class="keyword">var</span> <span class="variable">matched</span> = <span class="variable">true</span>, <span class="variable">match</span>;
-      <span class="keyword">while</span> (<span class="variable">matched</span>) {
-        <span class="variable">match</span> = <span class="variable">pattern</span>.<span class="variable">match</span>(<span class="regexp">/#\{([^}]+)\}/</span>);
-        <span class="keyword">if</span> (<span class="variable">match</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">match</span>[<span class="number integer">1</span>]) {
-          <span class="variable">pattern</span> = <span class="variable">pattern</span>.<span class="variable">replace</span>(<span class="keyword">new</span> <span class="class">RegExp</span>(<span class="string">'#\{'</span> + <span class="variable">match</span>[<span class="number integer">1</span>] + <span class="string">'\}'</span>, <span class="string">'g'</span>), <span class="variable">patterns</span>[<span class="variable">match</span>[<span class="number integer">1</span>]]);
-          <span class="variable">matched</span> = <span class="variable">true</span>;
-        } <span class="keyword">else</span> {
-          <span class="variable">matched</span> = <span class="variable">false</span>;
-        }
-      }
-      <span class="keyword">return</span> <span class="variable">pattern</span>;
-    }
-
-    <span class="keyword">function</span> <span class="variable">escapePattern</span>(<span class="variable">text</span>) {
-      <span class="keyword">return</span> <span class="variable">text</span>.<span class="variable">replace</span>(<span class="regexp">/\/</span><span class="regexp">/g, '/</span>/');
-    }
-
-    <span class="keyword">function</span> <span class="variable">convertPatterns</span>() {
-      <span class="keyword">var</span> <span class="variable">key</span>, <span class="variable">pattern</span>, <span class="variable">results</span> = {}, <span class="variable">patterns</span>, <span class="variable">source</span>;
-
-      <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">2</span>) {
-        <span class="variable">source</span> = <span class="variable">arguments</span>[<span class="number integer">0</span>];
-        <span class="variable">patterns</span> = <span class="variable">arguments</span>[<span class="number integer">1</span>];
-      } <span class="keyword">else</span> {
-        <span class="variable">source</span> = <span class="variable">arguments</span>[<span class="number integer">0</span>];
-        <span class="variable">patterns</span> = <span class="variable">arguments</span>[<span class="number integer">0</span>];
-      }
-
-      <span class="keyword">for</span> (<span class="variable">key</span> <span class="keyword">in</span> <span class="variable">patterns</span>) {
-        <span class="variable">pattern</span> = <span class="variable">escapePattern</span>(<span class="variable">replacePattern</span>(<span class="variable">patterns</span>[<span class="variable">key</span>], <span class="variable">source</span>));
-        <span class="variable">results</span>[<span class="variable">key</span>] = <span class="variable">pattern</span>;
-      }
-
-      <span class="keyword">return</span> <span class="variable">results</span>;
-    }
-
-    <span class="keyword">function</span> <span class="variable">joinPatterns</span>(<span class="variable">regexps</span>) {
-      <span class="keyword">var</span> <span class="variable">results</span> = [], <span class="variable">key</span>;
-      <span class="keyword">for</span> (<span class="variable">key</span> <span class="keyword">in</span> <span class="variable">regexps</span>) {
-        <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">regexps</span>[<span class="variable">key</span>]);
-      }
-      <span class="keyword">return</span> <span class="keyword">new</span> <span class="class">RegExp</span>(<span class="variable">results</span>.<span class="variable">join</span>(<span class="string">'|'</span>), <span class="string">'g'</span>);
-    }
-
-    <span class="keyword">return</span> <span class="variable">joinPatterns</span>(
-      <span class="variable">convertPatterns</span>(<span class="variable">convertPatterns</span>(<span class="variable">macros</span>), <span class="variable">rules</span>)
-    );
-  }
-
-  <span class="variable">scannerRegExp</span> = <span class="variable">scanner</span>();
-
-  <span class="variable">find</span> = {
-    <span class="variable">byId</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">id</span>) {
-      <span class="keyword">if</span> (<span class="variable">root</span> === <span class="keyword">null</span>) <span class="keyword">return</span> [];
-      <span class="keyword">return</span> [<span class="variable">root</span>.<span class="variable">getElementById</span>(<span class="variable">id</span>)];
-    },
-
-    <span class="variable">byNodeName</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">tagName</span>) {
-      <span class="keyword">if</span> (<span class="variable">root</span> === <span class="keyword">null</span>) <span class="keyword">return</span> [];
-      <span class="keyword">var</span> <span class="variable">i</span>, <span class="variable">results</span> = [], <span class="variable">nodes</span> = <span class="variable">root</span>.<span class="variable">getElementsByTagName</span>(<span class="variable">tagName</span>);
-      <span class="keyword">for</span> (<span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">nodes</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
-        <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">nodes</span>[<span class="variable">i</span>]);
-      }
-      <span class="keyword">return</span> <span class="variable">results</span>;
-    },
-
-    <span class="variable">byClassName</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">className</span>) {
-      <span class="keyword">if</span> (<span class="variable">root</span> === <span class="keyword">null</span>) <span class="keyword">return</span> [];
-      <span class="keyword">var</span> <span class="variable">i</span>, <span class="variable">results</span> = [], <span class="variable">nodes</span> = <span class="variable">root</span>.<span class="variable">getElementsByTagName</span>(<span class="string">'*'</span>);
-      <span class="keyword">for</span> (<span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">nodes</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
-        <span class="keyword">if</span> (<span class="variable">nodes</span>[<span class="variable">i</span>].<span class="variable">className</span>.<span class="variable">match</span>(<span class="string">'\\b'</span> + <span class="variable">className</span> + <span class="string">'\\b'</span>)) {
-          <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">nodes</span>[<span class="variable">i</span>]);
-        }
-      }
-      <span class="keyword">return</span> <span class="variable">results</span>;
-    }
-  };
-
-  <span class="variable">findMap</span> = {
-    <span class="string">'id'</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">selector</span>) {
-      <span class="variable">selector</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'#'</span>)[<span class="number integer">1</span>];
-      <span class="keyword">return</span> <span class="variable">find</span>.<span class="variable">byId</span>(<span class="variable">root</span>, <span class="variable">selector</span>);
-    },
-
-    <span class="string">'name and id'</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">selector</span>) {
-      <span class="keyword">var</span> <span class="variable">matches</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'#'</span>), <span class="variable">name</span>, <span class="variable">id</span>;
-      <span class="variable">name</span> = <span class="variable">matches</span>[<span class="number integer">0</span>];
-      <span class="variable">id</span> = <span class="variable">matches</span>[<span class="number integer">1</span>];
-      <span class="keyword">return</span> <span class="variable">filter</span>.<span class="variable">byAttr</span>(<span class="variable">find</span>.<span class="variable">byId</span>(<span class="variable">root</span>, <span class="variable">id</span>), <span class="string">'nodeName'</span>, <span class="variable">name</span>.<span class="variable">toUpperCase</span>());
-    },
-
-    <span class="string">'name'</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">selector</span>) {
-      <span class="keyword">return</span> <span class="variable">find</span>.<span class="variable">byNodeName</span>(<span class="variable">root</span>, <span class="variable">selector</span>);
-    },
-
-    <span class="string">'class'</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">selector</span>) {
-      <span class="variable">selector</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'\.'</span>)[<span class="number integer">1</span>];
-      <span class="keyword">return</span> <span class="variable">find</span>.<span class="variable">byClassName</span>(<span class="variable">root</span>, <span class="variable">selector</span>);
-    },
-
-    <span class="string">'name and class'</span>: <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">selector</span>) {
-      <span class="keyword">var</span> <span class="variable">matches</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'\.'</span>), <span class="variable">name</span>, <span class="variable">className</span>;
-      <span class="variable">name</span> = <span class="variable">matches</span>[<span class="number integer">0</span>];
-      <span class="variable">className</span> = <span class="variable">matches</span>[<span class="number integer">1</span>];
-      <span class="keyword">return</span> <span class="variable">filter</span>.<span class="variable">byAttr</span>(<span class="variable">find</span>.<span class="variable">byClassName</span>(<span class="variable">root</span>, <span class="variable">className</span>), <span class="string">'nodeName'</span>, <span class="variable">name</span>.<span class="variable">toUpperCase</span>());
-    }
-  };
-
-  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">document</span>.<span class="variable">getElementsByClassName</span> !== <span class="string">'undefined'</span>) {
-    <span class="variable">find</span>.<span class="variable">byClassName</span> = <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">className</span>) {
-      <span class="keyword">return</span> <span class="variable">root</span>.<span class="variable">getElementsByClassName</span>(<span class="variable">className</span>);
-    };
-  }
-
-  <span class="variable">filter</span> = {
-    <span class="variable">byAttr</span>: <span class="keyword">function</span>(<span class="variable">elements</span>, <span class="variable">attribute</span>, <span class="variable">value</span>) {
-      <span class="keyword">var</span> <span class="variable">key</span>, <span class="variable">results</span> = [];
-      <span class="keyword">for</span> (<span class="variable">key</span> <span class="keyword">in</span> <span class="variable">elements</span>) {
-        <span class="keyword">if</span> (<span class="variable">elements</span>[<span class="variable">key</span>] &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">elements</span>[<span class="variable">key</span>][<span class="variable">attribute</span>] === <span class="variable">value</span>) {
-          <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">elements</span>[<span class="variable">key</span>]);
-        }
-      }
-      <span class="keyword">return</span> <span class="variable">results</span>;
-    }
-  };
-
-  <span class="variable">matchMap</span> = {
-    <span class="string">'id'</span>: <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>) {
-      <span class="variable">selector</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'#'</span>)[<span class="number integer">1</span>];
-      <span class="keyword">return</span> <span class="variable">element</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>.<span class="variable">id</span> === <span class="variable">selector</span>;
-    },
-
-    <span class="string">'name'</span>: <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">nodeName</span>) {
-      <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">nodeName</span> === <span class="variable">nodeName</span>.<span class="variable">toUpperCase</span>();
-    },
-
-    <span class="string">'name and id'</span>: <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>) {
-      <span class="keyword">return</span> <span class="variable">matchMap</span>.<span class="variable">id</span>(<span class="variable">element</span>, <span class="variable">selector</span>) &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">matchMap</span>.<span class="variable">name</span>(<span class="variable">element</span>, <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'#'</span>)[<span class="number integer">0</span>]);
-    },
-
-    <span class="string">'class'</span>: <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>) {
-      <span class="keyword">if</span> (<span class="variable">element</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>.<span class="variable">className</span>) {
-        <span class="variable">selector</span> = <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'\.'</span>)[<span class="number integer">1</span>];
-        <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">className</span>.<span class="variable">match</span>(<span class="string">'\\b'</span> + <span class="variable">selector</span> + <span class="string">'\\b'</span>); 
-      }
-    },
-
-    <span class="string">'name and class'</span>: <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>) {
-      <span class="keyword">return</span> <span class="variable">matchMap</span>[<span class="string">'class'</span>](<span class="variable">element</span>, <span class="variable">selector</span>) &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">matchMap</span>.<span class="variable">name</span>(<span class="variable">element</span>, <span class="variable">selector</span>.<span class="variable">split</span>(<span class="string">'\.'</span>)[<span class="number integer">0</span>]);
-    }
-  };
-
-  <span class="keyword">function</span> <span class="class">Searcher</span>(<span class="variable">root</span>, <span class="variable">tokens</span>) {
-    <span class="this">this</span>.<span class="variable">root</span> = <span class="variable">root</span>;
-    <span class="this">this</span>.<span class="variable">key_selector</span> = <span class="variable">tokens</span>.<span class="variable">pop</span>();
-    <span class="this">this</span>.<span class="variable">tokens</span> = <span class="variable">tokens</span>;
-    <span class="this">this</span>.<span class="variable">results</span> = [];
-  }
-
-  <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">matchesToken</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">token</span>) {
-    <span class="keyword">if</span> (!<span class="variable">matchMap</span>[<span class="variable">token</span>.<span class="variable">finder</span>]) {
-      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="class">InvalidFinder</span>(<span class="string">'Invalid matcher: '</span> + <span class="variable">token</span>.<span class="variable">finder</span>); 
-    }
-    <span class="keyword">return</span> <span class="variable">matchMap</span>[<span class="variable">token</span>.<span class="variable">finder</span>](<span class="variable">element</span>, <span class="variable">token</span>.<span class="variable">identity</span>);
-  };
-
-  <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">find</span> = <span class="keyword">function</span>(<span class="variable">token</span>) {
-    <span class="keyword">if</span> (!<span class="variable">findMap</span>[<span class="variable">token</span>.<span class="variable">finder</span>]) {
-      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="class">InvalidFinder</span>(<span class="string">'Invalid finder: '</span> + <span class="variable">token</span>.<span class="variable">finder</span>); 
-    }
-    <span class="keyword">return</span> <span class="variable">findMap</span>[<span class="variable">token</span>.<span class="variable">finder</span>](<span class="this">this</span>.<span class="variable">root</span>, <span class="variable">token</span>.<span class="variable">identity</span>); 
-  };
-
-  <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">matchesAllRules</span> = <span class="keyword">function</span>(<span class="variable">element</span>) {
-    <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">tokens</span>.<span class="variable">length</span> === <span class="number integer">0</span>) <span class="keyword">return</span>;
-
-    <span class="keyword">var</span> <span class="variable">i</span> = <span class="this">this</span>.<span class="variable">tokens</span>.<span class="variable">length</span> - <span class="number integer">1</span>,
-        <span class="variable">token</span> = <span class="this">this</span>.<span class="variable">tokens</span>[<span class="variable">i</span>],
-        <span class="variable">matchFound</span> = <span class="variable">false</span>;
-
-    <span class="keyword">while</span> (<span class="variable">i</span> &<span class="variable">gt</span>;= <span class="number integer">0</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>) {
-      <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">matchesToken</span>(<span class="variable">element</span>, <span class="variable">token</span>)) {
-        <span class="variable">matchFound</span> = <span class="variable">true</span>;
-        <span class="variable">i</span>--;
-        <span class="variable">token</span> = <span class="this">this</span>.<span class="variable">tokens</span>[<span class="variable">i</span>];
-      }
-      <span class="variable">element</span> = <span class="variable">element</span>.<span class="variable">parentNode</span>;
-    }
-
-    <span class="keyword">return</span> <span class="variable">matchFound</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="number integer">0</span>;
-  };
-
-  <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">parse</span> = <span class="keyword">function</span>() {
-    <span class="comment">// Find all elements with the key selector</span>
-    <span class="keyword">var</span> <span class="variable">i</span>, <span class="variable">element</span>, <span class="variable">elements</span> = <span class="this">this</span>.<span class="variable">find</span>(<span class="this">this</span>.<span class="variable">key_selector</span>), <span class="variable">results</span> = [];
-
-    <span class="comment">// Traverse upwards from each element to see if it matches all of the rules</span>
-    <span class="keyword">for</span> (<span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
-      <span class="variable">element</span> = <span class="variable">elements</span>[<span class="variable">i</span>];
-      <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">tokens</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">0</span>) {
-        <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">matchesAllRules</span>(<span class="variable">element</span>.<span class="variable">parentNode</span>)) {
-          <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">element</span>);
-        }
-      } <span class="keyword">else</span> {
-        <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">matchesToken</span>(<span class="variable">element</span>, <span class="this">this</span>.<span class="variable">key_selector</span>)) {
-          <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">element</span>);
-        }
-      }
-    }
-    <span class="keyword">return</span> <span class="variable">results</span>;
-  };
-
-  <span class="class">Searcher</span>.<span class="variable">prototype</span>.<span class="variable">values</span> = <span class="keyword">function</span>() {
-    <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">results</span>;
-  };
-
-  <span class="keyword">function</span> <span class="variable">normalize</span>(<span class="variable">text</span>) {
-    <span class="keyword">return</span> <span class="variable">text</span>.<span class="variable">replace</span>(<span class="regexp">/^\s+|\s+$/g</span>, <span class="string">''</span>).<span class="variable">replace</span>(<span class="regexp">/[ \t\r\n\f]+/g</span>, <span class="string">' '</span>);
-  }
-
-  <span class="comment">// Tokens are used by the Tokenizer</span>
-  <span class="keyword">function</span> <span class="class">Token</span>(<span class="variable">identity</span>, <span class="variable">finder</span>) {
-    <span class="this">this</span>.<span class="variable">identity</span> = <span class="variable">identity</span>;
-    <span class="this">this</span>.<span class="variable">finder</span>   = <span class="variable">finder</span>;
-  }
-
-  <span class="class">Token</span>.<span class="variable">prototype</span>.<span class="variable">toString</span> = <span class="keyword">function</span>() {
-    <span class="keyword">return</span> <span class="string">'identity: '</span> + <span class="this">this</span>.<span class="variable">identity</span> + <span class="string">', finder: '</span> + <span class="this">this</span>.<span class="variable">finder</span>;
-  };
-
-  <span class="comment">// Tokenizer: classify sections of the scanner output</span>
-  <span class="keyword">function</span> <span class="class">Tokenizer</span>(<span class="variable">selector</span>) {
-    <span class="this">this</span>.<span class="variable">selector</span> = <span class="variable">normalize</span>(<span class="variable">selector</span>);
-    <span class="this">this</span>.<span class="variable">tokens</span> = [];
-    <span class="this">this</span>.<span class="variable">tokenize</span>();
-  }
-
-  <span class="class">Tokenizer</span>.<span class="variable">prototype</span>.<span class="variable">tokenize</span> = <span class="keyword">function</span>() {
-    <span class="keyword">var</span> <span class="variable">match</span>, <span class="variable">r</span>, <span class="variable">finder</span>;
-
-    <span class="variable">r</span> = <span class="variable">scannerRegExp</span>;
-    <span class="variable">r</span>.<span class="variable">lastIndex</span> = <span class="number integer">0</span>;
-
-    <span class="keyword">while</span> (<span class="variable">match</span> = <span class="variable">r</span>.<span class="variable">exec</span>(<span class="this">this</span>.<span class="variable">selector</span>)) {
-      <span class="variable">finder</span> = <span class="keyword">null</span>;
-
-      <span class="keyword">if</span> (<span class="variable">match</span>[<span class="number integer">10</span>]) {
-        <span class="variable">finder</span> = <span class="string">'id'</span>;
-      } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">match</span>[<span class="number integer">1</span>]) {
-        <span class="variable">finder</span> = <span class="string">'name and id'</span>;
-      } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">match</span>[<span class="number integer">29</span>]) {
-        <span class="variable">finder</span> = <span class="string">'name'</span>;
-      } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">match</span>[<span class="number integer">15</span>]) {
-        <span class="variable">finder</span> = <span class="string">'class'</span>;
-      } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">match</span>[<span class="number integer">20</span>]) {
-        <span class="variable">finder</span> = <span class="string">'name and class'</span>;
-      }
-      <span class="this">this</span>.<span class="variable">tokens</span>.<span class="variable">push</span>(<span class="keyword">new</span> <span class="class">Token</span>(<span class="variable">match</span>[<span class="number integer">0</span>], <span class="variable">finder</span>));
-    }
-    <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">tokens</span>;
-  };
-
-  <span class="class">Tokenizer</span>.<span class="variable">prototype</span>.<span class="variable">finders</span> = <span class="keyword">function</span>() {
-    <span class="keyword">var</span> <span class="variable">i</span>, <span class="variable">results</span> = [];
-    <span class="keyword">for</span> (<span class="variable">i</span> <span class="keyword">in</span> <span class="this">this</span>.<span class="variable">tokens</span>) {
-      <span class="variable">results</span>.<span class="variable">push</span>(<span class="this">this</span>.<span class="variable">tokens</span>[<span class="variable">i</span>].<span class="variable">finder</span>);
-    }
-    <span class="keyword">return</span> <span class="variable">results</span>;
-  };
-
-  <span class="variable">dom</span>.<span class="variable">tokenize</span> = <span class="keyword">function</span>(<span class="variable">selector</span>) {
-    <span class="keyword">var</span> <span class="variable">tokenizer</span> = <span class="keyword">new</span> <span class="class">Tokenizer</span>(<span class="variable">selector</span>);
-    <span class="keyword">return</span> <span class="variable">tokenizer</span>;
-  };
-
-  <span class="keyword">function</span> <span class="variable">get</span>(<span class="variable">selector</span>, <span class="variable">root</span>) {
-    <span class="keyword">var</span> <span class="variable">tokens</span> = <span class="variable">dom</span>.<span class="variable">tokenize</span>(<span class="variable">selector</span>).<span class="variable">tokens</span>,
-        <span class="variable">searcher</span> = <span class="keyword">new</span> <span class="class">Searcher</span>(<span class="variable">root</span>, <span class="variable">tokens</span>);
-    <span class="keyword">return</span> <span class="variable">searcher</span>.<span class="variable">parse</span>();
-  }
-
-  <span class="variable">turing</span>.<span class="variable">addDetectionTest</span>(<span class="string">'querySelectorAll'</span>, <span class="keyword">function</span>() {
-    <span class="keyword">var</span> <span class="variable">div</span> = <span class="variable">document</span>.<span class="variable">createElement</span>(<span class="string">'div'</span>);
-    <span class="variable">div</span>.<span class="variable">innerHTML</span> = <span class="string">'&lt;p class=&quot;TEST&quot;&gt;&lt;/p&gt;'</span>;
-
-    <span class="comment">// Some versions of Safari can't handle uppercase in quirks mode</span>
-    <span class="keyword">if</span> (<span class="variable">div</span>.<span class="variable">querySelectorAll</span>) {
-      <span class="keyword">if</span> (<span class="variable">div</span>.<span class="variable">querySelectorAll</span>(<span class="string">'.TEST'</span>).<span class="variable">length</span> === <span class="number integer">0</span>) <span class="keyword">return</span> <span class="variable">false</span>;
-      <span class="keyword">return</span> <span class="variable">true</span>;
-    }
-
-    <span class="comment">// Helps IE release memory associated with the div</span>
-    <span class="variable">div</span> = <span class="keyword">null</span>;
-    <span class="keyword">return</span> <span class="variable">false</span>;
-  });</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Finds DOM elements based on a CSS selector.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>String</em>  selector A CSS selector</p></li><li><p><strong>returns</strong>: <em>Array</em>  The elements</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">dom</span>.<span class="variable">get</span> = <span class="keyword">function</span>(<span class="variable">selector</span>) {
-    <span class="keyword">var</span> <span class="variable">root</span> = <span class="keyword">typeof</span> <span class="variable">arguments</span>[<span class="number integer">1</span>] === <span class="string">'undefined'</span> ? <span class="variable">document</span> : <span class="variable">arguments</span>[<span class="number integer">1</span>];
-    <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">toArray</span>(<span class="variable">turing</span>.<span class="variable">detect</span>(<span class="string">'querySelectorAll'</span>) ?
-      <span class="variable">root</span>.<span class="variable">querySelectorAll</span>(<span class="variable">selector</span>) : <span class="variable">get</span>(<span class="variable">selector</span>, <span class="variable">root</span>));
-  };</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Does an element satify a selector, based on root element?</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  selector A CSS selector</p></li><li><p><strong>param</strong>: <em>Object</em>  root The root DOM element</p></li><li><p><strong>returns</strong>: <em>Object</em>  The matching DOM element</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">dom</span>.<span class="variable">findElement</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">selector</span>, <span class="variable">root</span>) {
-    <span class="keyword">var</span> <span class="variable">tokens</span> = <span class="variable">dom</span>.<span class="variable">tokenize</span>(<span class="variable">selector</span>).<span class="variable">tokens</span>,
-        <span class="variable">searcher</span> = <span class="keyword">new</span> <span class="class">Searcher</span>(<span class="variable">root</span>, []);
-    <span class="variable">searcher</span>.<span class="variable">tokens</span> = <span class="variable">tokens</span>;
-    <span class="keyword">while</span> (<span class="variable">element</span>) {
-      <span class="keyword">if</span> (<span class="variable">searcher</span>.<span class="variable">matchesAllRules</span>(<span class="variable">element</span>)) {
-        <span class="keyword">return</span> <span class="variable">element</span>;
-      }
-      <span class="variable">element</span> = <span class="variable">element</span>.<span class="variable">parentNode</span>;
-    }
-  };
-
-  <span class="keyword">function</span> <span class="variable">manipulateDOM</span>(<span class="variable">element</span>, <span class="variable">html</span>, <span class="variable">callback</span>) {
-    <span class="keyword">var</span> <span class="variable">context</span> = <span class="variable">document</span>,
-        <span class="variable">isTable</span> = <span class="variable">element</span>.<span class="variable">nodeName</span> === <span class="string">'TABLE'</span>,
-        <span class="variable">shim</span>,
-        <span class="variable">div</span>;
-
-    <span class="variable">div</span> = <span class="variable">context</span>.<span class="variable">createElement</span>(<span class="string">'div'</span>);
-    <span class="variable">div</span>.<span class="variable">innerHTML</span> = <span class="string">'&lt;'</span> + <span class="variable">element</span>.<span class="variable">nodeName</span> + <span class="string">'&gt;'</span> + <span class="variable">html</span> + <span class="string">'&lt;/'</span> + <span class="variable">element</span>.<span class="variable">nodeName</span> + <span class="string">'&gt;'</span>;
-    <span class="variable">shim</span> = <span class="variable">isTable</span> ? <span class="variable">div</span>.<span class="variable">lastChild</span>.<span class="variable">lastChild</span> : <span class="variable">div</span>.<span class="variable">lastChild</span>;
-    <span class="variable">callback</span>(<span class="variable">isTable</span> ? <span class="variable">element</span>.<span class="variable">lastChild</span> : <span class="variable">element</span>, <span class="variable">shim</span>);
-    <span class="variable">div</span> = <span class="keyword">null</span>;
-  };
-
-  <span class="keyword">function</span> <span class="variable">getText</span>(<span class="variable">elements</span>) {
-    <span class="keyword">var</span> <span class="variable">results</span> = <span class="string">''</span>, <span class="variable">element</span>, <span class="variable">i</span>;
-
-    <span class="keyword">for</span> (<span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">elements</span>[<span class="variable">i</span>]; <span class="variable">i</span>++) {
-      <span class="variable">element</span> = <span class="variable">elements</span>[<span class="variable">i</span>];
-      <span class="keyword">if</span> (<span class="variable">element</span>.<span class="variable">nodeType</span> === <span class="variable">nodeTypes</span>.<span class="class">TEXT_NODE</span> 
-          || <span class="variable">element</span>.<span class="variable">nodeType</span> === <span class="variable">nodeTypes</span>.<span class="class">CDATA_SECTION_NODE</span>) {
-        <span class="variable">results</span> += <span class="variable">element</span>.<span class="variable">nodeValue</span>;
-      } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">element</span>.<span class="variable">nodeType</span> !== <span class="variable">nodeTypes</span>.<span class="class">COMMENT_NODE</span>) {
-        <span class="variable">results</span> += <span class="variable">getText</span>(<span class="variable">element</span>.<span class="variable">childNodes</span>);
-      }
-    }
-
-    <span class="keyword">return</span> <span class="variable">results</span>;
-  };</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Replaces the content of an element.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">dom</span>.<span class="variable">replace</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">html</span>) {
-    <span class="variable">manipulateDOM</span>(<span class="variable">element</span>, <span class="variable">html</span>, <span class="keyword">function</span>(<span class="variable">insert</span>, <span class="variable">shim</span>) {
-      <span class="variable">element</span>.<span class="variable">replaceChild</span>(<span class="variable">shim</span>, <span class="variable">insert</span>);
-    });
-  };</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Appends an element to the end of an element.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">dom</span>.<span class="variable">append</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">html</span>) {
-    <span class="variable">manipulateDOM</span>(<span class="variable">element</span>, <span class="variable">html</span>, <span class="keyword">function</span>(<span class="variable">insertTo</span>, <span class="variable">shim</span>) {
-      <span class="variable">insertTo</span>.<span class="variable">appendChild</span>(<span class="variable">shim</span>.<span class="variable">firstChild</span>);
-    });
-  };</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Set or get innerHTML.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">dom</span>.<span class="variable">html</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">html</span>) {
-    <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">1</span>) {
-      <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">innerHTML</span>;
-    }
-
-    <span class="keyword">try</span> {
-      <span class="variable">element</span>.<span class="variable">innerHTML</span> = <span class="variable">html</span>;
-    } <span class="keyword">catch</span> (<span class="variable">e</span>) {
-      <span class="variable">dom</span>.<span class="variable">replace</span>(<span class="variable">element</span>, <span class="variable">html</span>);
-    }
-  };</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Set or get text nodes.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  text A string containing text</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">dom</span>.<span class="variable">text</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">text</span>) {
-    <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">1</span>) {
-      <span class="keyword">return</span> <span class="variable">getText</span>(<span class="variable">element</span>);
-    } <span class="keyword">else</span> {
-      <span class="variable">dom</span>.<span class="variable">empty</span>(<span class="variable">element</span>);
-      <span class="variable">element</span>.<span class="variable">appendChild</span>(<span class="variable">document</span>.<span class="variable">createTextNode</span>(<span class="variable">text</span>));
-    }
-  };</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Empty nodes.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">dom</span>.<span class="variable">empty</span> = <span class="keyword">function</span>(<span class="variable">element</span>) {
-    <span class="keyword">while</span> (<span class="variable">element</span>.<span class="variable">firstChild</span>) {
-      <span class="variable">element</span>.<span class="variable">removeChild</span>(<span class="variable">element</span>.<span class="variable">firstChild</span>);
-    }
-  };
-
-  <span class="comment">// Chained API</span>
-  <span class="variable">turing</span>.<span class="variable">init</span>(<span class="keyword">function</span>(<span class="variable">arg</span>) {
-    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">arg</span> === <span class="string">'string'</span> || <span class="keyword">typeof</span> <span class="variable">arg</span> === <span class="string">'undefined'</span>) {
-      <span class="comment">// CSS selector</span>
-      <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">domChain</span>.<span class="variable">init</span>(<span class="variable">arg</span>);
-    }
-  });
-
-  <span class="variable">turing</span>.<span class="variable">domChain</span> = {
-    <span class="variable">init</span>: <span class="keyword">function</span>(<span class="variable">selector</span>) {
-      <span class="this">this</span>.<span class="variable">selector</span> = <span class="variable">selector</span>;
-      <span class="this">this</span>.<span class="variable">length</span> = <span class="number integer">0</span>;
-      <span class="this">this</span>.<span class="variable">prevObject</span> = <span class="keyword">null</span>;
-      <span class="this">this</span>.<span class="variable">elements</span> = [];
-
-      <span class="keyword">if</span> (!<span class="variable">selector</span>) {
-        <span class="keyword">return</span> <span class="this">this</span>;
-      } <span class="keyword">else</span> {
-        <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">find</span>(<span class="variable">selector</span>);
-      }
-    },
-
-    <span class="variable">writeElements</span>: <span class="keyword">function</span>() {
-      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
-        <span class="this">this</span>[<span class="variable">i</span>] = <span class="this">this</span>.<span class="variable">elements</span>[<span class="variable">i</span>];
-      }
-    },</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p><code>first</code> will return a domChain with a length of 1 or 0.
-      </p>
-</td>
-<td class="code">
-<pre><code><span class="variable">first</span>: <span class="keyword">function</span>() {
-      <span class="keyword">var</span> <span class="variable">elements</span> = [],
-          <span class="variable">ret</span> = <span class="variable">turing</span>.<span class="variable">domChain</span>;
-      <span class="variable">ret</span>.<span class="variable">elements</span> = <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> === <span class="number integer">0</span> ? [] : [<span class="this">this</span>.<span class="variable">elements</span>[<span class="number integer">0</span>]];
-      <span class="variable">ret</span>.<span class="variable">selector</span> = <span class="this">this</span>.<span class="variable">selector</span>;
-      <span class="variable">ret</span>.<span class="variable">length</span> = <span class="variable">ret</span>.<span class="variable">elements</span>.<span class="variable">length</span>;
-      <span class="variable">ret</span>.<span class="variable">prevObject</span> = <span class="this">this</span>;
-      <span class="variable">ret</span>.<span class="variable">writeElements</span>();
-      <span class="keyword">return</span> <span class="variable">ret</span>;
-    },</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Get or set innerHTML.  Applied to every element.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li><li><p><strong>returns</strong>: <em>Object</em>  <code>this</code> or the innerHTML</p><p> </p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">html</span>: <span class="keyword">function</span>(<span class="variable">html</span>) {
-      <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">0</span>) {
-        <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> === <span class="number integer">0</span> ? <span class="keyword">null</span> : <span class="variable">dom</span>.<span class="variable">html</span>(<span class="this">this</span>[<span class="number integer">0</span>]);
-      } <span class="keyword">else</span> {
-        <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
-          <span class="variable">dom</span>.<span class="variable">html</span>(<span class="this">this</span>[<span class="variable">i</span>], <span class="variable">html</span>);
-        }
-      }
-      <span class="keyword">return</span> <span class="this">this</span>;
-    },</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Get or set text nodes.  Applied to every element.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>String</em>  text A string containing text to set</p></li><li><p><strong>returns</strong>: <em>Object</em>  <code>this</code> or the text content</p><p> </p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">text</span>: <span class="keyword">function</span>(<span class="variable">text</span>) {
-      <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">0</span>) {
-        <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> === <span class="number integer">0</span> ? <span class="keyword">null</span> : <span class="variable">getText</span>(<span class="this">this</span>.<span class="variable">elements</span>);
-      } <span class="keyword">else</span> {
-        <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
-          <span class="variable">dom</span>.<span class="variable">text</span>(<span class="this">this</span>.<span class="variable">elements</span>[<span class="variable">i</span>], <span class="variable">text</span>);
-        }
-      }
-      <span class="keyword">return</span> <span class="this">this</span>;
-    },</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Append HTML to an element.  Applied to every element.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>String</em>  html A string containing HTML</p></li><li><p><strong>returns</strong>: <em>Object</em>  <code>this</code></p><p> </p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">append</span>: <span class="keyword">function</span>(<span class="variable">html</span>) {
-      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
-        <span class="variable">dom</span>.<span class="variable">append</span>(<span class="this">this</span>[<span class="variable">i</span>], <span class="variable">html</span>);
-      }
-      <span class="keyword">return</span> <span class="this">this</span>;
-    },
-
-    <span class="variable">find</span>: <span class="keyword">function</span>(<span class="variable">selector</span>) {
-      <span class="keyword">var</span> <span class="variable">elements</span> = [],
-          <span class="variable">ret</span> = <span class="variable">turing</span>.<span class="variable">domChain</span>,
-          <span class="variable">root</span> = <span class="variable">document</span>;
-
-      <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">prevObject</span>) {
-        <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">prevObject</span>.<span class="variable">elements</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">0</span>) {
-          <span class="variable">root</span> = <span class="this">this</span>.<span class="variable">prevObject</span>.<span class="variable">elements</span>[<span class="number integer">0</span>];
-        } <span class="keyword">else</span> {
-          <span class="variable">root</span> = <span class="keyword">null</span>;
-        }
-      }
-
-      <span class="variable">elements</span> = <span class="variable">dom</span>.<span class="variable">get</span>(<span class="variable">selector</span>, <span class="variable">root</span>);
-      <span class="this">this</span>.<span class="variable">elements</span> = <span class="variable">elements</span>;
-      <span class="variable">ret</span>.<span class="variable">elements</span> = <span class="variable">elements</span>;
-      <span class="variable">ret</span>.<span class="variable">selector</span> = <span class="variable">selector</span>;
-      <span class="variable">ret</span>.<span class="variable">length</span> = <span class="variable">elements</span>.<span class="variable">length</span>;
-      <span class="variable">ret</span>.<span class="variable">prevObject</span> = <span class="this">this</span>;
-      <span class="variable">ret</span>.<span class="variable">writeElements</span>();
-      <span class="keyword">return</span> <span class="variable">ret</span>;
-    }
-  };
-
-  <span class="variable">turing</span>.<span class="variable">domChain</span>.<span class="variable">init</span>.<span class="variable">prototype</span> = <span class="variable">turing</span>.<span class="variable">domChain</span>;</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Enumerable methods can be chained with DOM calls:</p>
-
-<pre><code>  turing('p').each(function(element) {
-    console.log(element);
-  });
-
-</code></pre>
-</td>
-<td class="code">
-<pre><code><span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">turing</span>.<span class="variable">enumerable</span> !== <span class="string">'undefined'</span>) {
-    <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="string">'values'</span>] = <span class="keyword">function</span>() {
-      <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">elements</span>;
-    };
-
-    <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">turing</span>.<span class="variable">chainableMethods</span>, <span class="keyword">function</span>(<span class="variable">methodName</span>) {
-      <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>] = <span class="keyword">function</span>(<span class="variable">fn</span>) {
-        <span class="keyword">var</span> <span class="variable">elements</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>[<span class="variable">methodName</span>](<span class="this">this</span>, <span class="variable">fn</span>),
-            <span class="variable">ret</span> = <span class="variable">turing</span>.<span class="variable">domChain</span>;
-        <span class="this">this</span>.<span class="variable">elements</span> = <span class="variable">elements</span>;
-        <span class="variable">ret</span>.<span class="variable">elements</span> = <span class="variable">elements</span>;
-        <span class="variable">ret</span>.<span class="variable">selector</span> = <span class="this">this</span>.<span class="variable">selector</span>;
-        <span class="variable">ret</span>.<span class="variable">length</span> = <span class="variable">elements</span>.<span class="variable">length</span>;
-        <span class="variable">ret</span>.<span class="variable">prevObject</span> = <span class="this">this</span>;
-        <span class="variable">ret</span>.<span class="variable">writeElements</span>();
-        <span class="keyword">return</span> <span class="variable">ret</span>;
-      };
-    });
-  }
-
-  <span class="variable">dom</span>.<span class="variable">nodeTypes</span> = <span class="variable">nodeTypes</span>;
-  <span class="variable">turing</span>.<span class="variable">dom</span> = <span class="variable">dom</span>;
 })();
 
 </code></pre>

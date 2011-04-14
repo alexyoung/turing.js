@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.57';
-  turing.lesson = 'Part 55: DOM manipulation';
+  turing.VERSION = '0.0.58';
+  turing.lesson = 'Part 58: DOM manipulation';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -643,7 +643,8 @@ turing.functional = {
  */
 (function() {
   var dom = {}, InvalidFinder = Error, macros, rules, tokenMap,
-      find, matchMap, findMap, filter, scannerRegExp, nodeTypes;
+      find, matchMap, findMap, filter, scannerRegExp, nodeTypes,
+      getStyle;
 
   macros = {
     'nl':        '\n|\r\n|\r|\f',
@@ -984,6 +985,50 @@ turing.functional = {
   });
 
   /**
+   * Converts property names with hyphens to camelCase.
+   *
+   * @param {String} text A property name
+   * @returns {String} text A camelCase property name
+   */
+  function camelCase(text) {
+    if (typeof text !== 'string') return;
+    return text.replace(/-([a-z])/ig, function(all, letter) { return letter.toUpperCase(); });
+  };
+
+  /**
+   * Converts property names in camelCase to ones with hyphens.
+   *
+   * @param {String} text A property name
+   * @returns {String} text A camelCase property name
+   */
+  function uncamel(text) {
+    if (typeof text !== 'string') return;
+    return text.replace(/([A-Z])/g, '-$1').toLowerCase();
+  };
+
+  if (document.documentElement.currentStyle) {
+    getStyle = function(element, property) {
+      return element.currentStyle[camelCase(property)];
+    };
+  } else if (window.getComputedStyle) {
+    getStyle = function(element, property) {
+      return document.defaultView.getComputedStyle(element, null).getPropertyValue(uncamel(property));
+    };
+  }
+
+  /**
+   * Gets or sets style values.
+   *
+   * @param {Object} element A DOM element 
+   * @returns {Object} The style value
+   */
+  dom.css = function(element, options) {
+    if (typeof options === 'string') {
+      return getStyle(element, options);
+    }
+  };
+
+  /**
    * Finds DOM elements based on a CSS selector.
    *
    * @param {String} selector A CSS selector
@@ -1183,6 +1228,23 @@ turing.functional = {
       } else {
         for (var i = 0; i < this.elements.length; i++) {
           dom.text(this.elements[i], text);
+        }
+      }
+      return this;
+    },
+
+    /**
+     * Get or set styles.
+     *
+     * @param {Objects} options Either options for a style to set or a property name
+     * @returns {Object} `this` or the style property
+     */
+    css: function(options) {
+      if (typeof options === 'string') {
+        return this.elements.length > 0 ? getStyle(this.elements[0], options) : null;
+      } else {
+        for (var i = 0; i < this.elements.length; i++) {
+          dom.css(this[i], options);
         }
       }
       return this;
