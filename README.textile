@@ -35,6 +35,10 @@ git submodule update
 
 Remember to run <code>git submodule update</code> to get the latest version referenced by the project.
 
+h3. Contributions
+
+* John-David Dalton
+
 h2. TODO
 
 * [anim] CSS properties should be used instead of DOM properties (margin-left vs. marginLeft)
