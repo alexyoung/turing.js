@@ -10,7 +10,7 @@
 (function() {
   var dom = {}, InvalidFinder = Error, macros, rules, tokenMap,
       find, matchMap, findMap, filter, scannerRegExp, nodeTypes,
-      getStyle;
+      getStyle, setStyle, cssNumericalProperty;
 
   macros = {
     'nl':        '\n|\r\n|\r|\f',
@@ -41,6 +41,14 @@
     DOCUMENT_TYPE_NODE:            10,
     DOCUMENT_FRAGMENT_NODE:        11,
     NOTATION_NODE:                 12
+  };
+
+  cssNumericalProperty = {
+    'zIndex': true,
+    'fontWeight': true,
+    'opacity': true,
+    'zoom': true,
+    'lineHeight': true
   };
 
   rules = {
@@ -372,13 +380,37 @@
     return text.replace(/([A-Z])/g, '-$1').toLowerCase();
   };
 
+  function invalidCSSNode(element) {
+    return !element || element.nodeType === nodeTypes.TEXT_NODE || element.nodeType === nodeTypes.COMMENT_NODE || !element.style;
+  }
+
+  function setStyleProperty(element, property, value) {
+    if (invalidCSSNode(element)) {
+      return;
+    }
+
+    if (typeof value === 'number' && !cssNumericalProperty[property]) {
+      value += 'px';
+    }
+
+    element.style[property] = value;
+  }
+
   if (document.documentElement.currentStyle) {
     getStyle = function(element, property) {
       return element.currentStyle[camelCase(property)];
     };
-  } else if (window.getComputedStyle) {
+
+    setStyle = function(element, property, value) {
+      return setStyleProperty(element, camelCase(property), value);
+    };
+  } else if (document.defaultView.getComputedStyle) {
     getStyle = function(element, property) {
-      return document.defaultView.getComputedStyle(element, null).getPropertyValue(uncamel(property));
+      return element.ownerDocument.defaultView.getComputedStyle(element, null).getPropertyValue(uncamel(property));
+    };
+
+    setStyle = function(element, property, value) {
+      return setStyleProperty(element, uncamel(property), value);
     };
   }
 
@@ -391,6 +423,12 @@
   dom.css = function(element, options) {
     if (typeof options === 'string') {
       return getStyle(element, options);
+    } else {
+      for (var property in options) {
+        if (options.hasOwnProperty(property)) {
+          setStyle(element, property, options[property]);
+        }
+      }
     }
   };
 

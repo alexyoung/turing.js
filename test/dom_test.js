@@ -108,6 +108,27 @@ exports.testDOM = {
         expected = element.currentStyle ? '#f0f0f0' : 'rgb(240, 240, 240)';
     assert.equal(turing('#dom-test').css('background-color'), expected);
     assert.equal(turing('#dom-test').css('backgroundColor'), expected);
+  },
+
+  'test writing style properties': function() {
+    var element = turing.dom.get('#dom-test')[0],
+        expected = element.currentStyle ? '#f5f5f5' : 'rgb(245, 245, 245)';
+
+    turing.dom.css(element, { 'background-color': expected, 'width': 1000 });
+
+    assert.equal(turing.dom.css(element, 'background-color'), expected);
+    assert.equal(turing.dom.css(element, 'backgroundColor'), expected);
+    assert.equal(turing.dom.css(element, 'width'), '1000px');
+  },
+
+  'test chained writing style properties': function() {
+    var element = turing.dom.get('#dom-test')[0],
+        expected = element.currentStyle ? '#f1f1f1' : 'rgb(241, 241, 241)';
+
+    turing('#dom-test').css({ 'background-color': expected });
+
+    assert.equal(turing('#dom-test').css('background-color'), expected);
+    assert.equal(turing('#dom-test').css('backgroundColor'), expected);
   }
 };
 
