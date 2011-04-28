@@ -129,6 +129,66 @@ exports.testDOM = {
 
     assert.equal(turing('#dom-test').css('background-color'), expected);
     assert.equal(turing('#dom-test').css('backgroundColor'), expected);
+  },
+
+  'test adding CSS classes': function() {
+    var element = turing.dom.get('#dom-test')[0];
+
+    // Invalid values should be ignored
+    turing.dom.addClass(element, null);
+    turing.dom.addClass(element, 10);
+
+    // This should change the className
+    turing.dom.addClass(element, 'newClass');
+    assert.equal(element.className, 'newClass');
+
+    turing.dom.addClass(element, 'class2');
+    assert.equal(element.className, 'newClass class2');
+
+    // Adding the same one twice should be ignored
+    turing.dom.addClass(element, 'class2');
+    assert.equal(element.className, 'newClass class2');
+
+    // Reset the value
+    element.className = '';
+  },
+
+  'test removing CSS classes': function() {
+    var element = turing.dom.get('#dom-test')[0],
+        testClasses = 'class1 class2 class3 class4';
+
+    // Invalid values should be ignored
+    turing.dom.removeClass(element, null);
+    turing.dom.removeClass(element, 10);
+
+    // Test a single class
+    turing.dom.addClass(element, 'newClass');
+    assert.equal(element.className, 'newClass');
+    turing.dom.removeClass(element, 'newClass');
+    assert.equal(element.className, '');
+
+    // Test multiple, making sure white space is as it should be
+    element.className = testClasses;
+    turing.dom.removeClass(element, 'class2');
+    assert.equal(element.className, 'class1 class3 class4');
+
+    element.className = testClasses;
+    turing.dom.removeClass(element, 'class1');
+    assert.equal(element.className, 'class2 class3 class4');
+
+    element.className = testClasses;
+    turing.dom.removeClass(element, 'class4');
+    assert.equal(element.className, 'class1 class2 class3');
+
+    // Reset the value
+    element.className = '';
+  },
+
+  'test chained class manipulation API': function() {
+    turing('p').addClass('x1');
+    assert.ok(turing('p')[0].className.match(/\bx1\b/));
+    turing('p').removeClass('x1');
+    assert.ok(!turing('p')[0].className.match(/\bx1\b/));
   }
 };
 

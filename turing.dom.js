@@ -561,6 +561,44 @@
     }
   };
 
+  /**
+   * Append CSS classes.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} className The class name
+   */
+  dom.addClass = function(element, className) {
+    if (!className || typeof className !== 'string') return;
+    if (element.nodeType !== nodeTypes.ELEMENT_NODE) return;
+    if (element.classList) return element.classList.add(className);
+
+    if (element.className && element.className.length) {
+      if (!element.className.match('\\b' + className + '\\b')) {
+        element.className += ' ' + className;
+      }
+    } else {
+      element.className = className;
+    }
+  };
+
+  /**
+   * Remove CSS classes.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} className The class name
+   */
+  dom.removeClass = function(element, className) {
+    if (!className || typeof className !== 'string') return;
+    if (element.nodeType !== nodeTypes.ELEMENT_NODE) return;
+    if (element.classList) return element.classList.remove(className);
+
+    if (element.className) {
+      element.className = element.className.
+        replace(new RegExp('\\s?\\b' + className + '\\b'), '').
+        replace(/^\s+/, '');
+    }
+  };
+
   // Chained API
   turing.init(function(arg) {
     if (typeof arg === 'string' || typeof arg === 'undefined') {
@@ -650,6 +688,32 @@
         for (var i = 0; i < this.elements.length; i++) {
           dom.css(this[i], options);
         }
+      }
+      return this;
+    },
+
+    /**
+     * Add class names.
+     *
+     * @param {String} className A class name
+     * @returns {Object} `this`
+     */
+    addClass: function(className) {
+      for (var i = 0; i < this.elements.length; i++) {
+        dom.addClass(this[i], className);
+      }
+      return this;
+    },
+
+    /**
+     * Remove class names.
+     *
+     * @param {String} className A class name
+     * @returns {Object} `this`
+     */
+    removeClass: function(className) {
+      for (var i = 0; i < this.elements.length; i++) {
+        dom.removeClass(this[i], className);
       }
       return this;
     },
