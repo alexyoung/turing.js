@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.60';
-  turing.lesson = 'Part 60: CSS Class APIs';
+  turing.VERSION = '0.0.62';
+  turing.lesson = 'Part 62: Attributes';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -644,7 +644,8 @@ turing.functional = {
 (function() {
   var dom = {}, InvalidFinder = Error, macros, rules, tokenMap,
       find, matchMap, findMap, filter, scannerRegExp, nodeTypes,
-      getStyle, setStyle, cssNumericalProperty;
+      getStyle, setStyle, cssNumericalProperty, propertyFix,
+      getAttributeParamFix;
 
   macros = {
     'nl':        '\n|\r\n|\r|\f',
@@ -678,10 +679,10 @@ turing.functional = {
   };
 
   cssNumericalProperty = {
-    'zIndex': true,
+    'zIndex':     true,
     'fontWeight': true,
-    'opacity': true,
-    'zoom': true,
+    'opacity':    true,
+    'zoom':       true,
     'lineHeight': true
   };
 
@@ -692,6 +693,28 @@ turing.functional = {
     'name and class': '(#{ident}\\.#{ident})',
     'element':        '(#{ident})',
     'pseudo class':   '(:#{ident})'
+  };
+
+  propertyFix = {
+    tabindex:        'tabIndex',
+    readonly:        'readOnly',
+    'for':           'htmlFor',
+    'class':         'className',
+    maxlength:       'maxLength',
+    cellspacing:     'cellSpacing',
+    cellpadding:     'cellPadding',
+    rowspan:         'rowSpan',
+    colspan:         'colSpan',
+    usemap:          'useMap',
+    frameborder:     'frameBorder',
+    contenteditable: 'contentEditable'
+  };
+
+  getAttributeParamFix = {
+    width: true,
+    height: true,
+    src: true,
+    href: true
   };
 
   function scanner() {
@@ -1233,6 +1256,48 @@ turing.functional = {
     }
   };
 
+  turing.addDetectionTest('getAttribute', function() {
+    var div = document.createElement('div');
+    div.innerHTML = '<a href="/example"></a>';
+
+    if (div.childNodes[0].getAttribute('href') === '/example') {
+      return true;
+    }
+
+    // Helps IE release memory associated with the div
+    div = null;
+    return false;
+  });
+
+  function getAttribute(element, name) {
+    if (propertyFix[name]) {
+      name = propertyFix[name];
+    }
+
+    if (getAttributeParamFix[name]) {
+      return element.getAttribute(name, 2);
+    }
+
+    if (name === 'value' && element.nodeName === 'BUTTON') {
+      return element.getAttributeNode(name).nodeValue;
+    }
+
+    return element.getAttribute(name);
+  }
+
+  /**
+   * Get or set attributes.
+   *
+   * @param {Object} element A DOM element
+   * @param {String|Object} options The attribute name or a list of attributes to set
+   */
+  dom.attr = function(element, options) {
+    if (typeof options === 'string') {
+      return turing.detect('getAttribute') ?
+        element.getAttribute(options) : getAttribute(element, options);
+    }
+  };
+
   // Chained API
   turing.init(function(arg) {
     if (typeof arg === 'string' || typeof arg === 'undefined') {
@@ -1350,6 +1415,18 @@ turing.functional = {
         dom.removeClass(this[i], className);
       }
       return this;
+    },
+
+    /**
+     * Get or set attributes.
+     *
+     * @param {String|Object} options The attribute name or a list of attributes to set
+     * @returns {String} The attribute value
+     */
+    attr: function(options) {
+      if (this.elements.length > 0) {
+        return dom.attr(this[0], options);
+      }
     },
 
     /**
