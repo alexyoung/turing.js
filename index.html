@@ -710,8 +710,8 @@ code .this { color: #19469D; }</style>
     }
   }
 
-  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.59'</span>;
-  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 59: DOM manipulation'</span>;</code></pre>
+  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.62'</span>;
+  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 62: Attributes'</span>;</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -850,7 +850,8 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 <pre><code>(<span class="keyword">function</span>() {
   <span class="keyword">var</span> <span class="variable">dom</span> = {}, <span class="class">InvalidFinder</span> = <span class="class">Error</span>, <span class="variable">macros</span>, <span class="variable">rules</span>, <span class="variable">tokenMap</span>,
       <span class="variable">find</span>, <span class="variable">matchMap</span>, <span class="variable">findMap</span>, <span class="variable">filter</span>, <span class="variable">scannerRegExp</span>, <span class="variable">nodeTypes</span>,
-      <span class="variable">getStyle</span>, <span class="variable">setStyle</span>, <span class="variable">cssNumericalProperty</span>;
+      <span class="variable">getStyle</span>, <span class="variable">setStyle</span>, <span class="variable">cssNumericalProperty</span>, <span class="variable">propertyFix</span>,
+      <span class="variable">getAttributeParamFix</span>;
 
   <span class="variable">macros</span> = {
     <span class="string">'nl'</span>:        <span class="string">'\n|\r\n|\r|\f'</span>,
@@ -884,10 +885,10 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
   };
 
   <span class="variable">cssNumericalProperty</span> = {
-    <span class="string">'zIndex'</span>: <span class="variable">true</span>,
+    <span class="string">'zIndex'</span>:     <span class="variable">true</span>,
     <span class="string">'fontWeight'</span>: <span class="variable">true</span>,
-    <span class="string">'opacity'</span>: <span class="variable">true</span>,
-    <span class="string">'zoom'</span>: <span class="variable">true</span>,
+    <span class="string">'opacity'</span>:    <span class="variable">true</span>,
+    <span class="string">'zoom'</span>:       <span class="variable">true</span>,
     <span class="string">'lineHeight'</span>: <span class="variable">true</span>
   };
 
@@ -898,6 +899,28 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     <span class="string">'name and class'</span>: <span class="string">'(#{ident}\\.#{ident})'</span>,
     <span class="string">'element'</span>:        <span class="string">'(#{ident})'</span>,
     <span class="string">'pseudo class'</span>:   <span class="string">'(:#{ident})'</span>
+  };
+
+  <span class="variable">propertyFix</span> = {
+    <span class="variable">tabindex</span>:        <span class="string">'tabIndex'</span>,
+    <span class="variable">readonly</span>:        <span class="string">'readOnly'</span>,
+    <span class="string">'for'</span>:           <span class="string">'htmlFor'</span>,
+    <span class="string">'class'</span>:         <span class="string">'className'</span>,
+    <span class="variable">maxlength</span>:       <span class="string">'maxLength'</span>,
+    <span class="variable">cellspacing</span>:     <span class="string">'cellSpacing'</span>,
+    <span class="variable">cellpadding</span>:     <span class="string">'cellPadding'</span>,
+    <span class="variable">rowspan</span>:         <span class="string">'rowSpan'</span>,
+    <span class="variable">colspan</span>:         <span class="string">'colSpan'</span>,
+    <span class="variable">usemap</span>:          <span class="string">'useMap'</span>,
+    <span class="variable">frameborder</span>:     <span class="string">'frameBorder'</span>,
+    <span class="variable">contenteditable</span>: <span class="string">'contentEditable'</span>
+  };
+
+  <span class="variable">getAttributeParamFix</span> = {
+    <span class="variable">width</span>: <span class="variable">true</span>,
+    <span class="variable">height</span>: <span class="variable">true</span>,
+    <span class="variable">src</span>: <span class="variable">true</span>,
+    <span class="variable">href</span>: <span class="variable">true</span>
   };
 
   <span class="keyword">function</span> <span class="variable">scanner</span>() {
@@ -1486,6 +1509,52 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     }
   };
 
+  <span class="variable">turing</span>.<span class="variable">addDetectionTest</span>(<span class="string">'getAttribute'</span>, <span class="keyword">function</span>() {
+    <span class="keyword">var</span> <span class="variable">div</span> = <span class="variable">document</span>.<span class="variable">createElement</span>(<span class="string">'div'</span>);
+    <span class="variable">div</span>.<span class="variable">innerHTML</span> = <span class="string">'&lt;a href=&quot;/example&quot;&gt;&lt;/a&gt;'</span>;
+
+    <span class="keyword">if</span> (<span class="variable">div</span>.<span class="variable">childNodes</span>[<span class="number integer">0</span>].<span class="variable">getAttribute</span>(<span class="string">'href'</span>) === <span class="string">'/example'</span>) {
+      <span class="keyword">return</span> <span class="variable">true</span>;
+    }
+
+    <span class="comment">// Helps IE release memory associated with the div</span>
+    <span class="variable">div</span> = <span class="keyword">null</span>;
+    <span class="keyword">return</span> <span class="variable">false</span>;
+  });
+
+  <span class="keyword">function</span> <span class="variable">getAttribute</span>(<span class="variable">element</span>, <span class="variable">name</span>) {
+    <span class="keyword">if</span> (<span class="variable">propertyFix</span>[<span class="variable">name</span>]) {
+      <span class="variable">name</span> = <span class="variable">propertyFix</span>[<span class="variable">name</span>];
+    }
+
+    <span class="keyword">if</span> (<span class="variable">getAttributeParamFix</span>[<span class="variable">name</span>]) {
+      <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">getAttribute</span>(<span class="variable">name</span>, <span class="number integer">2</span>);
+    }
+
+    <span class="keyword">if</span> (<span class="variable">name</span> === <span class="string">'value'</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>.<span class="variable">nodeName</span> === <span class="string">'BUTTON'</span>) {
+      <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">getAttributeNode</span>(<span class="variable">name</span>).<span class="variable">nodeValue</span>;
+    }
+
+    <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">getAttribute</span>(<span class="variable">name</span>);
+  }</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Get or set attributes.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String | Object</em>  options The attribute name or a list of attributes to set</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">attr</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">options</span>) {
+    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">options</span> === <span class="string">'string'</span>) {
+      <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">detect</span>(<span class="string">'getAttribute'</span>) ?
+        <span class="variable">element</span>.<span class="variable">getAttribute</span>(<span class="variable">options</span>) : <span class="variable">getAttribute</span>(<span class="variable">element</span>, <span class="variable">options</span>);
+    }
+  };
+
   <span class="comment">// Chained API</span>
   <span class="variable">turing</span>.<span class="variable">init</span>(<span class="keyword">function</span>(<span class="variable">arg</span>) {
     <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">arg</span> === <span class="string">'string'</span> || <span class="keyword">typeof</span> <span class="variable">arg</span> === <span class="string">'undefined'</span>) {
@@ -1627,6 +1696,22 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
         <span class="variable">dom</span>.<span class="variable">removeClass</span>(<span class="this">this</span>[<span class="variable">i</span>], <span class="variable">className</span>);
       }
       <span class="keyword">return</span> <span class="this">this</span>;
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Get or set attributes.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String | Object</em>  options The attribute name or a list of attributes to set</p></li><li><p><strong>returns</strong>: <em>String</em>  The attribute value</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">attr</span>: <span class="keyword">function</span>(<span class="variable">options</span>) {
+      <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">0</span>) {
+        <span class="keyword">return</span> <span class="variable">dom</span>.<span class="variable">attr</span>(<span class="this">this</span>[<span class="number integer">0</span>], <span class="variable">options</span>);
+      }
     },</code></pre>
 </td>
 </tr>
