@@ -112,7 +112,7 @@ exports.testDOM = {
 
   'test writing style properties': function() {
     var element = turing.dom.get('#dom-test')[0],
-        expected = element.currentStyle ? '#f5f5f5' : 'rgb(245, 245, 245)';
+        expected = element.currentStyle ? '#f5f5f5' : 'rgb(240, 240, 240)';
 
     turing.dom.css(element, { 'background-color': expected, 'width': 1000 });
 
@@ -123,7 +123,7 @@ exports.testDOM = {
 
   'test chained writing style properties': function() {
     var element = turing.dom.get('#dom-test')[0],
-        expected = element.currentStyle ? '#f1f1f1' : 'rgb(241, 241, 241)';
+        expected = element.currentStyle ? '#f1f1f1' : 'rgb(240, 240, 240)';
 
     turing('#dom-test').css({ 'background-color': expected });
 
@@ -189,6 +189,31 @@ exports.testDOM = {
     assert.ok(turing('p')[0].className.match(/\bx1\b/));
     turing('p').removeClass('x1');
     assert.ok(!turing('p')[0].className.match(/\bx1\b/));
+  },
+
+  'test getting attributes': function() {
+    var element = turing.dom.get('#attr-test')[0],
+        link = turing.dom.get('#attr-test a')[0],
+        input = turing.dom.get('#attr-test form input')[0],
+        button = turing.dom.get('#attr-test form button')[0];
+
+    // A div
+    assert.equal(turing.dom.attr(element, 'id'), 'attr-test');
+    assert.equal(turing.dom.attr(element, 'class'), 'example');
+    assert.equal(turing.dom.attr(element, 'tabindex'), 9);
+
+    // Links
+    assert.equal(turing.dom.attr(link, 'href'), '/example');
+
+    // Forms
+    assert.equal(turing.dom.attr(input, 'value'), 'example');
+    assert.equal(turing.dom.attr(input, 'name'), 'e');
+    assert.equal(turing.dom.attr(button, 'name'), 'b');
+    assert.equal(turing.dom.attr(button, 'value'), 'example');
+  },
+
+  'test getting attributes through the chained API': function() {
+    assert.equal(turing('#attr-test').attr('id'), 'attr-test');
   }
 };
 

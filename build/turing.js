@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.59';
-  turing.lesson = 'Part 59: DOM manipulation';
+  turing.VERSION = '0.0.60';
+  turing.lesson = 'Part 60: CSS Class APIs';
 
   /**
    * This alias will be used as an alternative to `turing()`.
