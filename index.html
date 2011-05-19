@@ -1536,7 +1536,41 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     }
 
     <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">getAttribute</span>(<span class="variable">name</span>);
+  }
+
+  <span class="keyword">function</span> <span class="variable">setAttribute</span>(<span class="variable">element</span>, <span class="variable">name</span>, <span class="variable">value</span>) {
+    <span class="keyword">if</span> (<span class="variable">propertyFix</span>[<span class="variable">name</span>]) {
+      <span class="variable">name</span> = <span class="variable">propertyFix</span>[<span class="variable">name</span>];
+    }
+
+    <span class="keyword">if</span> (<span class="variable">name</span> === <span class="string">'value'</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>.<span class="variable">nodeName</span> === <span class="string">'BUTTON'</span>) {
+      <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">getAttributeNode</span>(<span class="variable">name</span>).<span class="variable">nodeValue</span> = <span class="variable">value</span>;
+    }
+
+    <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">setAttribute</span>(<span class="variable">name</span>, <span class="variable">value</span>);
+  }
+
+  <span class="keyword">function</span> <span class="variable">removeAttribute</span>(<span class="variable">element</span>, <span class="variable">name</span>) {
+    <span class="keyword">if</span> (<span class="variable">element</span>.<span class="variable">nodeType</span> !== <span class="variable">nodeTypes</span>.<span class="class">ELEMENT_NODE</span>) <span class="keyword">return</span>;
+    <span class="keyword">if</span> (<span class="variable">propertyFix</span>[<span class="variable">name</span>]) <span class="variable">name</span> = <span class="variable">propertyFix</span>[<span class="variable">name</span>];
+    <span class="variable">setAttribute</span>(<span class="variable">element</span>, <span class="variable">name</span>, <span class="string">''</span>);
+    <span class="variable">element</span>.<span class="variable">removeAttributeNode</span>(<span class="variable">element</span>.<span class="variable">getAttributeNode</span>(<span class="variable">name</span>));
   }</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Removes an attribute from a node.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  attribute The attribute name</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">removeAttr</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">attribute</span>) {
+    <span class="variable">turing</span>.<span class="variable">detect</span>(<span class="string">'getAttribute'</span>) ?
+      <span class="variable">element</span>.<span class="variable">removeAttribute</span>(<span class="variable">attribute</span>) : <span class="variable">removeAttribute</span>(<span class="variable">element</span>, <span class="variable">attribute</span>);
+  };</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -1545,13 +1579,20 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String | Object</em>  options The attribute name or a list of attributes to set</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  attribute The attribute name</p></li><li><p><strong>param</strong>: <em>String</em>  value The attribute value</p></li></ul>
 </td>
 <td class="code">
-<pre><code><span class="variable">dom</span>.<span class="variable">attr</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">options</span>) {
-    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">options</span> === <span class="string">'string'</span>) {
+<pre><code><span class="variable">dom</span>.<span class="variable">attr</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">attribute</span>, <span class="variable">value</span>) {
+    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">value</span> === <span class="string">'undefined'</span>) {
       <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">detect</span>(<span class="string">'getAttribute'</span>) ?
-        <span class="variable">element</span>.<span class="variable">getAttribute</span>(<span class="variable">options</span>) : <span class="variable">getAttribute</span>(<span class="variable">element</span>, <span class="variable">options</span>);
+        <span class="variable">element</span>.<span class="variable">getAttribute</span>(<span class="variable">attribute</span>) : <span class="variable">getAttribute</span>(<span class="variable">element</span>, <span class="variable">attribute</span>);
+    } <span class="keyword">else</span> {
+      <span class="keyword">if</span> (<span class="variable">value</span> === <span class="keyword">null</span>) {
+        <span class="keyword">return</span> <span class="variable">dom</span>.<span class="variable">removeAttr</span>(<span class="variable">element</span>, <span class="variable">attribute</span>);
+      } <span class="keyword">else</span> {
+        <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">detect</span>(<span class="string">'getAttribute'</span>) ?
+          <span class="variable">element</span>.<span class="variable">setAttribute</span>(<span class="variable">attribute</span>, <span class="variable">value</span>) : <span class="variable">setAttribute</span>(<span class="variable">element</span>, <span class="variable">attribute</span>, <span class="variable">value</span>);
+      }
     }
   };
 
@@ -1701,17 +1742,34 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 </tr>
 <tr class="code">
 <td class="docs">
-<p>Get or set attributes.</p>
+<p>Get or set an attribute.</p>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>String | Object</em>  options The attribute name or a list of attributes to set</p></li><li><p><strong>returns</strong>: <em>String</em>  The attribute value</p><p> </p></li></ul>
+<ul><li><p><strong>param</strong>: <em>String</em>  attribute The attribute name</p></li><li><p><strong>param</strong>: <em>String</em>  value The attribute value</p></li><li><p><strong>returns</strong>: <em>String</em>  The attribute value</p><p> </p></li></ul>
 </td>
 <td class="code">
-<pre><code><span class="variable">attr</span>: <span class="keyword">function</span>(<span class="variable">options</span>) {
+<pre><code><span class="variable">attr</span>: <span class="keyword">function</span>(<span class="variable">attribute</span>, <span class="variable">value</span>) {
       <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">0</span>) {
-        <span class="keyword">return</span> <span class="variable">dom</span>.<span class="variable">attr</span>(<span class="this">this</span>[<span class="number integer">0</span>], <span class="variable">options</span>);
+        <span class="keyword">return</span> <span class="variable">dom</span>.<span class="variable">attr</span>(<span class="this">this</span>[<span class="number integer">0</span>], <span class="variable">attribute</span>, <span class="variable">value</span>);
       }
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Remove an attribute.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  attribute The attribute name</p></li><li><p><strong>returns</strong>: <em>Object</em>  <code>this</code></p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">removeAttr</span>: <span class="keyword">function</span>(<span class="variable">attribute</span>) {
+      <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">0</span>) {
+        <span class="variable">dom</span>.<span class="variable">removeAttr</span>(<span class="this">this</span>[<span class="number integer">0</span>], <span class="variable">attribute</span>);
+      }
+      <span class="keyword">return</span> <span class="this">this</span>;
     },</code></pre>
 </td>
 </tr>
