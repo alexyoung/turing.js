@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.62';
-  turing.lesson = 'Part 62: Attributes';
+  turing.VERSION = '0.0.63';
+  turing.lesson = 'Part 63: Attributes';
 
   /**
    * This alias will be used as an alternative to `turing()`.
