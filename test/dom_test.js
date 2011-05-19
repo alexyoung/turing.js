@@ -214,6 +214,38 @@ exports.testDOM = {
 
   'test getting attributes through the chained API': function() {
     assert.equal(turing('#attr-test').attr('id'), 'attr-test');
+  },
+
+  'test setting attributes': function() {
+    var element = turing.dom.get('#attr-write')[0],
+        link = turing.dom.get('#attr-write a')[0],
+        input = turing.dom.get('#attr-write form input')[0],
+        button = turing.dom.get('#attr-write form button')[0];
+
+    turing.dom.attr(element, 'id', 'attr-test2');
+    assert.equal(turing.dom.attr(element, 'id'), 'attr-test2');
+
+    turing.dom.attr(element, 'class', 'example2');
+    assert.equal(turing.dom.attr(element, 'class'), 'example2');
+    
+    turing.dom.attr(element, 'tabindex', 1);
+    assert.equal(turing.dom.attr(element, 'tabindex'), 1);
+
+    turing.dom.attr(link, 'href', '/somewhere');
+    assert.equal(turing.dom.attr(link, 'href'), '/somewhere');
+
+    // Forms
+    turing.dom.attr(input, 'value', 'changed-value');
+    assert.equal(turing.dom.attr(input, 'value'), 'changed-value');
+
+    turing.dom.attr(input, 'name', 'changed-name');
+    assert.equal(turing.dom.attr(input, 'name'), 'changed-name');
+    
+    turing.dom.attr(button, 'name', 'changed-button-name');
+    assert.equal(turing.dom.attr(button, 'name'), 'changed-button-name');
+    
+    turing.dom.attr(button, 'value', 'changed-button-value');
+    assert.equal(turing.dom.attr(button, 'value'), 'changed-button-value');
   }
 };
 

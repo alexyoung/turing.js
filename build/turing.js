@@ -1285,16 +1285,54 @@ turing.functional = {
     return element.getAttribute(name);
   }
 
+  function setAttribute(element, name, value) {
+    if (propertyFix[name]) {
+      name = propertyFix[name];
+    }
+
+    if (name === 'value' && element.nodeName === 'BUTTON') {
+      return element.getAttributeNode(name).nodeValue = value;
+    }
+
+    return element.setAttribute(name, value);
+  }
+
+  function removeAttribute(element, name) {
+    if (element.nodeType !== nodeTypes.ELEMENT_NODE) return;
+    if (propertyFix[name]) name = propertyFix[name];
+    setAttribute(element, name, '');
+    element.removeAttributeNode(element.getAttributeNode(name));
+  }
+
+  /**
+   * Removes an attribute from a node.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} attribute The attribute name
+   */
+  dom.removeAttr = function(element, attribute) {
+    turing.detect('getAttribute') ?
+      element.removeAttribute(attribute) : removeAttribute(element, attribute);
+  };
+
   /**
    * Get or set attributes.
    *
    * @param {Object} element A DOM element
-   * @param {String|Object} options The attribute name or a list of attributes to set
+   * @param {String} attribute The attribute name
+   * @param {String} value The attribute value
    */
-  dom.attr = function(element, options) {
-    if (typeof options === 'string') {
+  dom.attr = function(element, attribute, value) {
+    if (typeof value === 'undefined') {
       return turing.detect('getAttribute') ?
-        element.getAttribute(options) : getAttribute(element, options);
+        element.getAttribute(attribute) : getAttribute(element, attribute);
+    } else {
+      if (value === null) {
+        return dom.removeAttr(element, attribute);
+      } else {
+        return turing.detect('getAttribute') ?
+          element.setAttribute(attribute, value) : setAttribute(element, attribute, value);
+      }
     }
   };
 
@@ -1418,15 +1456,29 @@ turing.functional = {
     },
 
     /**
-     * Get or set attributes.
+     * Get or set an attribute.
      *
-     * @param {String|Object} options The attribute name or a list of attributes to set
+     * @param {String} attribute The attribute name
+     * @param {String} value The attribute value
      * @returns {String} The attribute value
      */
-    attr: function(options) {
+    attr: function(attribute, value) {
       if (this.elements.length > 0) {
-        return dom.attr(this[0], options);
+        return dom.attr(this[0], attribute, value);
       }
+    },
+
+    /**
+     * Remove an attribute.
+     *
+     * @param {String} attribute The attribute name
+     * @returns {Object} `this`
+     */
+    removeAttr: function(attribute) {
+      if (this.elements.length > 0) {
+        dom.removeAttr(this[0], attribute);
+      }
+      return this;
     },
 
     /**
