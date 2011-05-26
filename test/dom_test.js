@@ -195,6 +195,7 @@ exports.testDOM = {
     var element = turing.dom.get('#attr-test')[0],
         link = turing.dom.get('#attr-test a')[0],
         input = turing.dom.get('#attr-test form input')[0],
+        checkbox = turing.dom.get('#checkbox')[0],
         button = turing.dom.get('#attr-test form button')[0];
 
     // A div
@@ -210,6 +211,8 @@ exports.testDOM = {
     assert.equal(turing.dom.attr(input, 'name'), 'e');
     assert.equal(turing.dom.attr(button, 'name'), 'b');
     assert.equal(turing.dom.attr(button, 'value'), 'example');
+
+    assert.equal(turing.dom.attr(checkbox, 'checked'), 'checked');
   },
 
   'test getting attributes through the chained API': function() {
@@ -246,6 +249,27 @@ exports.testDOM = {
     
     turing.dom.attr(button, 'value', 'changed-button-value');
     assert.equal(turing.dom.attr(button, 'value'), 'changed-button-value');
+  },
+
+  'test getting properties': function() {
+    var checkbox = turing.dom.get('#checkbox')[0];
+
+    assert.equal(turing.dom.prop(checkbox, 'checked'), true);
+    assert.equal(turing('#checkbox').prop('checked'), true);
+  },
+
+  'test setting properties': function() {
+    var checkbox = turing.dom.get('#checkbox')[0];
+    
+    turing.dom.prop(checkbox, 'checked', false);
+    assert.equal(turing.dom.prop(checkbox, 'checked'), false);
+  },
+
+  'test removing properties': function() {
+    var checkbox = turing.dom.get('#checkbox')[0];
+
+    turing.dom.removeProp(checkbox, 'checked');
+    assert.ok(turing.dom.prop(checkbox, 'checked') == undefined || turing.dom.prop(checkbox, 'checked') == false);
   }
 };
 

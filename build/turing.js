@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.62';
-  turing.lesson = 'Part 62: Attributes';
+  turing.VERSION = '0.0.64';
+  turing.lesson = 'Part 64: Properties';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -645,7 +645,7 @@ turing.functional = {
   var dom = {}, InvalidFinder = Error, macros, rules, tokenMap,
       find, matchMap, findMap, filter, scannerRegExp, nodeTypes,
       getStyle, setStyle, cssNumericalProperty, propertyFix,
-      getAttributeParamFix;
+      getAttributeParamFix, booleanAttributes;
 
   macros = {
     'nl':        '\n|\r\n|\r|\f',
@@ -684,6 +684,12 @@ turing.functional = {
     'opacity':    true,
     'zoom':       true,
     'lineHeight': true
+  };
+
+  booleanAttributes = {
+    'selected': true,
+    'readonly': true,
+    'checked':  true
   };
 
   rules = {
@@ -1280,6 +1286,8 @@ turing.functional = {
 
     if (name === 'value' && element.nodeName === 'BUTTON') {
       return element.getAttributeNode(name).nodeValue;
+    } else if (booleanAttributes[name]) {
+      return element[name] ? name : undefined;
     }
 
     return element.getAttribute(name);
@@ -1333,6 +1341,43 @@ turing.functional = {
         return turing.detect('getAttribute') ?
           element.setAttribute(attribute, value) : setAttribute(element, attribute, value);
       }
+    }
+  };
+
+  /**
+   * Get or set properties.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} attribute The property name
+   * @param {String|Number|Boolean} value The property value
+   */
+  dom.prop = function(element, property, value) {
+    if (propertyFix[property])
+      property = propertyFix[property];
+    if (typeof value === 'undefined') {
+      return element[property];
+    } else {
+      if (value === null) {
+        return dom.removeProperty(element, property);
+      } else {
+        return element[property] = value;
+      }
+    }
+  };
+
+  /**
+   * Removes properties.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} attribute The property name
+   */
+  dom.removeProp = function(element, property) {
+    if (propertyFix[property])
+      property = propertyFix[property];
+    try {
+      element[property] = undefined;
+      delete element[property];
+    } catch (e) {
     }
   };
 
@@ -1479,6 +1524,30 @@ turing.functional = {
         dom.removeAttr(this[0], attribute);
       }
       return this;
+    },
+
+    /**
+     * Get or set a property.
+     *
+     * @param {String} property The property name
+     * @param {String} value The property value
+     * @returns {String} The property value
+     */
+    prop: function(property, value) {
+      if (this.elements.length > 0) {
+        return dom.prop(this[0], property, value);
+      }
+    },
+
+    /**
+     * Removes properties.
+     *
+     * @param {String} attribute The property name
+     */
+    removeProp: function(property) {
+      if (this.elements.length > 0) {
+        return dom.removeProp(this[0], property, value);
+      }
     },
 
     /**
