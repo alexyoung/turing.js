@@ -710,8 +710,8 @@ code .this { color: #19469D; }</style>
     }
   }
 
-  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.62'</span>;
-  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 62: Attributes'</span>;</code></pre>
+  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.64'</span>;
+  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 64: Properties'</span>;</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -851,7 +851,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
   <span class="keyword">var</span> <span class="variable">dom</span> = {}, <span class="class">InvalidFinder</span> = <span class="class">Error</span>, <span class="variable">macros</span>, <span class="variable">rules</span>, <span class="variable">tokenMap</span>,
       <span class="variable">find</span>, <span class="variable">matchMap</span>, <span class="variable">findMap</span>, <span class="variable">filter</span>, <span class="variable">scannerRegExp</span>, <span class="variable">nodeTypes</span>,
       <span class="variable">getStyle</span>, <span class="variable">setStyle</span>, <span class="variable">cssNumericalProperty</span>, <span class="variable">propertyFix</span>,
-      <span class="variable">getAttributeParamFix</span>;
+      <span class="variable">getAttributeParamFix</span>, <span class="variable">booleanAttributes</span>;
 
   <span class="variable">macros</span> = {
     <span class="string">'nl'</span>:        <span class="string">'\n|\r\n|\r|\f'</span>,
@@ -890,6 +890,12 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     <span class="string">'opacity'</span>:    <span class="variable">true</span>,
     <span class="string">'zoom'</span>:       <span class="variable">true</span>,
     <span class="string">'lineHeight'</span>: <span class="variable">true</span>
+  };
+
+  <span class="variable">booleanAttributes</span> = {
+    <span class="string">'selected'</span>: <span class="variable">true</span>,
+    <span class="string">'readonly'</span>: <span class="variable">true</span>,
+    <span class="string">'checked'</span>:  <span class="variable">true</span>
   };
 
   <span class="variable">rules</span> = {
@@ -1533,6 +1539,8 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
     <span class="keyword">if</span> (<span class="variable">name</span> === <span class="string">'value'</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>.<span class="variable">nodeName</span> === <span class="string">'BUTTON'</span>) {
       <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">getAttributeNode</span>(<span class="variable">name</span>).<span class="variable">nodeValue</span>;
+    } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">booleanAttributes</span>[<span class="variable">name</span>]) {
+      <span class="keyword">return</span> <span class="variable">element</span>[<span class="variable">name</span>] ? <span class="variable">name</span> : <span class="variable">undefined</span>;
     }
 
     <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">getAttribute</span>(<span class="variable">name</span>);
@@ -1593,6 +1601,50 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
         <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">detect</span>(<span class="string">'getAttribute'</span>) ?
           <span class="variable">element</span>.<span class="variable">setAttribute</span>(<span class="variable">attribute</span>, <span class="variable">value</span>) : <span class="variable">setAttribute</span>(<span class="variable">element</span>, <span class="variable">attribute</span>, <span class="variable">value</span>);
       }
+    }
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Get or set properties.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  attribute The property name</p></li><li><p><strong>param</strong>: <em>String | Number | Boolean</em>  value The property value</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">prop</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>, <span class="variable">value</span>) {
+    <span class="keyword">if</span> (<span class="variable">propertyFix</span>[<span class="variable">property</span>])
+      <span class="variable">property</span> = <span class="variable">propertyFix</span>[<span class="variable">property</span>];
+    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">value</span> === <span class="string">'undefined'</span>) {
+      <span class="keyword">return</span> <span class="variable">element</span>[<span class="variable">property</span>];
+    } <span class="keyword">else</span> {
+      <span class="keyword">if</span> (<span class="variable">value</span> === <span class="keyword">null</span>) {
+        <span class="keyword">return</span> <span class="variable">dom</span>.<span class="variable">removeProperty</span>(<span class="variable">element</span>, <span class="variable">property</span>);
+      } <span class="keyword">else</span> {
+        <span class="keyword">return</span> <span class="variable">element</span>[<span class="variable">property</span>] = <span class="variable">value</span>;
+      }
+    }
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Removes properties.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  attribute The property name</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">removeProp</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>) {
+    <span class="keyword">if</span> (<span class="variable">propertyFix</span>[<span class="variable">property</span>])
+      <span class="variable">property</span> = <span class="variable">propertyFix</span>[<span class="variable">property</span>];
+    <span class="keyword">try</span> {
+      <span class="variable">element</span>[<span class="variable">property</span>] = <span class="variable">undefined</span>;
+      <span class="keyword">delete</span> <span class="variable">element</span>[<span class="variable">property</span>];
+    } <span class="keyword">catch</span> (<span class="variable">e</span>) {
     }
   };
 
@@ -1770,6 +1822,38 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
         <span class="variable">dom</span>.<span class="variable">removeAttr</span>(<span class="this">this</span>[<span class="number integer">0</span>], <span class="variable">attribute</span>);
       }
       <span class="keyword">return</span> <span class="this">this</span>;
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Get or set a property.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  property The property name</p></li><li><p><strong>param</strong>: <em>String</em>  value The property value</p></li><li><p><strong>returns</strong>: <em>String</em>  The property value</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">prop</span>: <span class="keyword">function</span>(<span class="variable">property</span>, <span class="variable">value</span>) {
+      <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">0</span>) {
+        <span class="keyword">return</span> <span class="variable">dom</span>.<span class="variable">prop</span>(<span class="this">this</span>[<span class="number integer">0</span>], <span class="variable">property</span>, <span class="variable">value</span>);
+      }
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Removes properties.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  attribute The property name</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">removeProp</span>: <span class="keyword">function</span>(<span class="variable">property</span>) {
+      <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">elements</span>.<span class="variable">length</span> &<span class="variable">gt</span>; <span class="number integer">0</span>) {
+        <span class="keyword">return</span> <span class="variable">dom</span>.<span class="variable">removeProp</span>(<span class="this">this</span>[<span class="number integer">0</span>], <span class="variable">property</span>, <span class="variable">value</span>);
+      }
     },</code></pre>
 </td>
 </tr>
@@ -2931,6 +3015,82 @@ turing.net.jsonp(url, {
 
 </code></pre>
 </td>
+</tr><tr class="filename"><td><h2 id="turing.plugins.js"><a href="#">turing.plugins</a></h2></td><td>turing.plugins.js</td></tr><tr class="code">
+<td class="docs">
+<p>The Turing plugin module.</p>
+
+<p>This is an example plugin:</p>
+
+<pre><code>turing.plugins.register('turnRed', {
+  name: 'Turn Things Red',
+  version: '1.0.0',
+  description: 'Turns the background red',
+  author: 'Alex Young &lt;alex@example.com&gt;',
+  licenses: [ { type: 'MIT' } ],
+
+  turnRed: function() {
+    this[0].style.backgroundColor = '#ff0000';
+    return this;
+  }
+});</code></pre>
+
+<p> </p>
+</td>
+<td class="code">
+<pre><code>(<span class="keyword">function</span>() {
+  <span class="keyword">var</span> <span class="variable">plugins</span> = {};
+  <span class="variable">plugins</span>.<span class="variable">registered</span> = {};
+  <span class="variable">plugins</span>.<span class="class">AlreadyRegistered</span> = <span class="class">Error</span>;
+  <span class="variable">plugins</span>.<span class="class">NotFound</span> = <span class="class">Error</span>;</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Registers a plugin, making it available for
+chained DOM calls.</p>
+
+<p>Throws turing.plugins.AlreadyRegistered if a
+plugin with the same name has been registered.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  methodName The name of your plugin method </p></li><li><p><strong>param</strong>: <em>Object</em>  metadata Your plugin</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">plugins</span>.<span class="variable">register</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>, <span class="variable">metadata</span>) {
+    <span class="keyword">if</span> (<span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>]) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="variable">plugins</span>.<span class="class">AlreadyRegistered</span>(<span class="string">'Already registered a plugin called: '</span> + <span class="variable">methodName</span>);
+    }
+
+    <span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>] = <span class="variable">metadata</span>;
+    <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>] = <span class="variable">metadata</span>[<span class="variable">methodName</span>];
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Removes a plugin.  Throws turing.plugins.NotFound if
+the plugin could not be found.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  methodName The name of the plugin</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">plugins</span>.<span class="variable">remove</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>) {
+    <span class="keyword">if</span> (!<span class="variable">plugins</span>.<span class="variable">registered</span>.<span class="variable">hasOwnProperty</span>(<span class="variable">methodName</span>)) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="variable">plugins</span>.<span class="class">NotFound</span>(<span class="string">'Plugin not found: '</span> + <span class="variable">methodName</span>);
+    } <span class="keyword">else</span> {
+      <span class="keyword">delete</span> <span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>]
+      <span class="keyword">delete</span> <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>];
+    }
+  };
+
+  <span class="variable">turing</span>.<span class="variable">plugins</span> = <span class="variable">plugins</span>;
+})();
+
+</code></pre>
+</td>
 </tr><tr class="filename"><td><h2 id="turing.oo.js"><a href="#">turing.oo</a></h2></td><td>turing.oo.js</td></tr><tr class="code">
 <td class="docs">
 <h2>The Turing Class</h2>
@@ -3027,82 +3187,6 @@ new User('Alice', '26');</code></pre>
     <span class="keyword">return</span> <span class="variable">parentClass</span>[<span class="variable">method</span>].<span class="variable">apply</span>(<span class="variable">instance</span>, <span class="variable">args</span>);
   }
 };
-</code></pre>
-</td>
-</tr><tr class="filename"><td><h2 id="turing.plugins.js"><a href="#">turing.plugins</a></h2></td><td>turing.plugins.js</td></tr><tr class="code">
-<td class="docs">
-<p>The Turing plugin module.</p>
-
-<p>This is an example plugin:</p>
-
-<pre><code>turing.plugins.register('turnRed', {
-  name: 'Turn Things Red',
-  version: '1.0.0',
-  description: 'Turns the background red',
-  author: 'Alex Young &lt;alex@example.com&gt;',
-  licenses: [ { type: 'MIT' } ],
-
-  turnRed: function() {
-    this[0].style.backgroundColor = '#ff0000';
-    return this;
-  }
-});</code></pre>
-
-<p> </p>
-</td>
-<td class="code">
-<pre><code>(<span class="keyword">function</span>() {
-  <span class="keyword">var</span> <span class="variable">plugins</span> = {};
-  <span class="variable">plugins</span>.<span class="variable">registered</span> = {};
-  <span class="variable">plugins</span>.<span class="class">AlreadyRegistered</span> = <span class="class">Error</span>;
-  <span class="variable">plugins</span>.<span class="class">NotFound</span> = <span class="class">Error</span>;</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Registers a plugin, making it available for
-chained DOM calls.</p>
-
-<p>Throws turing.plugins.AlreadyRegistered if a
-plugin with the same name has been registered.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>String</em>  methodName The name of your plugin method </p></li><li><p><strong>param</strong>: <em>Object</em>  metadata Your plugin</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">plugins</span>.<span class="variable">register</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>, <span class="variable">metadata</span>) {
-    <span class="keyword">if</span> (<span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>]) {
-      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="variable">plugins</span>.<span class="class">AlreadyRegistered</span>(<span class="string">'Already registered a plugin called: '</span> + <span class="variable">methodName</span>);
-    }
-
-    <span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>] = <span class="variable">metadata</span>;
-    <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>] = <span class="variable">metadata</span>[<span class="variable">methodName</span>];
-  };</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Removes a plugin.  Throws turing.plugins.NotFound if
-the plugin could not be found.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>String</em>  methodName The name of the plugin</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">plugins</span>.<span class="variable">remove</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>) {
-    <span class="keyword">if</span> (!<span class="variable">plugins</span>.<span class="variable">registered</span>.<span class="variable">hasOwnProperty</span>(<span class="variable">methodName</span>)) {
-      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="variable">plugins</span>.<span class="class">NotFound</span>(<span class="string">'Plugin not found: '</span> + <span class="variable">methodName</span>);
-    } <span class="keyword">else</span> {
-      <span class="keyword">delete</span> <span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>]
-      <span class="keyword">delete</span> <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>];
-    }
-  };
-
-  <span class="variable">turing</span>.<span class="variable">plugins</span> = <span class="variable">plugins</span>;
-})();
-
 </code></pre>
 </td>
 </tr><tr class="filename"><td><h2 id="turing.touch.js"><a href="#">turing.touch</a></h2></td><td>turing.touch.js</td></tr><tr class="code">
