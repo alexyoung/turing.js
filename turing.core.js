@@ -16,17 +16,15 @@
    * @returns {Object} The turing object, run through `init`
    */
   function turing() {
-    if (arguments.length > 0) {
-      var result;
-      for (var i = 0; i < middleware.length; i++) {
-        result = middleware[i].apply(turing, arguments);
-        if (result) return result;
-      }
+    var result;
+    for (var i = 0; i < middleware.length; i++) {
+      result = middleware[i].apply(turing, arguments);
+      if (result) return result;
     }
   }
 
-  turing.VERSION = '0.0.64';
-  turing.lesson = 'Part 64: Properties';
+  turing.VERSION = '0.0.67';
+  turing.lesson = 'Part 67: Promises';
 
   /**
    * This alias will be used as an alternative to `turing()`.

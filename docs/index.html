@@ -710,8 +710,8 @@ code .this { color: #19469D; }</style>
     }
   }
 
-  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.64'</span>;
-  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 64: Properties'</span>;</code></pre>
+  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.67'</span>;
+  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 67: Promises'</span>;</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -3015,82 +3015,6 @@ turing.net.jsonp(url, {
 
 </code></pre>
 </td>
-</tr><tr class="filename"><td><h2 id="turing.plugins.js"><a href="#">turing.plugins</a></h2></td><td>turing.plugins.js</td></tr><tr class="code">
-<td class="docs">
-<p>The Turing plugin module.</p>
-
-<p>This is an example plugin:</p>
-
-<pre><code>turing.plugins.register('turnRed', {
-  name: 'Turn Things Red',
-  version: '1.0.0',
-  description: 'Turns the background red',
-  author: 'Alex Young &lt;alex@example.com&gt;',
-  licenses: [ { type: 'MIT' } ],
-
-  turnRed: function() {
-    this[0].style.backgroundColor = '#ff0000';
-    return this;
-  }
-});</code></pre>
-
-<p> </p>
-</td>
-<td class="code">
-<pre><code>(<span class="keyword">function</span>() {
-  <span class="keyword">var</span> <span class="variable">plugins</span> = {};
-  <span class="variable">plugins</span>.<span class="variable">registered</span> = {};
-  <span class="variable">plugins</span>.<span class="class">AlreadyRegistered</span> = <span class="class">Error</span>;
-  <span class="variable">plugins</span>.<span class="class">NotFound</span> = <span class="class">Error</span>;</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Registers a plugin, making it available for
-chained DOM calls.</p>
-
-<p>Throws turing.plugins.AlreadyRegistered if a
-plugin with the same name has been registered.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>String</em>  methodName The name of your plugin method </p></li><li><p><strong>param</strong>: <em>Object</em>  metadata Your plugin</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">plugins</span>.<span class="variable">register</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>, <span class="variable">metadata</span>) {
-    <span class="keyword">if</span> (<span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>]) {
-      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="variable">plugins</span>.<span class="class">AlreadyRegistered</span>(<span class="string">'Already registered a plugin called: '</span> + <span class="variable">methodName</span>);
-    }
-
-    <span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>] = <span class="variable">metadata</span>;
-    <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>] = <span class="variable">metadata</span>[<span class="variable">methodName</span>];
-  };</code></pre>
-</td>
-</tr>
-<tr class="code">
-<td class="docs">
-<p>Removes a plugin.  Throws turing.plugins.NotFound if
-the plugin could not be found.</p>
-
-<h2></h2>
-
-<ul><li><p><strong>param</strong>: <em>String</em>  methodName The name of the plugin</p></li></ul>
-</td>
-<td class="code">
-<pre><code><span class="variable">plugins</span>.<span class="variable">remove</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>) {
-    <span class="keyword">if</span> (!<span class="variable">plugins</span>.<span class="variable">registered</span>.<span class="variable">hasOwnProperty</span>(<span class="variable">methodName</span>)) {
-      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="variable">plugins</span>.<span class="class">NotFound</span>(<span class="string">'Plugin not found: '</span> + <span class="variable">methodName</span>);
-    } <span class="keyword">else</span> {
-      <span class="keyword">delete</span> <span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>]
-      <span class="keyword">delete</span> <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>];
-    }
-  };
-
-  <span class="variable">turing</span>.<span class="variable">plugins</span> = <span class="variable">plugins</span>;
-})();
-
-</code></pre>
-</td>
 </tr><tr class="filename"><td><h2 id="turing.oo.js"><a href="#">turing.oo</a></h2></td><td>turing.oo.js</td></tr><tr class="code">
 <td class="docs">
 <h2>The Turing Class</h2>
@@ -3187,6 +3111,169 @@ new User('Alice', '26');</code></pre>
     <span class="keyword">return</span> <span class="variable">parentClass</span>[<span class="variable">method</span>].<span class="variable">apply</span>(<span class="variable">instance</span>, <span class="variable">args</span>);
   }
 };
+</code></pre>
+</td>
+</tr><tr class="filename"><td><h2 id="turing.plugins.js"><a href="#">turing.plugins</a></h2></td><td>turing.plugins.js</td></tr><tr class="code">
+<td class="docs">
+<p>The Turing plugin module.</p>
+
+<p>This is an example plugin:</p>
+
+<pre><code>turing.plugins.register('turnRed', {
+  name: 'Turn Things Red',
+  version: '1.0.0',
+  description: 'Turns the background red',
+  author: 'Alex Young &lt;alex@example.com&gt;',
+  licenses: [ { type: 'MIT' } ],
+
+  turnRed: function() {
+    this[0].style.backgroundColor = '#ff0000';
+    return this;
+  }
+});</code></pre>
+
+<p> </p>
+</td>
+<td class="code">
+<pre><code>(<span class="keyword">function</span>() {
+  <span class="keyword">var</span> <span class="variable">plugins</span> = {};
+  <span class="variable">plugins</span>.<span class="variable">registered</span> = {};
+  <span class="variable">plugins</span>.<span class="class">AlreadyRegistered</span> = <span class="class">Error</span>;
+  <span class="variable">plugins</span>.<span class="class">NotFound</span> = <span class="class">Error</span>;</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Registers a plugin, making it available for
+chained DOM calls.</p>
+
+<p>Throws turing.plugins.AlreadyRegistered if a
+plugin with the same name has been registered.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  methodName The name of your plugin method </p></li><li><p><strong>param</strong>: <em>Object</em>  metadata Your plugin</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">plugins</span>.<span class="variable">register</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>, <span class="variable">metadata</span>) {
+    <span class="keyword">if</span> (<span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>]) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="variable">plugins</span>.<span class="class">AlreadyRegistered</span>(<span class="string">'Already registered a plugin called: '</span> + <span class="variable">methodName</span>);
+    }
+
+    <span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>] = <span class="variable">metadata</span>;
+    <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>] = <span class="variable">metadata</span>[<span class="variable">methodName</span>];
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Removes a plugin.  Throws turing.plugins.NotFound if
+the plugin could not be found.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  methodName The name of the plugin</p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">plugins</span>.<span class="variable">remove</span> = <span class="keyword">function</span>(<span class="variable">methodName</span>) {
+    <span class="keyword">if</span> (!<span class="variable">plugins</span>.<span class="variable">registered</span>.<span class="variable">hasOwnProperty</span>(<span class="variable">methodName</span>)) {
+      <span class="keyword">throw</span> <span class="keyword">new</span> <span class="variable">plugins</span>.<span class="class">NotFound</span>(<span class="string">'Plugin not found: '</span> + <span class="variable">methodName</span>);
+    } <span class="keyword">else</span> {
+      <span class="keyword">delete</span> <span class="variable">plugins</span>.<span class="variable">registered</span>[<span class="variable">methodName</span>]
+      <span class="keyword">delete</span> <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">methodName</span>];
+    }
+  };
+
+  <span class="variable">turing</span>.<span class="variable">plugins</span> = <span class="variable">plugins</span>;
+})();
+
+</code></pre>
+</td>
+</tr><tr class="filename"><td><h2 id="turing.promise.js"><a href="#">turing.promise</a></h2></td><td>turing.promise.js</td></tr><tr class="code">
+<td class="docs">
+<p>The Turing Promise module.
+ </p>
+</td>
+<td class="code">
+<pre><code>(<span class="keyword">function</span>() {</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>The Promise class.
+   </p>
+</td>
+<td class="code">
+<pre><code><span class="keyword">function</span> <span class="class">Promise</span>() {
+    <span class="keyword">var</span> <span class="variable">self</span> = <span class="this">this</span>;
+    <span class="this">this</span>.<span class="variable">pending</span> = [];</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Resolves a promise.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  A value</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="this">this</span>.<span class="variable">resolve</span> = <span class="keyword">function</span>(<span class="variable">result</span>) {
+      <span class="variable">self</span>.<span class="variable">complete</span>(<span class="string">'resolve'</span>, <span class="variable">result</span>);
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Rejects a promise.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  A value</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="this">this</span>.<span class="variable">reject</span> = <span class="keyword">function</span>(<span class="variable">result</span>) {
+      <span class="variable">self</span>.<span class="variable">complete</span>(<span class="string">'reject'</span>, <span class="variable">result</span>);
+    }
+  }
+
+  <span class="class">Promise</span>.<span class="variable">prototype</span> = {</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Adds a success and failure handler for completion of this Promise object.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Function</em>  success The success handler </p></li><li><p><strong>param</strong>: <em>Function</em>  success The failure handler</p></li><li><p><strong>returns</strong>: <em>Promise</em>  <code>this</code></p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">then</span>: <span class="keyword">function</span>(<span class="variable">success</span>, <span class="variable">failure</span>) {
+      <span class="this">this</span>.<span class="variable">pending</span>.<span class="variable">push</span>({ <span class="variable">resolve</span>: <span class="variable">success</span>, <span class="variable">reject</span>: <span class="variable">failure</span> });
+      <span class="keyword">return</span> <span class="this">this</span>;
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Runs through each pending 'thenable' based on type (resolve, reject).</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  type The thenable type</p></li><li><p><strong>param</strong>: <em>Object</em>  result A value</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">complete</span>: <span class="keyword">function</span>(<span class="variable">type</span>, <span class="variable">result</span>) {
+      <span class="keyword">while</span> (<span class="this">this</span>.<span class="variable">pending</span>[<span class="number integer">0</span>]) {
+        <span class="this">this</span>.<span class="variable">pending</span>.<span class="variable">shift</span>()[<span class="variable">type</span>](<span class="variable">result</span>);
+      }
+    }
+  };
+
+  <span class="variable">turing</span>.<span class="class">Promise</span> = <span class="class">Promise</span>;
+})();
+
 </code></pre>
 </td>
 </tr><tr class="filename"><td><h2 id="turing.touch.js"><a href="#">turing.touch</a></h2></td><td>turing.touch.js</td></tr><tr class="code">
