@@ -23,8 +23,8 @@
     }
   }
 
-  turing.VERSION = '0.0.67';
-  turing.lesson = 'Part 67: Promises';
+  turing.VERSION = '0.0.68';
+  turing.lesson = 'Part 68: Promises';
 
   /**
    * This alias will be used as an alternative to `turing()`.

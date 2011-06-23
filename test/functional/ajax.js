@@ -17,9 +17,9 @@ var express = require('express'),
 app.configure(function() {
   app.use(express.logger({ format: '\x1b[1m:method\x1b[0m \x1b[33m:url\x1b[0m :response-time ms' }));
   app.use(express.methodOverride());
-  app.use(express.bodyDecoder());
-  app.use(express.staticProvider(path.join(__dirname, 'public')));
-  app.use(express.staticProvider(path.join(__dirname, '..', '..', 'build')));
+  app.use(express.bodyParser());
+  app.use(express.static(path.join(__dirname, 'public')));
+  app.use(express.static(path.join(__dirname, '..', '..', 'build')));
   app.use(app.router);
   app.set('view engine', 'jade');
 });
@@ -58,6 +58,7 @@ app.post('/post-array', function(req, res) {
 });
 
 app.post('/give-me-json', function(req, res) {
+  res.header('Content-Type', 'application/json');
   res.send({ key: 'value' });
 });
 

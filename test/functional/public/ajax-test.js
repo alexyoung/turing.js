@@ -66,6 +66,13 @@ exports.testAjax = {
         assert.equal('value', r.responseJSON.key);
       }
     });
+  },
+
+  'test promises': function() {
+    $t.get('/get-test').then(
+      function(r) { assert.equal('{"key":"value"}', r.responseText); },
+      function(r) { assert.ok(false); }
+    );
   }
 };
 

@@ -83,7 +83,12 @@
   };
 
   function ajax(url, options) {
-    var request = xhr();
+    var request = xhr(),
+        promise;
+        
+    if (turing.Promise) {
+      promise = new turing.Promise();
+    }
 
     function respondToReadyState(readyState) {
       if (request.readyState == 4) {
@@ -92,8 +97,10 @@
 
         if (successfulRequest(request)) {
           if (options.success) options.success(request);
+          if (promise) promise.resolve(request);
         } else {
           if (options.error) options.error(request);
+          if (promise) promise.reject(request);
         }
       }
     }
@@ -146,6 +153,10 @@
       }
     }
 
+    request.then = function() {
+      if (promise) promise.then.apply(promise, arguments);
+    };
+
     return request;
   }
 
@@ -192,6 +203,7 @@
    * @returns {Object} The Ajax request object
    */
   net.get = function(url, options) {
+    if (typeof options === 'undefined') options = {};
     options.method = 'get';
     return ajax(url, options);
   };
@@ -211,6 +223,7 @@
    * @returns {Object} The Ajax request object
    */
   net.post = function(url, options) {
+    if (typeof options === 'undefined') options = {};
     options.method = 'post';
     return ajax(url, options);
   };

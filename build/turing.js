@@ -16,17 +16,15 @@
    * @returns {Object} The turing object, run through `init`
    */
   function turing() {
-    if (arguments.length > 0) {
-      var result;
-      for (var i = 0; i < middleware.length; i++) {
-        result = middleware[i].apply(turing, arguments);
-        if (result) return result;
-      }
+    var result;
+    for (var i = 0; i < middleware.length; i++) {
+      result = middleware[i].apply(turing, arguments);
+      if (result) return result;
     }
   }
 
-  turing.VERSION = '0.0.64';
-  turing.lesson = 'Part 64: Properties';
+  turing.VERSION = '0.0.67';
+  turing.lesson = 'Part 67: Promises';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -607,6 +605,92 @@ turing.init(function(arg) {
     return turing.enumerable.chain(arg);
   }
 });
+
+/*!
+ * Turing Promise
+ * Copyright (C) 2010-2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * The Turing Promise module.
+ */
+(function() {
+  /**
+   * The Promise class.
+   */
+  function Promise() {
+    var self = this;
+    this.pending = [];
+
+    /**
+     * Resolves a promise.
+     *
+     * @param {Object} A value
+     */
+    this.resolve = function(result) {
+      self.complete('resolve', result);
+    },
+
+    /**
+     * Rejects a promise.
+     *
+     * @param {Object} A value
+     */
+    this.reject = function(result) {
+      self.complete('reject', result);
+    }
+  }
+
+  Promise.prototype = {
+    /**
+     * Adds a success and failure handler for completion of this Promise object.
+     *
+     * @param {Function} success The success handler 
+     * @param {Function} success The failure handler
+     * @returns {Promise} `this`
+     */
+    then: function(success, failure) {
+      this.pending.push({ resolve: success, reject: failure });
+      return this;
+    },
+
+    /**
+     * Runs through each pending 'thenable' based on type (resolve, reject).
+     *
+     * @param {String} type The thenable type
+     * @param {Object} result A value
+     */
+    complete: function(type, result) {
+      while (this.pending[0]) {
+        this.pending.shift()[type](result);
+      }
+    }
+  };
+
+  /**
+    * Chained Promises:
+    *
+    *     turing().delay(1000).then(function() {
+    *       assert.ok((new Date()).valueOf() - start >= 1000);  
+    *     });
+    *
+    */
+  var chain = {};
+
+  turing.init(function() {
+    if (arguments.length === 0)
+      return chain;
+  });
+
+  chain.delay = function(ms) {
+    var p = new turing.Promise();
+    setTimeout(p.resolve, ms);
+    return p;
+  };
+
+  turing.Promise = Promise;
+})();
 
 /*!
  * Turing Functional
@@ -2107,7 +2191,12 @@ turing.functional = {
   };
 
   function ajax(url, options) {
-    var request = xhr();
+    var request = xhr(),
+        promise;
+        
+    if (turing.Promise) {
+      promise = new turing.Promise();
+    }
 
     function respondToReadyState(readyState) {
       if (request.readyState == 4) {
@@ -2116,8 +2205,10 @@ turing.functional = {
 
         if (successfulRequest(request)) {
           if (options.success) options.success(request);
+          if (promise) promise.resolve(request);
         } else {
           if (options.error) options.error(request);
+          if (promise) promise.reject(request);
         }
       }
     }
@@ -2170,6 +2261,10 @@ turing.functional = {
       }
     }
 
+    request.then = function() {
+      if (promise) promise.then.apply(promise, arguments);
+    };
+
     return request;
   }
 
@@ -2216,6 +2311,7 @@ turing.functional = {
    * @returns {Object} The Ajax request object
    */
   net.get = function(url, options) {
+    if (typeof options === 'undefined') options = {};
     options.method = 'get';
     return ajax(url, options);
   };
@@ -2235,6 +2331,7 @@ turing.functional = {
    * @returns {Object} The Ajax request object
    */
   net.post = function(url, options) {
+    if (typeof options === 'undefined') options = {};
     options.method = 'post';
     return ajax(url, options);
   };
