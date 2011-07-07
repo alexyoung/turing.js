@@ -9,7 +9,13 @@
  *
  */
 (function() {
-  var events = {}, cache = [], onReadyBound = false, isReady = false, DOMContentLoaded, readyCallbacks = [];
+  var events = {},
+      cache = [],
+      onReadyBound = false,
+      isReady = false,
+      DOMContentLoaded,
+      readyCallbacks = [],
+      Emitter;
 
   function isValidElement(element) {
     return element.nodeType !== 3 && element.nodeType !== 8;
@@ -106,18 +112,20 @@
   }
 
   // DOMContentLoaded cleans up listeners
-  if (document.addEventListener) {
-    DOMContentLoaded = function() {
-      document.removeEventListener('DOMContentLoaded', DOMContentLoaded, false);
-      ready();
-    };
-  } else if ( document.attachEvent ) {
-    DOMContentLoaded = function() {
-      if (document.readyState === 'complete') {
-        document.detachEvent('onreadystatechange', DOMContentLoaded);
+  if (typeof document !== 'undefined') {
+    if (document.addEventListener) {
+      DOMContentLoaded = function() {
+        document.removeEventListener('DOMContentLoaded', DOMContentLoaded, false);
         ready();
-      }
-    };
+      };
+    } else if (document.attachEvent) {
+      DOMContentLoaded = function() {
+        if (document.readyState === 'complete') {
+          document.detachEvent('onreadystatechange', DOMContentLoaded);
+          ready();
+        }
+      };
+    }
   }
 
   function bindOnReady() {
@@ -298,6 +306,99 @@
   };
 
   events.addDOMethods();
+
+  /**
+    * A generic event manager, based on Node's EventEmitter:
+    *
+    *       var EventEmitter = turing.events.Emitter,
+    *           emitter = new EventEmitter();
+    *
+    *       emitter.on('testFired', function() {
+    *         assert.ok(true);
+    *       });
+    *
+    *       emitter.emit('testFired');
+    */
+  Emitter = function() {
+    this.events = {};
+  };
+
+  Emitter.prototype = {
+    /**
+     * Adds a listener.  Multiple can be added per eventName.  Aliased as `on`.
+     *
+     * @param {String} eventName The name of the event
+     * @param {Function} handler A callback
+     */
+    addListener: function(eventName, handler) {
+      if (eventName in this.events === false)
+        this.events[eventName] = [];
+
+      this.events[eventName].push(handler);
+    },
+
+    /**
+     * Triggers all matching listeners.
+     *
+     * @param {String} eventName The name of the event
+     * @returns {Boolean} `true` if an event fired
+     */
+    emit: function(eventName) {
+      var fired = false;
+      if (eventName in this.events === false) return fired;
+
+      for (var i = 0; i < this.events[eventName].length; i++) {
+        this.events[eventName][i].apply(this, Array.prototype.slice.call(arguments, 1));
+        fired = true;
+      }
+      return fired;
+    },
+
+    /**
+     * Removes all matching listeners.
+     *
+     * @param {String} eventName The name of the event
+     * @returns {Boolean} `true` if an event was removed
+     */
+    removeAllListeners: function(eventName) {
+      if (eventName in this.events === false) return false;
+
+      delete this.events[eventName];
+      return true;
+    },
+
+    removeListenerAt: function(eventName, i) {
+      var array = this.events[eventName],
+          rest = array.slice(i + 1);
+      array.length = i;
+      array.push.apply(array, rest);
+      this.events[eventName] = array;
+    },
+
+    /**
+     * Removes a listener based on the handler function.
+     *
+     * @param {String} eventName The name of the event
+     * @param {Function} handler The handler function to remove
+     * @returns {Boolean} `true` if an event was removed
+     */
+    removeListener: function(eventName, handler) {
+      if (eventName in this.events === false) return false;
+
+      for (var i = 0; i < this.events[eventName].length; i++) {
+        if (this.events[eventName][i] == handler) {
+          this.removeListenerAt(eventName, i);
+          return true;
+        }
+      }
+
+      return false;
+    }
+  };
+
+  Emitter.prototype.on = Emitter.prototype.addListener;
+
+  events.Emitter = Emitter;
 
   /**
     * DOM ready event handlers can also be set with:

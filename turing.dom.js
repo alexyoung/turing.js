@@ -199,7 +199,7 @@
     }
   };
 
-  if (typeof document.getElementsByClassName !== 'undefined') {
+  if (typeof document !== 'undefined' && typeof document.getElementsByClassName !== 'undefined') {
     find.byClassName = function(root, className) {
       return root.getElementsByClassName(className);
     };
@@ -425,22 +425,24 @@
     element.style[property] = value;
   }
 
-  if (document.documentElement.currentStyle) {
-    getStyle = function(element, property) {
-      return element.currentStyle[camelCase(property)];
-    };
+  if (typeof document !== 'undefined') {
+    if (document.documentElement.currentStyle) {
+      getStyle = function(element, property) {
+        return element.currentStyle[camelCase(property)];
+      };
 
-    setStyle = function(element, property, value) {
-      return setStyleProperty(element, camelCase(property), value);
-    };
-  } else if (document.defaultView.getComputedStyle) {
-    getStyle = function(element, property) {
-      return element.ownerDocument.defaultView.getComputedStyle(element, null).getPropertyValue(uncamel(property));
-    };
+      setStyle = function(element, property, value) {
+        return setStyleProperty(element, camelCase(property), value);
+      };
+    } else if (document.defaultView.getComputedStyle) {
+      getStyle = function(element, property) {
+        return element.ownerDocument.defaultView.getComputedStyle(element, null).getPropertyValue(uncamel(property));
+      };
 
-    setStyle = function(element, property, value) {
-      return setStyleProperty(element, uncamel(property), value);
-    };
+      setStyle = function(element, property, value) {
+        return setStyleProperty(element, uncamel(property), value);
+      };
+    }
   }
 
   /**

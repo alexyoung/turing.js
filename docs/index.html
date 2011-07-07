@@ -708,8 +708,8 @@ code .this { color: #19469D; }</style>
     }
   }
 
-  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.67'</span>;
-  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 67: Promises'</span>;</code></pre>
+  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.70'</span>;
+  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 70: Custom Events'</span>;</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -1037,7 +1037,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     }
   };
 
-  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">document</span>.<span class="variable">getElementsByClassName</span> !== <span class="string">'undefined'</span>) {
+  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">document</span> !== <span class="string">'undefined'</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="keyword">typeof</span> <span class="variable">document</span>.<span class="variable">getElementsByClassName</span> !== <span class="string">'undefined'</span>) {
     <span class="variable">find</span>.<span class="variable">byClassName</span> = <span class="keyword">function</span>(<span class="variable">root</span>, <span class="variable">className</span>) {
       <span class="keyword">return</span> <span class="variable">root</span>.<span class="variable">getElementsByClassName</span>(<span class="variable">className</span>);
     };
@@ -1271,22 +1271,24 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     <span class="variable">element</span>.<span class="variable">style</span>[<span class="variable">property</span>] = <span class="variable">value</span>;
   }
 
-  <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">documentElement</span>.<span class="variable">currentStyle</span>) {
-    <span class="variable">getStyle</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>) {
-      <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">currentStyle</span>[<span class="variable">camelCase</span>(<span class="variable">property</span>)];
-    };
+  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">document</span> !== <span class="string">'undefined'</span>) {
+    <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">documentElement</span>.<span class="variable">currentStyle</span>) {
+      <span class="variable">getStyle</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>) {
+        <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">currentStyle</span>[<span class="variable">camelCase</span>(<span class="variable">property</span>)];
+      };
 
-    <span class="variable">setStyle</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>, <span class="variable">value</span>) {
-      <span class="keyword">return</span> <span class="variable">setStyleProperty</span>(<span class="variable">element</span>, <span class="variable">camelCase</span>(<span class="variable">property</span>), <span class="variable">value</span>);
-    };
-  } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">defaultView</span>.<span class="variable">getComputedStyle</span>) {
-    <span class="variable">getStyle</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>) {
-      <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">ownerDocument</span>.<span class="variable">defaultView</span>.<span class="variable">getComputedStyle</span>(<span class="variable">element</span>, <span class="keyword">null</span>).<span class="variable">getPropertyValue</span>(<span class="variable">uncamel</span>(<span class="variable">property</span>));
-    };
+      <span class="variable">setStyle</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>, <span class="variable">value</span>) {
+        <span class="keyword">return</span> <span class="variable">setStyleProperty</span>(<span class="variable">element</span>, <span class="variable">camelCase</span>(<span class="variable">property</span>), <span class="variable">value</span>);
+      };
+    } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">defaultView</span>.<span class="variable">getComputedStyle</span>) {
+      <span class="variable">getStyle</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>) {
+        <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">ownerDocument</span>.<span class="variable">defaultView</span>.<span class="variable">getComputedStyle</span>(<span class="variable">element</span>, <span class="keyword">null</span>).<span class="variable">getPropertyValue</span>(<span class="variable">uncamel</span>(<span class="variable">property</span>));
+      };
 
-    <span class="variable">setStyle</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>, <span class="variable">value</span>) {
-      <span class="keyword">return</span> <span class="variable">setStyleProperty</span>(<span class="variable">element</span>, <span class="variable">uncamel</span>(<span class="variable">property</span>), <span class="variable">value</span>);
-    };
+      <span class="variable">setStyle</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">property</span>, <span class="variable">value</span>) {
+        <span class="keyword">return</span> <span class="variable">setStyleProperty</span>(<span class="variable">element</span>, <span class="variable">uncamel</span>(<span class="variable">property</span>), <span class="variable">value</span>);
+      };
+    }
   }</code></pre>
 </td>
 </tr>
@@ -2362,7 +2364,13 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 </td>
 <td class="code">
 <pre><code>(<span class="keyword">function</span>() {
-  <span class="keyword">var</span> <span class="variable">events</span> = {}, <span class="variable">cache</span> = [], <span class="variable">onReadyBound</span> = <span class="variable">false</span>, <span class="variable">isReady</span> = <span class="variable">false</span>, <span class="class">DOMContentLoaded</span>, <span class="variable">readyCallbacks</span> = [];
+  <span class="keyword">var</span> <span class="variable">events</span> = {},
+      <span class="variable">cache</span> = [],
+      <span class="variable">onReadyBound</span> = <span class="variable">false</span>,
+      <span class="variable">isReady</span> = <span class="variable">false</span>,
+      <span class="class">DOMContentLoaded</span>,
+      <span class="variable">readyCallbacks</span> = [],
+      <span class="class">Emitter</span>;
 
   <span class="keyword">function</span> <span class="variable">isValidElement</span>(<span class="variable">element</span>) {
     <span class="keyword">return</span> <span class="variable">element</span>.<span class="variable">nodeType</span> !== <span class="number integer">3</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>.<span class="variable">nodeType</span> !== <span class="number integer">8</span>;
@@ -2459,18 +2467,20 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
   }
 
   <span class="comment">// DOMContentLoaded cleans up listeners</span>
-  <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">addEventListener</span>) {
-    <span class="class">DOMContentLoaded</span> = <span class="keyword">function</span>() {
-      <span class="variable">document</span>.<span class="variable">removeEventListener</span>(<span class="string">'DOMContentLoaded'</span>, <span class="class">DOMContentLoaded</span>, <span class="variable">false</span>);
-      <span class="variable">ready</span>();
-    };
-  } <span class="keyword">else</span> <span class="keyword">if</span> ( <span class="variable">document</span>.<span class="variable">attachEvent</span> ) {
-    <span class="class">DOMContentLoaded</span> = <span class="keyword">function</span>() {
-      <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">readyState</span> === <span class="string">'complete'</span>) {
-        <span class="variable">document</span>.<span class="variable">detachEvent</span>(<span class="string">'onreadystatechange'</span>, <span class="class">DOMContentLoaded</span>);
+  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">document</span> !== <span class="string">'undefined'</span>) {
+    <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">addEventListener</span>) {
+      <span class="class">DOMContentLoaded</span> = <span class="keyword">function</span>() {
+        <span class="variable">document</span>.<span class="variable">removeEventListener</span>(<span class="string">'DOMContentLoaded'</span>, <span class="class">DOMContentLoaded</span>, <span class="variable">false</span>);
         <span class="variable">ready</span>();
-      }
-    };
+      };
+    } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">attachEvent</span>) {
+      <span class="class">DOMContentLoaded</span> = <span class="keyword">function</span>() {
+        <span class="keyword">if</span> (<span class="variable">document</span>.<span class="variable">readyState</span> === <span class="string">'complete'</span>) {
+          <span class="variable">document</span>.<span class="variable">detachEvent</span>(<span class="string">'onreadystatechange'</span>, <span class="class">DOMContentLoaded</span>);
+          <span class="variable">ready</span>();
+        }
+      };
+    }
   }
 
   <span class="keyword">function</span> <span class="variable">bindOnReady</span>() {
@@ -2669,6 +2679,119 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
   };
 
   <span class="variable">events</span>.<span class="variable">addDOMethods</span>();</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>A generic event manager, based on Node's EventEmitter:</p>
+
+<pre><code>  var EventEmitter = turing.events.Emitter,
+      emitter = new EventEmitter();
+
+  emitter.on('testFired', function() {
+    assert.ok(true);
+  });
+
+  emitter.emit('testFired');
+</code></pre>
+</td>
+<td class="code">
+<pre><code><span class="class">Emitter</span> = <span class="keyword">function</span>() {
+    <span class="this">this</span>.<span class="variable">events</span> = {};
+  };
+
+  <span class="class">Emitter</span>.<span class="variable">prototype</span> = {</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Adds a listener.  Multiple can be added per eventName.  Aliased as <code>on</code>.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  eventName The name of the event</p></li><li><p><strong>param</strong>: <em>Function</em>  handler A callback</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">addListener</span>: <span class="keyword">function</span>(<span class="variable">eventName</span>, <span class="variable">handler</span>) {
+      <span class="keyword">if</span> (<span class="variable">eventName</span> <span class="keyword">in</span> <span class="this">this</span>.<span class="variable">events</span> === <span class="variable">false</span>)
+        <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>] = [];
+
+      <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>].<span class="variable">push</span>(<span class="variable">handler</span>);
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Triggers all matching listeners.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  eventName The name of the event</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  <code>true</code> if an event fired</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">emit</span>: <span class="keyword">function</span>(<span class="variable">eventName</span>) {
+      <span class="keyword">var</span> <span class="variable">fired</span> = <span class="variable">false</span>;
+      <span class="keyword">if</span> (<span class="variable">eventName</span> <span class="keyword">in</span> <span class="this">this</span>.<span class="variable">events</span> === <span class="variable">false</span>) <span class="keyword">return</span> <span class="variable">fired</span>;
+
+      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>].<span class="variable">length</span>; <span class="variable">i</span>++) {
+        <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>][<span class="variable">i</span>].<span class="variable">apply</span>(<span class="this">this</span>, <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">call</span>(<span class="variable">arguments</span>, <span class="number integer">1</span>));
+        <span class="variable">fired</span> = <span class="variable">true</span>;
+      }
+      <span class="keyword">return</span> <span class="variable">fired</span>;
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Removes all matching listeners.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  eventName The name of the event</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  <code>true</code> if an event was removed</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">removeAllListeners</span>: <span class="keyword">function</span>(<span class="variable">eventName</span>) {
+      <span class="keyword">if</span> (<span class="variable">eventName</span> <span class="keyword">in</span> <span class="this">this</span>.<span class="variable">events</span> === <span class="variable">false</span>) <span class="keyword">return</span> <span class="variable">false</span>;
+
+      <span class="keyword">delete</span> <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>];
+      <span class="keyword">return</span> <span class="variable">true</span>;
+    },
+
+    <span class="variable">removeListenerAt</span>: <span class="keyword">function</span>(<span class="variable">eventName</span>, <span class="variable">i</span>) {
+      <span class="keyword">var</span> <span class="variable">array</span> = <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>],
+          <span class="variable">rest</span> = <span class="variable">array</span>.<span class="variable">slice</span>(<span class="variable">i</span> + <span class="number integer">1</span>);
+      <span class="variable">array</span>.<span class="variable">length</span> = <span class="variable">i</span>;
+      <span class="variable">array</span>.<span class="variable">push</span>.<span class="variable">apply</span>(<span class="variable">array</span>, <span class="variable">rest</span>);
+      <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>] = <span class="variable">array</span>;
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Removes a listener based on the handler function.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  eventName The name of the event</p></li><li><p><strong>param</strong>: <em>Function</em>  handler The handler function to remove</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  <code>true</code> if an event was removed</p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">removeListener</span>: <span class="keyword">function</span>(<span class="variable">eventName</span>, <span class="variable">handler</span>) {
+      <span class="keyword">if</span> (<span class="variable">eventName</span> <span class="keyword">in</span> <span class="this">this</span>.<span class="variable">events</span> === <span class="variable">false</span>) <span class="keyword">return</span> <span class="variable">false</span>;
+
+      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>].<span class="variable">length</span>; <span class="variable">i</span>++) {
+        <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>][<span class="variable">i</span>] == <span class="variable">handler</span>) {
+          <span class="this">this</span>.<span class="variable">removeListenerAt</span>(<span class="variable">eventName</span>, <span class="variable">i</span>);
+          <span class="keyword">return</span> <span class="variable">true</span>;
+        }
+      }
+
+      <span class="keyword">return</span> <span class="variable">false</span>;
+    }
+  };
+
+  <span class="class">Emitter</span>.<span class="variable">prototype</span>.<span class="variable">on</span> = <span class="class">Emitter</span>.<span class="variable">prototype</span>.<span class="variable">addListener</span>;
+
+  <span class="variable">events</span>.<span class="class">Emitter</span> = <span class="class">Emitter</span>;</code></pre>
 </td>
 </tr>
 <tr class="code">
