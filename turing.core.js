@@ -23,8 +23,8 @@
     }
   }
 
-  turing.VERSION = '0.0.70';
-  turing.lesson = 'Part 70: Custom Events';
+  turing.VERSION = '0.0.71';
+  turing.lesson = 'Part 71: Custom Events';
 
   /**
    * This alias will be used as an alternative to `turing()`.

@@ -23,8 +23,8 @@
     }
   }
 
-  turing.VERSION = '0.0.70';
-  turing.lesson = 'Part 70: Custom Events';
+  turing.VERSION = '0.0.71';
+  turing.lesson = 'Part 71: Custom Events';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -2124,10 +2124,13 @@ turing.functional = {
       var fired = false;
       if (eventName in this.events === false) return fired;
 
-      for (var i = 0; i < this.events[eventName].length; i++) {
-        this.events[eventName][i].apply(this, Array.prototype.slice.call(arguments, 1));
+      var list = this.events[eventName].slice();
+
+      for (var i = 0; i < list.length; i++) {
+        list[i].apply(this, Array.prototype.slice.call(arguments, 1));
         fired = true;
       }
+      
       return fired;
     },
 
@@ -2145,11 +2148,7 @@ turing.functional = {
     },
 
     removeListenerAt: function(eventName, i) {
-      var array = this.events[eventName],
-          rest = array.slice(i + 1);
-      array.length = i;
-      array.push.apply(array, rest);
-      this.events[eventName] = array;
+      this.events[eventName].splice(i, 1);
     },
 
     /**

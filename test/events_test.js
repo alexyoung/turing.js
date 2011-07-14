@@ -120,6 +120,31 @@ exports.testEventEmitter = {
     assert.ok(!emitter.removeListener('add', nothing));
     assert.ok(!emitter.emit('add'));
     assert.ok(emitter.emit('testFired'));
+  },
+
+  'test listener removal in Emitter': function() {
+    var Emitter = turing.events.Emitter,
+        emitter = new Emitter(),
+        i = 0,
+        j = 0;
+    
+    function add() {
+      i++;
+      assert.ok(emitter.removeListener('add', add));
+    }
+
+    // This should end up being called twice
+    function add2() {
+      j++;
+    }
+
+    emitter.on('add', add);
+    emitter.on('add', add2);
+
+    assert.ok(emitter.emit('add'));
+    assert.ok(!emitter.removeListener('add', add));
+    assert.ok(emitter.emit('add'));
+    assert.equal(2, j);
   }
 };
 

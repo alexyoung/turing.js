@@ -708,8 +708,8 @@ code .this { color: #19469D; }</style>
     }
   }
 
-  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.70'</span>;
-  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 70: Custom Events'</span>;</code></pre>
+  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.71'</span>;
+  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 71: Custom Events'</span>;</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -2733,10 +2733,13 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
       <span class="keyword">var</span> <span class="variable">fired</span> = <span class="variable">false</span>;
       <span class="keyword">if</span> (<span class="variable">eventName</span> <span class="keyword">in</span> <span class="this">this</span>.<span class="variable">events</span> === <span class="variable">false</span>) <span class="keyword">return</span> <span class="variable">fired</span>;
 
-      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>].<span class="variable">length</span>; <span class="variable">i</span>++) {
-        <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>][<span class="variable">i</span>].<span class="variable">apply</span>(<span class="this">this</span>, <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">call</span>(<span class="variable">arguments</span>, <span class="number integer">1</span>));
+      <span class="keyword">var</span> <span class="variable">list</span> = <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>].<span class="variable">slice</span>();
+
+      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">list</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+        <span class="variable">list</span>[<span class="variable">i</span>].<span class="variable">apply</span>(<span class="this">this</span>, <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">call</span>(<span class="variable">arguments</span>, <span class="number integer">1</span>));
         <span class="variable">fired</span> = <span class="variable">true</span>;
       }
+      
       <span class="keyword">return</span> <span class="variable">fired</span>;
     },</code></pre>
 </td>
@@ -2758,11 +2761,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     },
 
     <span class="variable">removeListenerAt</span>: <span class="keyword">function</span>(<span class="variable">eventName</span>, <span class="variable">i</span>) {
-      <span class="keyword">var</span> <span class="variable">array</span> = <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>],
-          <span class="variable">rest</span> = <span class="variable">array</span>.<span class="variable">slice</span>(<span class="variable">i</span> + <span class="number integer">1</span>);
-      <span class="variable">array</span>.<span class="variable">length</span> = <span class="variable">i</span>;
-      <span class="variable">array</span>.<span class="variable">push</span>.<span class="variable">apply</span>(<span class="variable">array</span>, <span class="variable">rest</span>);
-      <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>] = <span class="variable">array</span>;
+      <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>].<span class="variable">splice</span>(<span class="variable">i</span>, <span class="number integer">1</span>);
     },</code></pre>
 </td>
 </tr>
