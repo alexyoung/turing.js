@@ -708,8 +708,8 @@ code .this { color: #19469D; }</style>
     }
   }
 
-  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.70'</span>;
-  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 70: Custom Events'</span>;</code></pre>
+  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.73'</span>;
+  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 73: npm'</span>;</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -835,7 +835,6 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">exports</span> !== <span class="string">'undefined'</span>) <span class="variable">exports</span>.<span class="variable">turing</span> = <span class="variable">turing</span>;
   }
 })(<span class="keyword">typeof</span> <span class="variable">window</span> === <span class="string">'undefined'</span> ? <span class="this">this</span> : <span class="variable">window</span>);
-
 
 </code></pre>
 </td>
@@ -1943,20 +1942,22 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
 <p>This is bound to DOM objects:</p>
 
-<pre><code>turing('p').each(function() {
+<pre><code>global('p').each(function() {
   // `this` contains a DOM element
 });</code></pre>
 
 <p> </p>
 </td>
 <td class="code">
-<pre><code><span class="variable">turing</span>.<span class="variable">enumerable</span> = {</code></pre>
+<pre><code>(<span class="keyword">function</span>() {
+  <span class="keyword">function</span> <span class="class">EnumerableModule</span>(<span class="variable">global</span>) {
+    <span class="variable">global</span>.<span class="variable">enumerable</span> = {</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <p>Throw to break out of iterators.
-   </p>
+       </p>
 </td>
 <td class="code">
 <pre><code><span class="class">Break</span>: {},</code></pre>
@@ -1966,55 +1967,55 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 <td class="docs">
 <p>Iterates using a function over a set of items.  Example:</p>
 
-<pre><code> turing.enumerable.each([1, 2, 3], function(n) {
+<pre><code> global.enumerable.each([1, 2, 3], function(n) {
    console.log(n);
  });</code></pre>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Object</em>  The passed in enumerable object</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Object</em>  The passed in enumerable object</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">each</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
-    <span class="keyword">try</span> {
-      <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">forEach</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">forEach</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">forEach</span>) {
-        <span class="variable">enumerable</span>.<span class="variable">forEach</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
-      } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">turing</span>.<span class="variable">isNumber</span>(<span class="variable">enumerable</span>.<span class="variable">length</span>)) {
-        <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>, <span class="variable">l</span> = <span class="variable">enumerable</span>.<span class="variable">length</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">l</span>; <span class="variable">i</span>++) <span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">enumerable</span>, <span class="variable">enumerable</span>[<span class="variable">i</span>], <span class="variable">i</span>, <span class="variable">enumerable</span>);
-      } <span class="keyword">else</span> {
-        <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">key</span> <span class="keyword">in</span> <span class="variable">enumerable</span>) {
-          <span class="keyword">if</span> (<span class="variable">hasOwnProperty</span>.<span class="variable">call</span>(<span class="variable">enumerable</span>, <span class="variable">key</span>)) <span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">enumerable</span>[<span class="variable">key</span>], <span class="variable">key</span>, <span class="variable">enumerable</span>);
+        <span class="keyword">try</span> {
+          <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">forEach</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">forEach</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">forEach</span>) {
+            <span class="variable">enumerable</span>.<span class="variable">forEach</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
+          } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="variable">global</span>.<span class="variable">isNumber</span>(<span class="variable">enumerable</span>.<span class="variable">length</span>)) {
+            <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>, <span class="variable">l</span> = <span class="variable">enumerable</span>.<span class="variable">length</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">l</span>; <span class="variable">i</span>++) <span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">enumerable</span>, <span class="variable">enumerable</span>[<span class="variable">i</span>], <span class="variable">i</span>, <span class="variable">enumerable</span>);
+          } <span class="keyword">else</span> {
+            <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">key</span> <span class="keyword">in</span> <span class="variable">enumerable</span>) {
+              <span class="keyword">if</span> (<span class="variable">hasOwnProperty</span>.<span class="variable">call</span>(<span class="variable">enumerable</span>, <span class="variable">key</span>)) <span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">enumerable</span>[<span class="variable">key</span>], <span class="variable">key</span>, <span class="variable">enumerable</span>);
+            }
+          }
+        } <span class="keyword">catch</span>(<span class="variable">e</span>) {
+          <span class="keyword">if</span> (<span class="variable">e</span> != <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="class">Break</span>) <span class="keyword">throw</span> <span class="variable">e</span>;
         }
-      }
-    } <span class="keyword">catch</span>(<span class="variable">e</span>) {
-      <span class="keyword">if</span> (<span class="variable">e</span> != <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="class">Break</span>) <span class="keyword">throw</span> <span class="variable">e</span>;
-    }
 
-    <span class="keyword">return</span> <span class="variable">enumerable</span>;
-  },</code></pre>
+        <span class="keyword">return</span> <span class="variable">enumerable</span>;
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <p>Changes a set of item using a function. Example:</p>
 
-<pre><code> turing.enumerable.map([1, 2, 3], function(n) {
+<pre><code> global.enumerable.map([1, 2, 3], function(n) {
    return n + 1;
  });</code></pre>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Array</em>  The changed items</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Array</em>  The changed items</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">map</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
-    <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">map</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">map</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">map</span>) <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">map</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
-    <span class="keyword">var</span> <span class="variable">results</span> = [];
-    <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
-      <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>));
-    });
-    <span class="keyword">return</span> <span class="variable">results</span>;
-  },</code></pre>
+        <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">map</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">map</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">map</span>) <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">map</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
+        <span class="keyword">var</span> <span class="variable">results</span> = [];
+        <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
+          <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>));
+        });
+        <span class="keyword">return</span> <span class="variable">results</span>;
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -2022,7 +2023,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 <p>Removes items based on a callback.  For example:</p>
 
 <pre><code> var a = [1, 2, 3, 4, 5, 6, 7, 8];
- turing.enumerable.filter(a, function(n) {
+ global.enumerable.filter(a, function(n) {
    return n % 2 === 0;
  });
 
@@ -2030,25 +2031,25 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Array</em>  The filtered items</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Array</em>  The filtered items</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">filter</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
-    <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">filter</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">filter</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">filter</span>)
-      <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">filter</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
-    <span class="keyword">var</span> <span class="variable">results</span>   = [],
-        <span class="variable">pushIndex</span> = !<span class="variable">turing</span>.<span class="variable">isArray</span>(<span class="variable">enumerable</span>);
-    <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
-      <span class="keyword">if</span> (<span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>)) {
-        <span class="keyword">if</span> (<span class="variable">pushIndex</span>) {
-          <span class="variable">results</span>.<span class="variable">push</span>([<span class="variable">index</span>, <span class="variable">value</span>]);
-        } <span class="keyword">else</span> {
-          <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">value</span>);
-        }
-      }
-    });
-    <span class="keyword">return</span> <span class="variable">results</span>;
-  },</code></pre>
+        <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">filter</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">filter</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">filter</span>)
+          <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">filter</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
+        <span class="keyword">var</span> <span class="variable">results</span>   = [],
+            <span class="variable">pushIndex</span> = !<span class="variable">global</span>.<span class="variable">isArray</span>(<span class="variable">enumerable</span>);
+        <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
+          <span class="keyword">if</span> (<span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>)) {
+            <span class="keyword">if</span> (<span class="variable">pushIndex</span>) {
+              <span class="variable">results</span>.<span class="variable">push</span>([<span class="variable">index</span>, <span class="variable">value</span>]);
+            } <span class="keyword">else</span> {
+              <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">value</span>);
+            }
+          }
+        });
+        <span class="keyword">return</span> <span class="variable">results</span>;
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -2056,7 +2057,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 <p>The opposite of filter.  For example:</p>
 
 <pre><code> var a = [1, 2, 3, 4, 5, 6, 7, 8];
- turing.enumerable.reject(a, function(n) {
+ global.enumerable.reject(a, function(n) {
    return n % 2 === 0;
  });
 
@@ -2064,14 +2065,14 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Array</em>  The rejected items</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Array</em>  The rejected items</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">reject</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
-    <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">filter</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>() {
-      <span class="keyword">return</span> !<span class="variable">callback</span>.<span class="variable">apply</span>(<span class="variable">context</span>, <span class="variable">arguments</span>);
-    }, <span class="variable">context</span>);
-  },</code></pre>
+        <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">filter</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>() {
+          <span class="keyword">return</span> !<span class="variable">callback</span>.<span class="variable">apply</span>(<span class="variable">context</span>, <span class="variable">arguments</span>);
+        }, <span class="variable">context</span>);
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -2079,7 +2080,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 <p>Find a single item.  For example:</p>
 
 <pre><code> var a = [1, 2, 3, 4, 5, 6, 7, 8];
- turing.enumerable.detect(a, function(n) {
+ global.enumerable.detect(a, function(n) {
    return n === 3;
  });
 
@@ -2087,19 +2088,19 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Object</em>  The item, if found</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Object</em>  The item, if found</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">detect</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
-    <span class="keyword">var</span> <span class="variable">result</span>;
-    <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
-      <span class="keyword">if</span> (<span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>)) {
-        <span class="variable">result</span> = <span class="variable">value</span>;
-        <span class="keyword">throw</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="class">Break</span>;
-      }
-    });
-    <span class="keyword">return</span> <span class="variable">result</span>;
-  },</code></pre>
+        <span class="keyword">var</span> <span class="variable">result</span>;
+        <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
+          <span class="keyword">if</span> (<span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>)) {
+            <span class="variable">result</span> = <span class="variable">value</span>;
+            <span class="keyword">throw</span> <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="class">Break</span>;
+          }
+        });
+        <span class="keyword">return</span> <span class="variable">result</span>;
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -2107,7 +2108,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 <p>Runs a function over each item, collecting the results:</p>
 
 <pre><code> var a = [1, 2, 3, 4, 5, 6, 7, 8];
- turing.enumerable.reduce(a, 0, function(memo, n) {
+ global.enumerable.reduce(a, 0, function(memo, n) {
    return memo + n;
  });
 
@@ -2115,106 +2116,106 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Object</em>  memo The initial accumulator value</p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Object</em>  The accumulated results</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Object</em>  memo The initial accumulator value</p></li><li><p><strong>param</strong>: <em>Function</em>  callback The function to run over each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Object</em>  The accumulated results</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">reduce</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">memo</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
-    <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">reduce</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">reduce</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">reduce</span>)
-      <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">reduce</span>(<span class="variable">turing</span>.<span class="variable">bind</span>(<span class="variable">callback</span>, <span class="variable">context</span>), <span class="variable">memo</span>);
-    <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
-      <span class="variable">memo</span> = <span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">memo</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>);
-    });
-    <span class="keyword">return</span> <span class="variable">memo</span>;
-  },</code></pre>
+        <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">reduce</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">reduce</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">reduce</span>)
+          <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">reduce</span>(<span class="variable">global</span>.<span class="variable">bind</span>(<span class="variable">callback</span>, <span class="variable">context</span>), <span class="variable">memo</span>);
+        <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
+          <span class="variable">memo</span> = <span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">memo</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>);
+        });
+        <span class="keyword">return</span> <span class="variable">memo</span>;
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <p>Flattens multidimensional arrays:</p>
 
-<pre><code> turing.enumerable.flatten([[2, 4], [[6], 8]]);
+<pre><code> global.enumerable.flatten([[2, 4], [[6], 8]]);
 
  =&gt; [2, 4, 6, 8]</code></pre>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>returns</strong>: <em>Object</em>  The flat array</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>returns</strong>: <em>Object</em>  The flat array</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">flatten</span>: <span class="keyword">function</span>(<span class="variable">array</span>) {
-    <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">reduce</span>(<span class="variable">array</span>, [], <span class="keyword">function</span>(<span class="variable">memo</span>, <span class="variable">value</span>) {
-      <span class="keyword">if</span> (<span class="variable">turing</span>.<span class="variable">isArray</span>(<span class="variable">value</span>)) <span class="keyword">return</span> <span class="variable">memo</span>.<span class="variable">concat</span>(<span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">flatten</span>(<span class="variable">value</span>));
-      <span class="variable">memo</span>.<span class="variable">push</span>(<span class="variable">value</span>);
-      <span class="keyword">return</span> <span class="variable">memo</span>;
-    });
-  },</code></pre>
+        <span class="keyword">return</span> <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">reduce</span>(<span class="variable">array</span>, [], <span class="keyword">function</span>(<span class="variable">memo</span>, <span class="variable">value</span>) {
+          <span class="keyword">if</span> (<span class="variable">global</span>.<span class="variable">isArray</span>(<span class="variable">value</span>)) <span class="keyword">return</span> <span class="variable">memo</span>.<span class="variable">concat</span>(<span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">flatten</span>(<span class="variable">value</span>));
+          <span class="variable">memo</span>.<span class="variable">push</span>(<span class="variable">value</span>);
+          <span class="keyword">return</span> <span class="variable">memo</span>;
+        });
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <p>Return the last items from a list:</p>
 
-<pre><code> turing.enumerable.tail([1, 2, 3, 4, 5], 3);
+<pre><code> global.enumerable.tail([1, 2, 3, 4, 5], 3);
 
  =&gt; [4, 5]</code></pre>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Number</em>  start The index of the item to 'cut' the array</p></li><li><p><strong>returns</strong>: <em>Object</em>  A list of items</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Number</em>  start The index of the item to 'cut' the array</p></li><li><p><strong>returns</strong>: <em>Object</em>  A list of items</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">tail</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">start</span>) {
-    <span class="variable">start</span> = <span class="keyword">typeof</span> <span class="variable">start</span> === <span class="string">'undefined'</span> ? <span class="number integer">1</span> : <span class="variable">start</span>;
-    <span class="keyword">return</span> <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">apply</span>(<span class="variable">enumerable</span>, [<span class="variable">start</span>]);
-  },</code></pre>
+        <span class="variable">start</span> = <span class="keyword">typeof</span> <span class="variable">start</span> === <span class="string">'undefined'</span> ? <span class="number integer">1</span> : <span class="variable">start</span>;
+        <span class="keyword">return</span> <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">apply</span>(<span class="variable">enumerable</span>, [<span class="variable">start</span>]);
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <p>Invokes <code>method</code> on a list of items:</p>
 
-<pre><code> turing.enumerable.invoke(['hello', 'world'], 'substring', 0, 3);
+<pre><code> global.enumerable.invoke(['hello', 'world'], 'substring', 0, 3);
 
  =&gt; ['hel', 'wor']</code></pre>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  method The method to invoke on each item</p></li><li><p><strong>returns</strong>: <em>Object</em>  The changed list</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  method The method to invoke on each item</p></li><li><p><strong>returns</strong>: <em>Object</em>  The changed list</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">invoke</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">method</span>) {
-    <span class="keyword">var</span> <span class="variable">args</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">tail</span>(<span class="variable">arguments</span>, <span class="number integer">2</span>); 
-    <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">map</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>) {
-      <span class="keyword">return</span> (<span class="variable">method</span> ? <span class="variable">value</span>[<span class="variable">method</span>] : <span class="variable">value</span>).<span class="variable">apply</span>(<span class="variable">value</span>, <span class="variable">args</span>);
-    });
-  },</code></pre>
+        <span class="keyword">var</span> <span class="variable">args</span> = <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">tail</span>(<span class="variable">arguments</span>, <span class="number integer">2</span>); 
+        <span class="keyword">return</span> <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">map</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>) {
+          <span class="keyword">return</span> (<span class="variable">method</span> ? <span class="variable">value</span>[<span class="variable">method</span>] : <span class="variable">value</span>).<span class="variable">apply</span>(<span class="variable">value</span>, <span class="variable">args</span>);
+        });
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <p>Pluck a property from each item of a list:</p>
 
-<pre><code> turing.enumerable.pluck(['hello', 'world'], 'length');
+<pre><code> global.enumerable.pluck(['hello', 'world'], 'length');
 
  =&gt; [5, 5]</code></pre>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>String</em>  key The property to pluck</p></li><li><p><strong>returns</strong>: <em>Object</em>  The plucked properties</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>String</em>  key The property to pluck</p></li><li><p><strong>returns</strong>: <em>Object</em>  The plucked properties</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">pluck</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">key</span>) {
-    <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">map</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>) {
-      <span class="keyword">return</span> <span class="variable">value</span>[<span class="variable">key</span>];
-    });
-  },</code></pre>
+        <span class="keyword">return</span> <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">map</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>) {
+          <span class="keyword">return</span> <span class="variable">value</span>[<span class="variable">key</span>];
+        });
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <p>Determines if a list matches some items based on a callback:</p>
 
-<pre><code> turing.enumerable.some([1, 2, 3], function(value) {
+<pre><code> global.enumerable.some([1, 2, 3], function(value) {
    return value === 3;
  });
 
@@ -2222,28 +2223,28 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback A function to run against each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  True if an item was matched</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback A function to run against each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  True if an item was matched</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">some</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
-    <span class="variable">callback</span> = <span class="variable">callback</span> || <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">identity</span>;
-    <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">some</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">some</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">some</span>)
-      <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">some</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
-    <span class="keyword">var</span> <span class="variable">result</span> = <span class="variable">false</span>;
-    <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
-      <span class="keyword">if</span> (<span class="variable">result</span> = <span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>)) {
-        <span class="keyword">throw</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="class">Break</span>;
-      }
-    });
-    <span class="keyword">return</span> <span class="variable">result</span>;
-  },</code></pre>
+        <span class="variable">callback</span> = <span class="variable">callback</span> || <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">identity</span>;
+        <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">some</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">some</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">some</span>)
+          <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">some</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
+        <span class="keyword">var</span> <span class="variable">result</span> = <span class="variable">false</span>;
+        <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
+          <span class="keyword">if</span> (<span class="variable">result</span> = <span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>)) {
+            <span class="keyword">throw</span> <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="class">Break</span>;
+          }
+        });
+        <span class="keyword">return</span> <span class="variable">result</span>;
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <p>Checks if all items match the callback:</p>
 
-<pre><code> turing.enumerable.all([1, 2, 3], function(value) {
+<pre><code> global.enumerable.all([1, 2, 3], function(value) {
    return value &lt; 4;
  })
 
@@ -2251,54 +2252,54 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback A function to run against each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  True if all items match</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Function</em>  callback A function to run against each item</p></li><li><p><strong>param</strong>: <em>Object</em>  [context] An optional parameter to determine <code>this</code> in the callback</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  True if all items match</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">all</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">callback</span>, <span class="variable">context</span>) {
-    <span class="variable">callback</span> = <span class="variable">callback</span> || <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">identity</span>;
-    <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">every</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">every</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">every</span>)
-      <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">every</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
-    <span class="keyword">var</span> <span class="variable">result</span> = <span class="variable">true</span>;
-    <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
-      <span class="keyword">if</span> (!(<span class="variable">result</span> = <span class="variable">result</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>))) {
-        <span class="keyword">throw</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="class">Break</span>;
-      }
-    });
-    <span class="keyword">return</span> <span class="variable">result</span>;
-  },</code></pre>
+        <span class="variable">callback</span> = <span class="variable">callback</span> || <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">identity</span>;
+        <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">every</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">every</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">every</span>)
+          <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">every</span>(<span class="variable">callback</span>, <span class="variable">context</span>);
+        <span class="keyword">var</span> <span class="variable">result</span> = <span class="variable">true</span>;
+        <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>) {
+          <span class="keyword">if</span> (!(<span class="variable">result</span> = <span class="variable">result</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">callback</span>.<span class="variable">call</span>(<span class="variable">context</span>, <span class="variable">value</span>, <span class="variable">index</span>, <span class="variable">list</span>))) {
+            <span class="keyword">throw</span> <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="class">Break</span>;
+          }
+        });
+        <span class="keyword">return</span> <span class="variable">result</span>;
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <p>Checks if one item matches a value:</p>
 
-<pre><code> turing.enumerable.include([1, 2, 3], 3);
+<pre><code> global.enumerable.include([1, 2, 3], 3);
 
  =&gt; true</code></pre>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Object</em>  target A value to find</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  True if an item was found</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>param</strong>: <em>Object</em>  target A value to find</p></li><li><p><strong>returns</strong>: <em>Boolean</em>  True if an item was found</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">include</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>, <span class="variable">target</span>) {
-    <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">indexOf</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">indexOf</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">indexOf</span>)
-      <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">indexOf</span>(<span class="variable">target</span>) != -<span class="number integer">1</span>;
-    <span class="keyword">var</span> <span class="variable">found</span> = <span class="variable">false</span>;
-    <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">key</span>) {
-      <span class="keyword">if</span> (<span class="variable">found</span> = <span class="variable">value</span> === <span class="variable">target</span>) {
-        <span class="keyword">throw</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="class">Break</span>;
-      }
-    });
-    <span class="keyword">return</span> <span class="variable">found</span>;
-  },</code></pre>
+        <span class="keyword">if</span> (<span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">indexOf</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">enumerable</span>.<span class="variable">indexOf</span> === <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">indexOf</span>)
+          <span class="keyword">return</span> <span class="variable">enumerable</span>.<span class="variable">indexOf</span>(<span class="variable">target</span>) != -<span class="number integer">1</span>;
+        <span class="keyword">var</span> <span class="variable">found</span> = <span class="variable">false</span>;
+        <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">enumerable</span>, <span class="keyword">function</span>(<span class="variable">value</span>, <span class="variable">key</span>) {
+          <span class="keyword">if</span> (<span class="variable">found</span> = <span class="variable">value</span> === <span class="variable">target</span>) {
+            <span class="keyword">throw</span> <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="class">Break</span>;
+          }
+        });
+        <span class="keyword">return</span> <span class="variable">found</span>;
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <p>Chain enumerable calls:</p>
 
-<pre><code> turing.enumerable.chain([1, 2, 3, 4])
+<pre><code> global.enumerable.chain([1, 2, 3, 4])
    .filter(function(n) { return n % 2 == 0; })
    .map(function(n) { return n * 10; })
    .values();
@@ -2307,53 +2308,62 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>returns</strong>: <em>Object</em>  The chained enumerable API</p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  enumerable A set of items that responds to <code>length</code></p></li><li><p><strong>returns</strong>: <em>Object</em>  The chained enumerable API</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">chain</span>: <span class="keyword">function</span>(<span class="variable">enumerable</span>) {
-    <span class="keyword">return</span> <span class="keyword">new</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="class">Chainer</span>(<span class="variable">enumerable</span>);
-  },
+        <span class="keyword">return</span> <span class="keyword">new</span> <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="class">Chainer</span>(<span class="variable">enumerable</span>);
+      },
 
-  <span class="variable">identity</span>: <span class="keyword">function</span>(<span class="variable">value</span>) {
-    <span class="keyword">return</span> <span class="variable">value</span>;
+      <span class="variable">identity</span>: <span class="keyword">function</span>(<span class="variable">value</span>) {
+        <span class="keyword">return</span> <span class="variable">value</span>;
+      }
+    };
+
+    <span class="comment">// Aliases</span>
+    <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">select</span> = <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">filter</span>;
+    <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">collect</span> = <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">map</span>;
+    <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">inject</span> = <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">reduce</span>;
+    <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">rest</span> = <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">tail</span>;
+    <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">any</span> = <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">some</span>;
+    <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">every</span> = <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">all</span>;
+    <span class="variable">global</span>.<span class="variable">chainableMethods</span> = [<span class="string">'map'</span>, <span class="string">'collect'</span>, <span class="string">'detect'</span>, <span class="string">'filter'</span>, <span class="string">'reduce'</span>, <span class="string">'each'</span>,
+                               <span class="string">'tail'</span>, <span class="string">'rest'</span>, <span class="string">'reject'</span>, <span class="string">'pluck'</span>, <span class="string">'any'</span>, <span class="string">'some'</span>, <span class="string">'all'</span>];
+
+    <span class="comment">// Chainer class</span>
+    <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="class">Chainer</span> = <span class="keyword">function</span>(<span class="variable">values</span>) {
+      <span class="this">this</span>.<span class="variable">results</span> = <span class="variable">values</span>;
+    };
+
+    <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="class">Chainer</span>.<span class="variable">prototype</span>.<span class="variable">values</span> = <span class="keyword">function</span>() {
+      <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">results</span>;
+    };
+
+    <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">global</span>.<span class="variable">chainableMethods</span>, <span class="keyword">function</span>(<span class="variable">methodName</span>) {
+      <span class="keyword">var</span> <span class="variable">method</span> = <span class="variable">global</span>.<span class="variable">enumerable</span>[<span class="variable">methodName</span>];
+      <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="class">Chainer</span>.<span class="variable">prototype</span>[<span class="variable">methodName</span>] = <span class="keyword">function</span>() {
+        <span class="keyword">var</span> <span class="variable">args</span> = <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">call</span>(<span class="variable">arguments</span>);
+        <span class="variable">args</span>.<span class="variable">unshift</span>(<span class="this">this</span>.<span class="variable">results</span>);
+        <span class="this">this</span>.<span class="variable">results</span> = <span class="variable">method</span>.<span class="variable">apply</span>(<span class="this">this</span>, <span class="variable">args</span>);
+        <span class="keyword">return</span> <span class="this">this</span>;
+      }
+    });
+
+    <span class="variable">global</span>.<span class="variable">init</span>(<span class="keyword">function</span>(<span class="variable">arg</span>) {
+      <span class="keyword">if</span> (<span class="variable">arg</span>.<span class="variable">hasOwnProperty</span>.<span class="variable">length</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="keyword">typeof</span> <span class="variable">arg</span> !== <span class="string">'string'</span>) {
+        <span class="keyword">return</span> <span class="variable">global</span>.<span class="variable">enumerable</span>.<span class="variable">chain</span>(<span class="variable">arg</span>);
+      }
+    });
   }
-};
 
-<span class="comment">// Aliases</span>
-<span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">select</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">filter</span>;
-<span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">collect</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">map</span>;
-<span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">inject</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">reduce</span>;
-<span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">rest</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">tail</span>;
-<span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">any</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">some</span>;
-<span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">every</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">all</span>;
-<span class="variable">turing</span>.<span class="variable">chainableMethods</span> = [<span class="string">'map'</span>, <span class="string">'collect'</span>, <span class="string">'detect'</span>, <span class="string">'filter'</span>, <span class="string">'reduce'</span>, <span class="string">'each'</span>,
-                           <span class="string">'tail'</span>, <span class="string">'rest'</span>, <span class="string">'reject'</span>, <span class="string">'pluck'</span>, <span class="string">'any'</span>, <span class="string">'some'</span>, <span class="string">'all'</span>];
-
-<span class="comment">// Chainer class</span>
-<span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="class">Chainer</span> = <span class="keyword">function</span>(<span class="variable">values</span>) {
-  <span class="this">this</span>.<span class="variable">results</span> = <span class="variable">values</span>;
-};
-
-<span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="class">Chainer</span>.<span class="variable">prototype</span>.<span class="variable">values</span> = <span class="keyword">function</span>() {
-  <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">results</span>;
-};
-
-<span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">each</span>(<span class="variable">turing</span>.<span class="variable">chainableMethods</span>, <span class="keyword">function</span>(<span class="variable">methodName</span>) {
-  <span class="keyword">var</span> <span class="variable">method</span> = <span class="variable">turing</span>.<span class="variable">enumerable</span>[<span class="variable">methodName</span>];
-  <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="class">Chainer</span>.<span class="variable">prototype</span>[<span class="variable">methodName</span>] = <span class="keyword">function</span>() {
-    <span class="keyword">var</span> <span class="variable">args</span> = <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">call</span>(<span class="variable">arguments</span>);
-    <span class="variable">args</span>.<span class="variable">unshift</span>(<span class="this">this</span>.<span class="variable">results</span>);
-    <span class="this">this</span>.<span class="variable">results</span> = <span class="variable">method</span>.<span class="variable">apply</span>(<span class="this">this</span>, <span class="variable">args</span>);
-    <span class="keyword">return</span> <span class="this">this</span>;
+  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">module</span> !== <span class="string">'undefined'</span>) {
+    <span class="variable">module</span>.<span class="variable">exports</span> = <span class="keyword">function</span>(<span class="variable">t</span>) {
+      <span class="keyword">return</span> <span class="class">EnumerableModule</span>(<span class="variable">t</span>);
+    }
+  } <span class="keyword">else</span> {
+    <span class="class">EnumerableModule</span>(<span class="variable">turing</span>);
   }
-});
-
-<span class="variable">turing</span>.<span class="variable">init</span>(<span class="keyword">function</span>(<span class="variable">arg</span>) {
-  <span class="keyword">if</span> (<span class="variable">arg</span>.<span class="variable">hasOwnProperty</span>.<span class="variable">length</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="keyword">typeof</span> <span class="variable">arg</span> !== <span class="string">'string'</span>) {
-    <span class="keyword">return</span> <span class="variable">turing</span>.<span class="variable">enumerable</span>.<span class="variable">chain</span>(<span class="variable">arg</span>);
-  }
-});
-
+})();
 </code></pre>
 </td>
 </tr><tr class="filename"><td><h2 id="turing.events.js"><a href="#">turing.events</a></h2></td><td>turing.events.js</td></tr><tr class="code">
@@ -2733,10 +2743,13 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
       <span class="keyword">var</span> <span class="variable">fired</span> = <span class="variable">false</span>;
       <span class="keyword">if</span> (<span class="variable">eventName</span> <span class="keyword">in</span> <span class="this">this</span>.<span class="variable">events</span> === <span class="variable">false</span>) <span class="keyword">return</span> <span class="variable">fired</span>;
 
-      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>].<span class="variable">length</span>; <span class="variable">i</span>++) {
-        <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>][<span class="variable">i</span>].<span class="variable">apply</span>(<span class="this">this</span>, <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">call</span>(<span class="variable">arguments</span>, <span class="number integer">1</span>));
+      <span class="keyword">var</span> <span class="variable">list</span> = <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>].<span class="variable">slice</span>();
+
+      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">list</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+        <span class="variable">list</span>[<span class="variable">i</span>].<span class="variable">apply</span>(<span class="this">this</span>, <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">call</span>(<span class="variable">arguments</span>, <span class="number integer">1</span>));
         <span class="variable">fired</span> = <span class="variable">true</span>;
       }
+      
       <span class="keyword">return</span> <span class="variable">fired</span>;
     },</code></pre>
 </td>
@@ -2758,11 +2771,7 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     },
 
     <span class="variable">removeListenerAt</span>: <span class="keyword">function</span>(<span class="variable">eventName</span>, <span class="variable">i</span>) {
-      <span class="keyword">var</span> <span class="variable">array</span> = <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>],
-          <span class="variable">rest</span> = <span class="variable">array</span>.<span class="variable">slice</span>(<span class="variable">i</span> + <span class="number integer">1</span>);
-      <span class="variable">array</span>.<span class="variable">length</span> = <span class="variable">i</span>;
-      <span class="variable">array</span>.<span class="variable">push</span>.<span class="variable">apply</span>(<span class="variable">array</span>, <span class="variable">rest</span>);
-      <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>] = <span class="variable">array</span>;
+      <span class="this">this</span>.<span class="variable">events</span>[<span class="variable">eventName</span>].<span class="variable">splice</span>(<span class="variable">i</span>, <span class="number integer">1</span>);
     },</code></pre>
 </td>
 </tr>
@@ -3329,18 +3338,19 @@ the plugin could not be found.</p>
  </p>
 </td>
 <td class="code">
-<pre><code>(<span class="keyword">function</span>() {</code></pre>
+<pre><code>(<span class="keyword">function</span>() {
+  <span class="keyword">function</span> <span class="class">PromiseModule</span>(<span class="variable">global</span>) {</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <p>The Promise class.
-   </p>
+     </p>
 </td>
 <td class="code">
 <pre><code><span class="keyword">function</span> <span class="class">Promise</span>() {
-    <span class="keyword">var</span> <span class="variable">self</span> = <span class="this">this</span>;
-    <span class="this">this</span>.<span class="variable">pending</span> = [];</code></pre>
+      <span class="keyword">var</span> <span class="variable">self</span> = <span class="this">this</span>;
+      <span class="this">this</span>.<span class="variable">pending</span> = [];</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -3349,12 +3359,12 @@ the plugin could not be found.</p>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  A value</p><p> </p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  A value</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="this">this</span>.<span class="variable">resolve</span> = <span class="keyword">function</span>(<span class="variable">result</span>) {
-      <span class="variable">self</span>.<span class="variable">complete</span>(<span class="string">'resolve'</span>, <span class="variable">result</span>);
-    },</code></pre>
+        <span class="variable">self</span>.<span class="variable">complete</span>(<span class="string">'resolve'</span>, <span class="variable">result</span>);
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -3363,15 +3373,15 @@ the plugin could not be found.</p>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Object</em>  A value</p><p> </p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Object</em>  A value</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="this">this</span>.<span class="variable">reject</span> = <span class="keyword">function</span>(<span class="variable">result</span>) {
-      <span class="variable">self</span>.<span class="variable">complete</span>(<span class="string">'reject'</span>, <span class="variable">result</span>);
+        <span class="variable">self</span>.<span class="variable">complete</span>(<span class="string">'reject'</span>, <span class="variable">result</span>);
+      }
     }
-  }
 
-  <span class="class">Promise</span>.<span class="variable">prototype</span> = {</code></pre>
+    <span class="class">Promise</span>.<span class="variable">prototype</span> = {</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -3380,13 +3390,13 @@ the plugin could not be found.</p>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>Function</em>  success The success handler </p></li><li><p><strong>param</strong>: <em>Function</em>  success The failure handler</p></li><li><p><strong>returns</strong>: <em>Promise</em>  <code>this</code></p><p> </p></li></ul>
+<ul><li><p><strong>param</strong>: <em>Function</em>  success The success handler </p></li><li><p><strong>param</strong>: <em>Function</em>  success The failure handler</p></li><li><p><strong>returns</strong>: <em>Promise</em>  <code>this</code></p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">then</span>: <span class="keyword">function</span>(<span class="variable">success</span>, <span class="variable">failure</span>) {
-      <span class="this">this</span>.<span class="variable">pending</span>.<span class="variable">push</span>({ <span class="variable">resolve</span>: <span class="variable">success</span>, <span class="variable">reject</span>: <span class="variable">failure</span> });
-      <span class="keyword">return</span> <span class="this">this</span>;
-    },</code></pre>
+        <span class="this">this</span>.<span class="variable">pending</span>.<span class="variable">push</span>({ <span class="variable">resolve</span>: <span class="variable">success</span>, <span class="variable">reject</span>: <span class="variable">failure</span> });
+        <span class="keyword">return</span> <span class="this">this</span>;
+      },</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -3395,42 +3405,51 @@ the plugin could not be found.</p>
 
 <h2></h2>
 
-<ul><li><p><strong>param</strong>: <em>String</em>  type The thenable type</p></li><li><p><strong>param</strong>: <em>Object</em>  result A value</p><p> </p></li></ul>
+<ul><li><p><strong>param</strong>: <em>String</em>  type The thenable type</p></li><li><p><strong>param</strong>: <em>Object</em>  result A value</p><p>   </p></li></ul>
 </td>
 <td class="code">
 <pre><code><span class="variable">complete</span>: <span class="keyword">function</span>(<span class="variable">type</span>, <span class="variable">result</span>) {
-      <span class="keyword">while</span> (<span class="this">this</span>.<span class="variable">pending</span>[<span class="number integer">0</span>]) {
-        <span class="this">this</span>.<span class="variable">pending</span>.<span class="variable">shift</span>()[<span class="variable">type</span>](<span class="variable">result</span>);
+        <span class="keyword">while</span> (<span class="this">this</span>.<span class="variable">pending</span>[<span class="number integer">0</span>]) {
+          <span class="this">this</span>.<span class="variable">pending</span>.<span class="variable">shift</span>()[<span class="variable">type</span>](<span class="variable">result</span>);
+        }
       }
-    }
-  };</code></pre>
+    };</code></pre>
 </td>
 </tr>
 <tr class="code">
 <td class="docs">
 <h2>Chained Promises</h2>
 
-<pre><code>turing().delay(1000).then(function() {
+<pre><code>global().delay(1000).then(function() {
   assert.ok((new Date()).valueOf() - start &gt;= 1000);  
 });
 
-</code></pre>
+  </code></pre>
 </td>
 <td class="code">
 <pre><code><span class="keyword">var</span> <span class="variable">chain</span> = {};
 
-  <span class="variable">turing</span>.<span class="variable">init</span>(<span class="keyword">function</span>() {
-    <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">0</span>)
-      <span class="keyword">return</span> <span class="variable">chain</span>;
-  });
+    <span class="variable">global</span>.<span class="variable">init</span>(<span class="keyword">function</span>() {
+      <span class="keyword">if</span> (<span class="variable">arguments</span>.<span class="variable">length</span> === <span class="number integer">0</span>)
+        <span class="keyword">return</span> <span class="variable">chain</span>;
+    });
 
-  <span class="variable">chain</span>.<span class="variable">delay</span> = <span class="keyword">function</span>(<span class="variable">ms</span>) {
-    <span class="keyword">var</span> <span class="variable">p</span> = <span class="keyword">new</span> <span class="variable">turing</span>.<span class="class">Promise</span>();
-    <span class="variable">setTimeout</span>(<span class="variable">p</span>.<span class="variable">resolve</span>, <span class="variable">ms</span>);
-    <span class="keyword">return</span> <span class="variable">p</span>;
-  };
+    <span class="variable">chain</span>.<span class="variable">delay</span> = <span class="keyword">function</span>(<span class="variable">ms</span>) {
+      <span class="keyword">var</span> <span class="variable">p</span> = <span class="keyword">new</span> <span class="variable">global</span>.<span class="class">Promise</span>();
+      <span class="variable">setTimeout</span>(<span class="variable">p</span>.<span class="variable">resolve</span>, <span class="variable">ms</span>);
+      <span class="keyword">return</span> <span class="variable">p</span>;
+    };
 
-  <span class="variable">turing</span>.<span class="class">Promise</span> = <span class="class">Promise</span>;
+    <span class="variable">global</span>.<span class="class">Promise</span> = <span class="class">Promise</span>;
+  }
+
+  <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">module</span> !== <span class="string">'undefined'</span>) {
+    <span class="variable">module</span>.<span class="variable">exports</span> = <span class="keyword">function</span>(<span class="variable">t</span>) {
+      <span class="keyword">return</span> <span class="class">PromiseModule</span>(<span class="variable">t</span>);
+    }
+  } <span class="keyword">else</span> {
+    <span class="class">PromiseModule</span>(<span class="variable">turing</span>);
+  }
 })();
 
 </code></pre>
