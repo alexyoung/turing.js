@@ -7,6 +7,8 @@
 , "main": "./lib/index.js"
 , "devDependencies": {
     "dox": "latest"
+  , "jake": "latest"
+  , "jsmin": "latest"
   }
 , "repository": {
     "type" : "git"
