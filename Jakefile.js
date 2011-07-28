@@ -28,7 +28,7 @@ task('minify', [], function() {
 
 desc('Documentation');
 task('docs', [], function() {
-  exec('dox --title Turing turing.*.js --intro docs/intro.md > docs/index.html');
+  exec('./node_modules/.bin/dox --title Turing turing.*.js --intro docs/intro.md > docs/index.html');
 });
 
 desc('Run tests');
