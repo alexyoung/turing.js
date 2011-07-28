@@ -3,3 +3,4 @@
 *.DS_Store
 *.pid
 tmp/
+node_modules/

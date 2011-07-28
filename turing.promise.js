@@ -8,79 +8,89 @@
  * The Turing Promise module.
  */
 (function() {
-  /**
-   * The Promise class.
-   */
-  function Promise() {
-    var self = this;
-    this.pending = [];
-
+  function PromiseModule(global) {
     /**
-     * Resolves a promise.
-     *
-     * @param {Object} A value
+     * The Promise class.
      */
-    this.resolve = function(result) {
-      self.complete('resolve', result);
-    },
+    function Promise() {
+      var self = this;
+      this.pending = [];
 
-    /**
-     * Rejects a promise.
-     *
-     * @param {Object} A value
-     */
-    this.reject = function(result) {
-      self.complete('reject', result);
-    }
-  }
+      /**
+       * Resolves a promise.
+       *
+       * @param {Object} A value
+       */
+      this.resolve = function(result) {
+        self.complete('resolve', result);
+      },
 
-  Promise.prototype = {
-    /**
-     * Adds a success and failure handler for completion of this Promise object.
-     *
-     * @param {Function} success The success handler 
-     * @param {Function} success The failure handler
-     * @returns {Promise} `this`
-     */
-    then: function(success, failure) {
-      this.pending.push({ resolve: success, reject: failure });
-      return this;
-    },
-
-    /**
-     * Runs through each pending 'thenable' based on type (resolve, reject).
-     *
-     * @param {String} type The thenable type
-     * @param {Object} result A value
-     */
-    complete: function(type, result) {
-      while (this.pending[0]) {
-        this.pending.shift()[type](result);
+      /**
+       * Rejects a promise.
+       *
+       * @param {Object} A value
+       */
+      this.reject = function(result) {
+        self.complete('reject', result);
       }
     }
-  };
 
-  /**
-    * Chained Promises:
-    *
-    *     turing().delay(1000).then(function() {
-    *       assert.ok((new Date()).valueOf() - start >= 1000);  
-    *     });
-    *
-    */
-  var chain = {};
+    Promise.prototype = {
+      /**
+       * Adds a success and failure handler for completion of this Promise object.
+       *
+       * @param {Function} success The success handler 
+       * @param {Function} success The failure handler
+       * @returns {Promise} `this`
+       */
+      then: function(success, failure) {
+        this.pending.push({ resolve: success, reject: failure });
+        return this;
+      },
 
-  turing.init(function() {
-    if (arguments.length === 0)
-      return chain;
-  });
+      /**
+       * Runs through each pending 'thenable' based on type (resolve, reject).
+       *
+       * @param {String} type The thenable type
+       * @param {Object} result A value
+       */
+      complete: function(type, result) {
+        while (this.pending[0]) {
+          this.pending.shift()[type](result);
+        }
+      }
+    };
 
-  chain.delay = function(ms) {
-    var p = new turing.Promise();
-    setTimeout(p.resolve, ms);
-    return p;
-  };
+    /**
+      * Chained Promises:
+      *
+      *     global().delay(1000).then(function() {
+      *       assert.ok((new Date()).valueOf() - start >= 1000);  
+      *     });
+      *
+      */
+    var chain = {};
 
-  turing.Promise = Promise;
+    global.init(function() {
+      if (arguments.length === 0)
+        return chain;
+    });
+
+    chain.delay = function(ms) {
+      var p = new global.Promise();
+      setTimeout(p.resolve, ms);
+      return p;
+    };
+
+    global.Promise = Promise;
+  }
+
+  if (typeof module !== 'undefined') {
+    module.exports = function(t) {
+      return PromiseModule(t);
+    }
+  } else {
+    PromiseModule(turing);
+  }
 })();
 

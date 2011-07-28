@@ -23,8 +23,8 @@
     }
   }
 
-  turing.VERSION = '0.0.71';
-  turing.lesson = 'Part 71: Custom Events';
+  turing.VERSION = '0.0.73';
+  turing.lesson = 'Part 73: npm';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -123,5 +123,4 @@
     if (typeof exports !== 'undefined') exports.turing = turing;
   }
 })(typeof window === 'undefined' ? this : window);
-
 

@@ -1,0 +1,16 @@
+{ "name": "turing"
+, "description": "A library for enumeration, functional programming, promises, and more"
+, "version": "0.0.73"
+, "url": "http://turingjs.com/"
+, "author": "Alex R. Young <alex@helicoid.net>"
+, "engines": ["node >= 0.4.0"]
+, "main": "./lib/index.js"
+, "devDependencies": {
+    "dox": "latest"
+  }
+, "repository": {
+    "type" : "git"
+  , "url" : "https://github.com/alexyoung/turing.js.git"
+  }
+}
+
