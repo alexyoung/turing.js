@@ -23,8 +23,8 @@
     }
   }
 
-  turing.VERSION = '0.0.73';
-  turing.lesson = 'Part 73: npm';
+  turing.VERSION = '0.0.74';
+  turing.lesson = 'Part 74: jsdom';
 
   /**
    * This alias will be used as an alternative to `turing()`.
