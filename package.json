@@ -12,6 +12,8 @@
     "dox": "latest"
   , "jake": "latest"
   , "jsmin": "latest"
+  , "jslint": "latest"
+  , "uglify-js": "latest"
   }
 , "repository": {
     "type" : "git"

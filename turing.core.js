@@ -16,15 +16,17 @@
    * @returns {Object} The turing object, run through `init`
    */
   function turing() {
-    var result;
-    for (var i = 0; i < middleware.length; i++) {
+    var result, i;
+    for (i = 0; i < middleware.length; i++) {
       result = middleware[i].apply(turing, arguments);
-      if (result) return result;
+      if (result) {
+				return result;
+			}
     }
   }
 
-  turing.VERSION = '0.0.74';
-  turing.lesson = 'Part 74: jsdom';
+  turing.VERSION = '0.0.75';
+  turing.lesson = 'Part 75: building';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -52,8 +54,8 @@
    * @returns {Array} An `Array` of items
    */
   turing.toArray = function(collection) {
-    var results = [];
-    for (var i = 0; i < collection.length; i++) {
+    var results = [], i;
+    for (i = 0; i < collection.length; i++) {
       results.push(collection[i]);
     }
     return results;
@@ -99,8 +101,9 @@
    * @param {Function} fn The function that performs the test
    */
   turing.addDetectionTest = function(name, fn) {
-    if (!detectionTests[name])
-      detectionTests[name] = fn;
+    if (!detectionTests[name]) {
+			detectionTests[name] = fn;
+		}
   };
 
   /**
@@ -120,7 +123,9 @@
     throw new Error('turing has already been defined');
   } else {
     global.turing = turing;
-    if (typeof exports !== 'undefined') exports.turing = turing;
+    if (typeof exports !== 'undefined') {
+			exports.turing = turing;
+		}
   }
-})(typeof window === 'undefined' ? this : window);
+}(typeof window === 'undefined' ? this : window));
 

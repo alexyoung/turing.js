@@ -16,15 +16,17 @@
    * @returns {Object} The turing object, run through `init`
    */
   function turing() {
-    var result;
-    for (var i = 0; i < middleware.length; i++) {
+    var result, i;
+    for (i = 0; i < middleware.length; i++) {
       result = middleware[i].apply(turing, arguments);
-      if (result) return result;
+      if (result) {
+				return result;
+			}
     }
   }
 
-  turing.VERSION = '0.0.74';
-  turing.lesson = 'Part 74: jsdom';
+  turing.VERSION = '0.0.75';
+  turing.lesson = 'Part 75: building';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -52,8 +54,8 @@
    * @returns {Array} An `Array` of items
    */
   turing.toArray = function(collection) {
-    var results = [];
-    for (var i = 0; i < collection.length; i++) {
+    var results = [], i;
+    for (i = 0; i < collection.length; i++) {
       results.push(collection[i]);
     }
     return results;
@@ -99,8 +101,9 @@
    * @param {Function} fn The function that performs the test
    */
   turing.addDetectionTest = function(name, fn) {
-    if (!detectionTests[name])
-      detectionTests[name] = fn;
+    if (!detectionTests[name]) {
+			detectionTests[name] = fn;
+		}
   };
 
   /**
@@ -120,9 +123,11 @@
     throw new Error('turing has already been defined');
   } else {
     global.turing = turing;
-    if (typeof exports !== 'undefined') exports.turing = turing;
+    if (typeof exports !== 'undefined') {
+			exports.turing = turing;
+		}
   }
-})(typeof window === 'undefined' ? this : window);
+}(typeof window === 'undefined' ? this : window));
 
 /*!
  * Turing OO
@@ -2640,6 +2645,7 @@ turing.functional = {
       easing = {},
       Chainer,
       opacityType,
+      methodName,
       CSSTransitions = {};
 
   // These CSS related functions should be moved into turing.css
@@ -2668,9 +2674,9 @@ turing.functional = {
       example: ['rgb(123, 234, 45)', 'rgb(255,234,245)'],
       process: function (bits){
         return [
-          parseInt(bits[1]),
-          parseInt(bits[2]),
-          parseInt(bits[3])
+          parseInt(bits[1], 10),
+          parseInt(bits[2], 10),
+          parseInt(bits[3], 10)
         ];
       }
     },
@@ -2700,11 +2706,11 @@ turing.functional = {
 
   Colour.prototype.normalise = function(value) {
     value.replace(/ /g, '');
-    if (value.charAt(0) == '#') {
+    if (value.charAt(0) === '#') {
       value = value.substr(1, 6);
     }
     return value;
-  }
+  };
 
   Colour.prototype.parse = function() {
     var channels = [], i;
@@ -2719,21 +2725,21 @@ turing.functional = {
       }
     }
     this.validate();
-  }
+  };
 
   Colour.prototype.validate = function() {
     this.r = (this.r < 0 || isNaN(this.r)) ? 0 : ((this.r > 255) ? 255 : this.r);
     this.g = (this.g < 0 || isNaN(this.g)) ? 0 : ((this.g > 255) ? 255 : this.g);
     this.b = (this.b < 0 || isNaN(this.b)) ? 0 : ((this.b > 255) ? 255 : this.b);
-  }
+  };
 
   Colour.prototype.sum = function() {
     return this.r + this.g + this.b;
-  }
+  };
 
   Colour.prototype.toString = function() {
     return 'rgb(' + this.r + ', ' + this.g + ', ' + this.b + ')';
-  }
+  };
 
   function isColour(value) {
     return typeof value === 'string' && value.match(/(#[a-f|A-F|0-9]|rgb)/);
@@ -2777,7 +2783,7 @@ turing.functional = {
   }
 
   function setCSSProperty(element, property, value) {
-    if (property == 'opacity' && opacityType == 'filter') {
+    if (property === 'opacity' && opacityType === 'filter') {
       element.style[opacityType] = 'alpha(opacity=' + Math.round(value * 100) + ')';
       return element;
     }
@@ -2798,7 +2804,7 @@ turing.functional = {
   };
 
   easing.spring = function(position) {
-    return 1 - (Math.cos(position * Math.PI * 4) * Math.exp(-position * 6))
+    return 1 - (Math.cos(position * Math.PI * 4) * Math.exp(-position * 6));
   };
 
   easing.bounce = function(position) {
@@ -2822,11 +2828,11 @@ turing.functional = {
    * @param {Object} options Currently accepts an easing function or built-in easing method name (linear, sine, reverse, spring, bounce)
    */
   anim.animate = function(element, duration, properties, options) {
-    var duration = duration,
-        start = (new Date).valueOf(),
+    var start = new Date().valueOf(),
         finish = start + duration,
         easingFunction = easing.linear,
-        interval;
+        interval,
+        p;
 
     if (!opacityType) {
       opacityType = getOpacityType();
@@ -2841,23 +2847,28 @@ turing.functional = {
       }
     }
 
-    for (var property in properties) {
-      if (properties.hasOwnProperty(property)) {
-        properties[property] = parseCSSValue(properties[property], element, property);
-        if (property == 'opacity' && opacityType == 'filter') {
+    function transition() {
+      CSSTransitions.end(element, property);
+    }
+
+    for (p in properties) {
+      if (properties.hasOwnProperty(p)) {
+        properties[p] = parseCSSValue(properties[p], element, p);
+        if (p === 'opacity' && opacityType === 'filter') {
           element.style.zoom = 1;
-        } else if (CSSTransitions.vendorPrefix && property == 'left' || property == 'top') {
-          CSSTransitions.start(element, duration, property, properties[property].value + properties[property].units, options.easing);
-          setTimeout(function() { CSSTransitions.end(element, property); }, duration);
+        } else if (CSSTransitions.vendorPrefix && (p === 'left' || p === 'top')) {
+          CSSTransitions.start(element, duration, p, properties[p].value + properties[p].units, options.easing);
+          setTimeout(transition, duration);
           return;
         }
       }
     }
 
     interval = setInterval(function() {
-      var time = (new Date).valueOf(), position = time > finish ? 1 : (time - start) / duration;
+      var time = new Date().valueOf(), position = time > finish ? 1 : (time - start) / duration,
+          property;
 
-      for (var property in properties) {
+      for (property in properties) {
         if (properties.hasOwnProperty(property)) {
           setCSSProperty(
             element,
@@ -2917,10 +2928,13 @@ turing.functional = {
     },
 
     findCSS3VendorPrefix: function() {
-      for (var detector in CSSTransitions.vendors) {
-        detector = this.vendors[detector];
-        if (detector['detector']()) {
-          return detector['prefix'];
+      var detector;
+      for (detector in CSSTransitions.vendors) {
+        if (this.vendors.hasOwnProperty(detector)) {
+          detector = this.vendors[detector];
+          if (detector.detector()) {
+            return detector.prefix;
+          }
         }
       }
     },
@@ -3006,7 +3020,7 @@ turing.functional = {
     duration = duration || 500;
     element.style.backgroundColor = options.from;
     return setTimeout(function() {
-      anim.animate(element, duration, { 'backgroundColor': options.to, 'easing': options.easing })
+      anim.animate(element, duration, { 'backgroundColor': options.to, 'easing': options.easing });
     }, 200);
   };
 
@@ -3043,21 +3057,25 @@ turing.functional = {
     this.position = 0;
   };
 
+  function makeChain(m) {
+    var method = anim[m];
+    Chainer.prototype[m] = function() {
+      var args = Array.prototype.slice.call(arguments);
+      args.unshift(this.element);
+      // Note: the duration needs to be communicated another way
+      // because of defaults (like highlight())
+      this.position += args[1] || 0;
+      setTimeout(function() {
+        method.apply(null, args);
+      }, this.position);
+      return this;
+    };
+  }
+
   for (methodName in anim) {
-    (function(methodName) {
-      var method = anim[methodName];
-      Chainer.prototype[methodName] = function() {
-        var args = Array.prototype.slice.call(arguments);
-        args.unshift(this.element);
-        // Note: the duration needs to be communicated another way
-        // because of defaults (like highlight())
-        this.position += args[1] || 0;
-        setTimeout(function() {
-          method.apply(null, args);
-        }, this.position);
-        return this;
-      };
-    })(methodName);
+    if (anim.hasOwnProperty(methodName)) {
+      makeChain(methodName);
+    }
   }
 
   /**
@@ -3089,27 +3107,32 @@ turing.functional = {
     *
     */
   anim.addDOMethods = function() {
-    if (typeof turing.domChain === 'undefined') return;
+    if (typeof turing.domChain === 'undefined') {
+      return;
+    }
 
     var chainedAliases = ('animate fade fadeIn fadeOut highlight ' +
-                          'move parseColour pause easing').split(' ');
+                          'move parseColour pause easing').split(' '),
+        i;
 
-    for (var i = 0; i < chainedAliases.length; i++) {
-      (function(name) {
-        turing.domChain[name] = function(handler) {
-          var j, args = turing.toArray(arguments);
-          args.unshift(null);
+    function makeChainedAlias(name) {
+      turing.domChain[name] = function(handler) {
+        var j, args = turing.toArray(arguments);
+        args.unshift(null);
 
-          for (j = 0; j < this.length; j++) {
-            args[0] = this[j];
-            anim[name].apply(this, args);
-          }
-          return this;
-        };
-      })(chainedAliases[i]);
+        for (j = 0; j < this.length; j++) {
+          args[0] = this[j];
+          anim[name].apply(this, args);
+        }
+        return this;
+      };
+    }
+
+    for (i = 0; i < chainedAliases.length; i++) {
+      makeChainedAlias(chainedAliases[i]);
     }
   };
   anim.addDOMethods();
 
   turing.anim = anim;
-})();
+}());
