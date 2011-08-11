@@ -9,4 +9,4 @@ build: $(SRC)
 min: build
 	./node_modules/.bin/uglifyjs --no-mangle build/turing.js > build/turing.min.js
 
-.PHONY: lint build
+.PHONY: lint
