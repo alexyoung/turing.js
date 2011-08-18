@@ -173,6 +173,7 @@ code .this { color: #19469D; }</style>
       <span class="variable">easing</span> = {},
       <span class="class">Chainer</span>,
       <span class="variable">opacityType</span>,
+      <span class="variable">methodName</span>,
       <span class="class">CSSTransitions</span> = {};
 
   <span class="comment">// These CSS related functions should be moved into turing.css</span>
@@ -201,9 +202,9 @@ code .this { color: #19469D; }</style>
       <span class="variable">example</span>: [<span class="string">'rgb(123, 234, 45)'</span>, <span class="string">'rgb(255,234,245)'</span>],
       <span class="variable">process</span>: <span class="keyword">function</span> (<span class="variable">bits</span>){
         <span class="keyword">return</span> [
-          <span class="variable">parseInt</span>(<span class="variable">bits</span>[<span class="number integer">1</span>]),
-          <span class="variable">parseInt</span>(<span class="variable">bits</span>[<span class="number integer">2</span>]),
-          <span class="variable">parseInt</span>(<span class="variable">bits</span>[<span class="number integer">3</span>])
+          <span class="variable">parseInt</span>(<span class="variable">bits</span>[<span class="number integer">1</span>], <span class="number integer">10</span>),
+          <span class="variable">parseInt</span>(<span class="variable">bits</span>[<span class="number integer">2</span>], <span class="number integer">10</span>),
+          <span class="variable">parseInt</span>(<span class="variable">bits</span>[<span class="number integer">3</span>], <span class="number integer">10</span>)
         ];
       }
     },
@@ -233,11 +234,11 @@ code .this { color: #19469D; }</style>
 
   <span class="class">Colour</span>.<span class="variable">prototype</span>.<span class="variable">normalise</span> = <span class="keyword">function</span>(<span class="variable">value</span>) {
     <span class="variable">value</span>.<span class="variable">replace</span>(<span class="regexp">/ /g</span>, <span class="string">''</span>);
-    <span class="keyword">if</span> (<span class="variable">value</span>.<span class="variable">charAt</span>(<span class="number integer">0</span>) == <span class="string">'#'</span>) {
+    <span class="keyword">if</span> (<span class="variable">value</span>.<span class="variable">charAt</span>(<span class="number integer">0</span>) === <span class="string">'#'</span>) {
       <span class="variable">value</span> = <span class="variable">value</span>.<span class="variable">substr</span>(<span class="number integer">1</span>, <span class="number integer">6</span>);
     }
     <span class="keyword">return</span> <span class="variable">value</span>;
-  }
+  };
 
   <span class="class">Colour</span>.<span class="variable">prototype</span>.<span class="variable">parse</span> = <span class="keyword">function</span>() {
     <span class="keyword">var</span> <span class="variable">channels</span> = [], <span class="variable">i</span>;
@@ -252,21 +253,21 @@ code .this { color: #19469D; }</style>
       }
     }
     <span class="this">this</span>.<span class="variable">validate</span>();
-  }
+  };
 
   <span class="class">Colour</span>.<span class="variable">prototype</span>.<span class="variable">validate</span> = <span class="keyword">function</span>() {
     <span class="this">this</span>.<span class="variable">r</span> = (<span class="this">this</span>.<span class="variable">r</span> &<span class="variable">lt</span>; <span class="number integer">0</span> || <span class="variable">isNaN</span>(<span class="this">this</span>.<span class="variable">r</span>)) ? <span class="number integer">0</span> : ((<span class="this">this</span>.<span class="variable">r</span> &<span class="variable">gt</span>; <span class="number integer">255</span>) ? <span class="number integer">255</span> : <span class="this">this</span>.<span class="variable">r</span>);
     <span class="this">this</span>.<span class="variable">g</span> = (<span class="this">this</span>.<span class="variable">g</span> &<span class="variable">lt</span>; <span class="number integer">0</span> || <span class="variable">isNaN</span>(<span class="this">this</span>.<span class="variable">g</span>)) ? <span class="number integer">0</span> : ((<span class="this">this</span>.<span class="variable">g</span> &<span class="variable">gt</span>; <span class="number integer">255</span>) ? <span class="number integer">255</span> : <span class="this">this</span>.<span class="variable">g</span>);
     <span class="this">this</span>.<span class="variable">b</span> = (<span class="this">this</span>.<span class="variable">b</span> &<span class="variable">lt</span>; <span class="number integer">0</span> || <span class="variable">isNaN</span>(<span class="this">this</span>.<span class="variable">b</span>)) ? <span class="number integer">0</span> : ((<span class="this">this</span>.<span class="variable">b</span> &<span class="variable">gt</span>; <span class="number integer">255</span>) ? <span class="number integer">255</span> : <span class="this">this</span>.<span class="variable">b</span>);
-  }
+  };
 
   <span class="class">Colour</span>.<span class="variable">prototype</span>.<span class="variable">sum</span> = <span class="keyword">function</span>() {
     <span class="keyword">return</span> <span class="this">this</span>.<span class="variable">r</span> + <span class="this">this</span>.<span class="variable">g</span> + <span class="this">this</span>.<span class="variable">b</span>;
-  }
+  };
 
   <span class="class">Colour</span>.<span class="variable">prototype</span>.<span class="variable">toString</span> = <span class="keyword">function</span>() {
     <span class="keyword">return</span> <span class="string">'rgb('</span> + <span class="this">this</span>.<span class="variable">r</span> + <span class="string">', '</span> + <span class="this">this</span>.<span class="variable">g</span> + <span class="string">', '</span> + <span class="this">this</span>.<span class="variable">b</span> + <span class="string">')'</span>;
-  }
+  };
 
   <span class="keyword">function</span> <span class="variable">isColour</span>(<span class="variable">value</span>) {
     <span class="keyword">return</span> <span class="keyword">typeof</span> <span class="variable">value</span> === <span class="string">'string'</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">value</span>.<span class="variable">match</span>(<span class="regexp">/(#[a-f|A-F|0-9]|rgb)/</span>);
@@ -310,7 +311,7 @@ code .this { color: #19469D; }</style>
   }
 
   <span class="keyword">function</span> <span class="variable">setCSSProperty</span>(<span class="variable">element</span>, <span class="variable">property</span>, <span class="variable">value</span>) {
-    <span class="keyword">if</span> (<span class="variable">property</span> == <span class="string">'opacity'</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">opacityType</span> == <span class="string">'filter'</span>) {
+    <span class="keyword">if</span> (<span class="variable">property</span> === <span class="string">'opacity'</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">opacityType</span> === <span class="string">'filter'</span>) {
       <span class="variable">element</span>.<span class="variable">style</span>[<span class="variable">opacityType</span>] = <span class="string">'alpha(opacity='</span> + <span class="class">Math</span>.<span class="variable">round</span>(<span class="variable">value</span> * <span class="number integer">100</span>) + <span class="string">')'</span>;
       <span class="keyword">return</span> <span class="variable">element</span>;
     }
@@ -331,7 +332,7 @@ code .this { color: #19469D; }</style>
   };
 
   <span class="variable">easing</span>.<span class="variable">spring</span> = <span class="keyword">function</span>(<span class="variable">position</span>) {
-    <span class="keyword">return</span> <span class="number integer">1</span> - (<span class="class">Math</span>.<span class="variable">cos</span>(<span class="variable">position</span> * <span class="class">Math</span>.<span class="class">PI</span> * <span class="number integer">4</span>) * <span class="class">Math</span>.<span class="variable">exp</span>(-<span class="variable">position</span> * <span class="number integer">6</span>))
+    <span class="keyword">return</span> <span class="number integer">1</span> - (<span class="class">Math</span>.<span class="variable">cos</span>(<span class="variable">position</span> * <span class="class">Math</span>.<span class="class">PI</span> * <span class="number integer">4</span>) * <span class="class">Math</span>.<span class="variable">exp</span>(-<span class="variable">position</span> * <span class="number integer">6</span>));
   };
 
   <span class="variable">easing</span>.<span class="variable">bounce</span> = <span class="keyword">function</span>(<span class="variable">position</span>) {
@@ -357,11 +358,11 @@ code .this { color: #19469D; }</style>
 </td>
 <td class="code">
 <pre><code><span class="variable">anim</span>.<span class="variable">animate</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">properties</span>, <span class="variable">options</span>) {
-    <span class="keyword">var</span> <span class="variable">duration</span> = <span class="variable">duration</span>,
-        <span class="variable">start</span> = (<span class="keyword">new</span> <span class="class">Date</span>).<span class="variable">valueOf</span>(),
+    <span class="keyword">var</span> <span class="variable">start</span> = <span class="keyword">new</span> <span class="class">Date</span>().<span class="variable">valueOf</span>(),
         <span class="variable">finish</span> = <span class="variable">start</span> + <span class="variable">duration</span>,
         <span class="variable">easingFunction</span> = <span class="variable">easing</span>.<span class="variable">linear</span>,
-        <span class="variable">interval</span>;
+        <span class="variable">interval</span>,
+        <span class="variable">p</span>;
 
     <span class="keyword">if</span> (!<span class="variable">opacityType</span>) {
       <span class="variable">opacityType</span> = <span class="variable">getOpacityType</span>();
@@ -376,23 +377,28 @@ code .this { color: #19469D; }</style>
       }
     }
 
-    <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">property</span> <span class="keyword">in</span> <span class="variable">properties</span>) {
-      <span class="keyword">if</span> (<span class="variable">properties</span>.<span class="variable">hasOwnProperty</span>(<span class="variable">property</span>)) {
-        <span class="variable">properties</span>[<span class="variable">property</span>] = <span class="variable">parseCSSValue</span>(<span class="variable">properties</span>[<span class="variable">property</span>], <span class="variable">element</span>, <span class="variable">property</span>);
-        <span class="keyword">if</span> (<span class="variable">property</span> == <span class="string">'opacity'</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">opacityType</span> == <span class="string">'filter'</span>) {
+    <span class="keyword">function</span> <span class="variable">transition</span>() {
+      <span class="class">CSSTransitions</span>.<span class="variable">end</span>(<span class="variable">element</span>, <span class="variable">property</span>);
+    }
+
+    <span class="keyword">for</span> (<span class="variable">p</span> <span class="keyword">in</span> <span class="variable">properties</span>) {
+      <span class="keyword">if</span> (<span class="variable">properties</span>.<span class="variable">hasOwnProperty</span>(<span class="variable">p</span>)) {
+        <span class="variable">properties</span>[<span class="variable">p</span>] = <span class="variable">parseCSSValue</span>(<span class="variable">properties</span>[<span class="variable">p</span>], <span class="variable">element</span>, <span class="variable">p</span>);
+        <span class="keyword">if</span> (<span class="variable">p</span> === <span class="string">'opacity'</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">opacityType</span> === <span class="string">'filter'</span>) {
           <span class="variable">element</span>.<span class="variable">style</span>.<span class="variable">zoom</span> = <span class="number integer">1</span>;
-        } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="class">CSSTransitions</span>.<span class="variable">vendorPrefix</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">property</span> == <span class="string">'left'</span> || <span class="variable">property</span> == <span class="string">'top'</span>) {
-          <span class="class">CSSTransitions</span>.<span class="variable">start</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">property</span>, <span class="variable">properties</span>[<span class="variable">property</span>].<span class="variable">value</span> + <span class="variable">properties</span>[<span class="variable">property</span>].<span class="variable">units</span>, <span class="variable">options</span>.<span class="variable">easing</span>);
-          <span class="variable">setTimeout</span>(<span class="keyword">function</span>() { <span class="class">CSSTransitions</span>.<span class="variable">end</span>(<span class="variable">element</span>, <span class="variable">property</span>); }, <span class="variable">duration</span>);
+        } <span class="keyword">else</span> <span class="keyword">if</span> (<span class="class">CSSTransitions</span>.<span class="variable">vendorPrefix</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; (<span class="variable">p</span> === <span class="string">'left'</span> || <span class="variable">p</span> === <span class="string">'top'</span>)) {
+          <span class="class">CSSTransitions</span>.<span class="variable">start</span>(<span class="variable">element</span>, <span class="variable">duration</span>, <span class="variable">p</span>, <span class="variable">properties</span>[<span class="variable">p</span>].<span class="variable">value</span> + <span class="variable">properties</span>[<span class="variable">p</span>].<span class="variable">units</span>, <span class="variable">options</span>.<span class="variable">easing</span>);
+          <span class="variable">setTimeout</span>(<span class="variable">transition</span>, <span class="variable">duration</span>);
           <span class="keyword">return</span>;
         }
       }
     }
 
     <span class="variable">interval</span> = <span class="variable">setInterval</span>(<span class="keyword">function</span>() {
-      <span class="keyword">var</span> <span class="variable">time</span> = (<span class="keyword">new</span> <span class="class">Date</span>).<span class="variable">valueOf</span>(), <span class="variable">position</span> = <span class="variable">time</span> &<span class="variable">gt</span>; <span class="variable">finish</span> ? <span class="number integer">1</span> : (<span class="variable">time</span> - <span class="variable">start</span>) / <span class="variable">duration</span>;
+      <span class="keyword">var</span> <span class="variable">time</span> = <span class="keyword">new</span> <span class="class">Date</span>().<span class="variable">valueOf</span>(), <span class="variable">position</span> = <span class="variable">time</span> &<span class="variable">gt</span>; <span class="variable">finish</span> ? <span class="number integer">1</span> : (<span class="variable">time</span> - <span class="variable">start</span>) / <span class="variable">duration</span>,
+          <span class="variable">property</span>;
 
-      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">property</span> <span class="keyword">in</span> <span class="variable">properties</span>) {
+      <span class="keyword">for</span> (<span class="variable">property</span> <span class="keyword">in</span> <span class="variable">properties</span>) {
         <span class="keyword">if</span> (<span class="variable">properties</span>.<span class="variable">hasOwnProperty</span>(<span class="variable">property</span>)) {
           <span class="variable">setCSSProperty</span>(
             <span class="variable">element</span>,
@@ -452,10 +458,13 @@ code .this { color: #19469D; }</style>
     },
 
     <span class="variable">findCSS3VendorPrefix</span>: <span class="keyword">function</span>() {
-      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">detector</span> <span class="keyword">in</span> <span class="class">CSSTransitions</span>.<span class="variable">vendors</span>) {
-        <span class="variable">detector</span> = <span class="this">this</span>.<span class="variable">vendors</span>[<span class="variable">detector</span>];
-        <span class="keyword">if</span> (<span class="variable">detector</span>[<span class="string">'detector'</span>]()) {
-          <span class="keyword">return</span> <span class="variable">detector</span>[<span class="string">'prefix'</span>];
+      <span class="keyword">var</span> <span class="variable">detector</span>;
+      <span class="keyword">for</span> (<span class="variable">detector</span> <span class="keyword">in</span> <span class="class">CSSTransitions</span>.<span class="variable">vendors</span>) {
+        <span class="keyword">if</span> (<span class="this">this</span>.<span class="variable">vendors</span>.<span class="variable">hasOwnProperty</span>(<span class="variable">detector</span>)) {
+          <span class="variable">detector</span> = <span class="this">this</span>.<span class="variable">vendors</span>[<span class="variable">detector</span>];
+          <span class="keyword">if</span> (<span class="variable">detector</span>.<span class="variable">detector</span>()) {
+            <span class="keyword">return</span> <span class="variable">detector</span>.<span class="variable">prefix</span>;
+          }
         }
       }
     },
@@ -553,7 +562,7 @@ code .this { color: #19469D; }</style>
     <span class="variable">duration</span> = <span class="variable">duration</span> || <span class="number integer">500</span>;
     <span class="variable">element</span>.<span class="variable">style</span>.<span class="variable">backgroundColor</span> = <span class="variable">options</span>.<span class="variable">from</span>;
     <span class="keyword">return</span> <span class="variable">setTimeout</span>(<span class="keyword">function</span>() {
-      <span class="variable">anim</span>.<span class="variable">animate</span>(<span class="variable">element</span>, <span class="variable">duration</span>, { <span class="string">'backgroundColor'</span>: <span class="variable">options</span>.<span class="variable">to</span>, <span class="string">'easing'</span>: <span class="variable">options</span>.<span class="variable">easing</span> })
+      <span class="variable">anim</span>.<span class="variable">animate</span>(<span class="variable">element</span>, <span class="variable">duration</span>, { <span class="string">'backgroundColor'</span>: <span class="variable">options</span>.<span class="variable">to</span>, <span class="string">'easing'</span>: <span class="variable">options</span>.<span class="variable">easing</span> });
     }, <span class="number integer">200</span>);
   };</code></pre>
 </td>
@@ -601,21 +610,25 @@ code .this { color: #19469D; }</style>
     <span class="this">this</span>.<span class="variable">position</span> = <span class="number integer">0</span>;
   };
 
+  <span class="keyword">function</span> <span class="variable">makeChain</span>(<span class="variable">m</span>) {
+    <span class="keyword">var</span> <span class="variable">method</span> = <span class="variable">anim</span>[<span class="variable">m</span>];
+    <span class="class">Chainer</span>.<span class="variable">prototype</span>[<span class="variable">m</span>] = <span class="keyword">function</span>() {
+      <span class="keyword">var</span> <span class="variable">args</span> = <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">call</span>(<span class="variable">arguments</span>);
+      <span class="variable">args</span>.<span class="variable">unshift</span>(<span class="this">this</span>.<span class="variable">element</span>);
+      <span class="comment">// Note: the duration needs to be communicated another way</span>
+      <span class="comment">// because of defaults (like highlight())</span>
+      <span class="this">this</span>.<span class="variable">position</span> += <span class="variable">args</span>[<span class="number integer">1</span>] || <span class="number integer">0</span>;
+      <span class="variable">setTimeout</span>(<span class="keyword">function</span>() {
+        <span class="variable">method</span>.<span class="variable">apply</span>(<span class="keyword">null</span>, <span class="variable">args</span>);
+      }, <span class="this">this</span>.<span class="variable">position</span>);
+      <span class="keyword">return</span> <span class="this">this</span>;
+    };
+  }
+
   <span class="keyword">for</span> (<span class="variable">methodName</span> <span class="keyword">in</span> <span class="variable">anim</span>) {
-    (<span class="keyword">function</span>(<span class="variable">methodName</span>) {
-      <span class="keyword">var</span> <span class="variable">method</span> = <span class="variable">anim</span>[<span class="variable">methodName</span>];
-      <span class="class">Chainer</span>.<span class="variable">prototype</span>[<span class="variable">methodName</span>] = <span class="keyword">function</span>() {
-        <span class="keyword">var</span> <span class="variable">args</span> = <span class="class">Array</span>.<span class="variable">prototype</span>.<span class="variable">slice</span>.<span class="variable">call</span>(<span class="variable">arguments</span>);
-        <span class="variable">args</span>.<span class="variable">unshift</span>(<span class="this">this</span>.<span class="variable">element</span>);
-        <span class="comment">// Note: the duration needs to be communicated another way</span>
-        <span class="comment">// because of defaults (like highlight())</span>
-        <span class="this">this</span>.<span class="variable">position</span> += <span class="variable">args</span>[<span class="number integer">1</span>] || <span class="number integer">0</span>;
-        <span class="variable">setTimeout</span>(<span class="keyword">function</span>() {
-          <span class="variable">method</span>.<span class="variable">apply</span>(<span class="keyword">null</span>, <span class="variable">args</span>);
-        }, <span class="this">this</span>.<span class="variable">position</span>);
-        <span class="keyword">return</span> <span class="this">this</span>;
-      };
-    })(<span class="variable">methodName</span>);
+    <span class="keyword">if</span> (<span class="variable">anim</span>.<span class="variable">hasOwnProperty</span>(<span class="variable">methodName</span>)) {
+      <span class="variable">makeChain</span>(<span class="variable">methodName</span>);
+    }
   }</code></pre>
 </td>
 </tr>
@@ -655,30 +668,35 @@ code .this { color: #19469D; }</style>
 </td>
 <td class="code">
 <pre><code><span class="variable">anim</span>.<span class="variable">addDOMethods</span> = <span class="keyword">function</span>() {
-    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">turing</span>.<span class="variable">domChain</span> === <span class="string">'undefined'</span>) <span class="keyword">return</span>;
+    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">turing</span>.<span class="variable">domChain</span> === <span class="string">'undefined'</span>) {
+      <span class="keyword">return</span>;
+    }
 
     <span class="keyword">var</span> <span class="variable">chainedAliases</span> = (<span class="string">'animate fade fadeIn fadeOut highlight '</span> +
-                          <span class="string">'move parseColour pause easing'</span>).<span class="variable">split</span>(<span class="string">' '</span>);
+                          <span class="string">'move parseColour pause easing'</span>).<span class="variable">split</span>(<span class="string">' '</span>),
+        <span class="variable">i</span>;
 
-    <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">chainedAliases</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
-      (<span class="keyword">function</span>(<span class="variable">name</span>) {
-        <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">name</span>] = <span class="keyword">function</span>(<span class="variable">handler</span>) {
-          <span class="keyword">var</span> <span class="variable">j</span>, <span class="variable">args</span> = <span class="variable">turing</span>.<span class="variable">toArray</span>(<span class="variable">arguments</span>);
-          <span class="variable">args</span>.<span class="variable">unshift</span>(<span class="keyword">null</span>);
+    <span class="keyword">function</span> <span class="variable">makeChainedAlias</span>(<span class="variable">name</span>) {
+      <span class="variable">turing</span>.<span class="variable">domChain</span>[<span class="variable">name</span>] = <span class="keyword">function</span>(<span class="variable">handler</span>) {
+        <span class="keyword">var</span> <span class="variable">j</span>, <span class="variable">args</span> = <span class="variable">turing</span>.<span class="variable">toArray</span>(<span class="variable">arguments</span>);
+        <span class="variable">args</span>.<span class="variable">unshift</span>(<span class="keyword">null</span>);
 
-          <span class="keyword">for</span> (<span class="variable">j</span> = <span class="number integer">0</span>; <span class="variable">j</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">length</span>; <span class="variable">j</span>++) {
-            <span class="variable">args</span>[<span class="number integer">0</span>] = <span class="this">this</span>[<span class="variable">j</span>];
-            <span class="variable">anim</span>[<span class="variable">name</span>].<span class="variable">apply</span>(<span class="this">this</span>, <span class="variable">args</span>);
-          }
-          <span class="keyword">return</span> <span class="this">this</span>;
-        };
-      })(<span class="variable">chainedAliases</span>[<span class="variable">i</span>]);
+        <span class="keyword">for</span> (<span class="variable">j</span> = <span class="number integer">0</span>; <span class="variable">j</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">length</span>; <span class="variable">j</span>++) {
+          <span class="variable">args</span>[<span class="number integer">0</span>] = <span class="this">this</span>[<span class="variable">j</span>];
+          <span class="variable">anim</span>[<span class="variable">name</span>].<span class="variable">apply</span>(<span class="this">this</span>, <span class="variable">args</span>);
+        }
+        <span class="keyword">return</span> <span class="this">this</span>;
+      };
+    }
+
+    <span class="keyword">for</span> (<span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">chainedAliases</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+      <span class="variable">makeChainedAlias</span>(<span class="variable">chainedAliases</span>[<span class="variable">i</span>]);
     }
   };
   <span class="variable">anim</span>.<span class="variable">addDOMethods</span>();
 
   <span class="variable">turing</span>.<span class="variable">anim</span> = <span class="variable">anim</span>;
-})();
+}());
 </code></pre>
 </td>
 </tr><tr class="filename"><td><h2 id="turing.core.js"><a href="#">turing.core</a></h2></td><td>turing.core.js</td></tr><tr class="code">
@@ -701,15 +719,17 @@ code .this { color: #19469D; }</style>
 </td>
 <td class="code">
 <pre><code><span class="keyword">function</span> <span class="variable">turing</span>() {
-    <span class="keyword">var</span> <span class="variable">result</span>;
-    <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">middleware</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+    <span class="keyword">var</span> <span class="variable">result</span>, <span class="variable">i</span>;
+    <span class="keyword">for</span> (<span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">middleware</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
       <span class="variable">result</span> = <span class="variable">middleware</span>[<span class="variable">i</span>].<span class="variable">apply</span>(<span class="variable">turing</span>, <span class="variable">arguments</span>);
-      <span class="keyword">if</span> (<span class="variable">result</span>) <span class="keyword">return</span> <span class="variable">result</span>;
+      <span class="keyword">if</span> (<span class="variable">result</span>) {
+				<span class="keyword">return</span> <span class="variable">result</span>;
+			}
     }
   }
 
-  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.74'</span>;
-  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 74: jsdom'</span>;</code></pre>
+  <span class="variable">turing</span>.<span class="class">VERSION</span> = <span class="string">'0.0.76'</span>;
+  <span class="variable">turing</span>.<span class="variable">lesson</span> = <span class="string">'Part 76: hasClass'</span>;</code></pre>
 </td>
 </tr>
 <tr class="code">
@@ -749,8 +769,8 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 </td>
 <td class="code">
 <pre><code><span class="variable">turing</span>.<span class="variable">toArray</span> = <span class="keyword">function</span>(<span class="variable">collection</span>) {
-    <span class="keyword">var</span> <span class="variable">results</span> = [];
-    <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">collection</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+    <span class="keyword">var</span> <span class="variable">results</span> = [], <span class="variable">i</span>;
+    <span class="keyword">for</span> (<span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="variable">collection</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
       <span class="variable">results</span>.<span class="variable">push</span>(<span class="variable">collection</span>[<span class="variable">i</span>]);
     }
     <span class="keyword">return</span> <span class="variable">results</span>;
@@ -807,8 +827,9 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 </td>
 <td class="code">
 <pre><code><span class="variable">turing</span>.<span class="variable">addDetectionTest</span> = <span class="keyword">function</span>(<span class="variable">name</span>, <span class="variable">fn</span>) {
-    <span class="keyword">if</span> (!<span class="variable">detectionTests</span>[<span class="variable">name</span>])
-      <span class="variable">detectionTests</span>[<span class="variable">name</span>] = <span class="variable">fn</span>;
+    <span class="keyword">if</span> (!<span class="variable">detectionTests</span>[<span class="variable">name</span>]) {
+			<span class="variable">detectionTests</span>[<span class="variable">name</span>] = <span class="variable">fn</span>;
+		}
   };</code></pre>
 </td>
 </tr>
@@ -832,9 +853,11 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
     <span class="keyword">throw</span> <span class="keyword">new</span> <span class="class">Error</span>(<span class="string">'turing has already been defined'</span>);
   } <span class="keyword">else</span> {
     <span class="variable">global</span>.<span class="variable">turing</span> = <span class="variable">turing</span>;
-    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">exports</span> !== <span class="string">'undefined'</span>) <span class="variable">exports</span>.<span class="variable">turing</span> = <span class="variable">turing</span>;
+    <span class="keyword">if</span> (<span class="keyword">typeof</span> <span class="variable">exports</span> !== <span class="string">'undefined'</span>) {
+			<span class="variable">exports</span>.<span class="variable">turing</span> = <span class="variable">turing</span>;
+		}
   }
-})(<span class="keyword">typeof</span> <span class="variable">window</span> === <span class="string">'undefined'</span> ? <span class="this">this</span> : <span class="variable">window</span>);
+}(<span class="keyword">typeof</span> <span class="variable">window</span> === <span class="string">'undefined'</span> ? <span class="this">this</span> : <span class="variable">window</span>));
 
 </code></pre>
 </td>
@@ -1471,6 +1494,26 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
 </tr>
 <tr class="code">
 <td class="docs">
+<p>Detects if a class is present.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>Object</em>  element A DOM element</p></li><li><p><strong>param</strong>: <em>String</em>  className The class name</p></li><li><p><strong>return</strong>: <em>Boolean</em> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">dom</span>.<span class="variable">hasClass</span> = <span class="keyword">function</span>(<span class="variable">element</span>, <span class="variable">className</span>) {
+    <span class="keyword">if</span> (!<span class="variable">className</span> || <span class="keyword">typeof</span> <span class="variable">className</span> !== <span class="string">'string'</span>) <span class="keyword">return</span> <span class="variable">false</span>;
+    <span class="keyword">if</span> (<span class="variable">element</span>.<span class="variable">nodeType</span> !== <span class="variable">nodeTypes</span>.<span class="class">ELEMENT_NODE</span>) <span class="keyword">return</span> <span class="variable">false</span>;
+    <span class="keyword">if</span> (<span class="variable">element</span>.<span class="variable">className</span> &<span class="variable">amp</span>;&<span class="variable">amp</span>; <span class="variable">element</span>.<span class="variable">className</span>.<span class="variable">length</span>) {
+      <span class="keyword">return</span> <span class="keyword">new</span> <span class="class">RegExp</span>(<span class="string">'(^|\\s)'</span> + <span class="variable">className</span> + <span class="string">'($|\\s)'</span>).<span class="variable">test</span>(<span class="variable">element</span>.<span class="variable">className</span>);
+    } <span class="keyword">else</span> {
+      <span class="keyword">return</span> <span class="variable">false</span>;
+    }
+  };</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
 <p>Append CSS classes.</p>
 
 <h2></h2>
@@ -1771,6 +1814,25 @@ If <code>__turing_alias</code> is present in the global scope this will be used 
         <span class="variable">dom</span>.<span class="variable">addClass</span>(<span class="this">this</span>[<span class="variable">i</span>], <span class="variable">className</span>);
       }
       <span class="keyword">return</span> <span class="this">this</span>;
+    },</code></pre>
+</td>
+</tr>
+<tr class="code">
+<td class="docs">
+<p>Detects if a class is present.</p>
+
+<h2></h2>
+
+<ul><li><p><strong>param</strong>: <em>String</em>  className A class name</p></li><li><p><strong>returns</strong>: <em>Boolean</em> </p><p> </p></li></ul>
+</td>
+<td class="code">
+<pre><code><span class="variable">hasClass</span>: <span class="keyword">function</span>(<span class="variable">className</span>) {
+      <span class="keyword">for</span> (<span class="keyword">var</span> <span class="variable">i</span> = <span class="number integer">0</span>; <span class="variable">i</span> &<span class="variable">lt</span>; <span class="this">this</span>.<span class="variable">length</span>; <span class="variable">i</span>++) {
+        <span class="keyword">if</span> (<span class="variable">dom</span>.<span class="variable">hasClass</span>(<span class="this">this</span>[<span class="variable">i</span>], <span class="variable">className</span>)) {
+          <span class="keyword">return</span> <span class="variable">true</span>;
+        }
+      }
+      <span class="keyword">return</span> <span class="variable">false</span>;
     },</code></pre>
 </td>
 </tr>

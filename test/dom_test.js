@@ -131,6 +131,18 @@ exports.testDOM = {
     assert.equal(turing('#dom-test').css('backgroundColor'), expected);
   },
 
+  'test hasClass': function() {
+    assert.ok(turing('#attr-test').hasClass('example'));
+    assert.ok(turing('#attr-test').hasClass('example-2'));
+    assert.ok(turing('#attr-test').hasClass('example_3'));
+    assert.ok(!turing('#attr-test').hasClass('example_'));
+  },
+
+  'test nested hasClass': function() {
+    assert.ok(turing('#nested-hasClass-test div').hasClass('find-me'));
+    assert.ok(!turing('#nested-hasClass-test div').hasClass('aaa'));
+  },
+
   'test adding CSS classes': function() {
     var element = turing.dom.get('#dom-test')[0];
 
@@ -200,7 +212,7 @@ exports.testDOM = {
 
     // A div
     assert.equal(turing.dom.attr(element, 'id'), 'attr-test');
-    assert.equal(turing.dom.attr(element, 'class'), 'example');
+    assert.equal(turing.dom.attr(element, 'class'), 'example example-2 example_3');
     assert.equal(turing.dom.attr(element, 'tabindex'), 9);
 
     // Links

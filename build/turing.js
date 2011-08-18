@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.75';
-  turing.lesson = 'Part 75: building';
+  turing.VERSION = '0.0.76';
+  turing.lesson = 'Part 76: hasClass';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -1336,6 +1336,23 @@ turing.functional = {
   };
 
   /**
+   * Detects if a class is present.
+   *
+   * @param {Object} element A DOM element
+   * @param {String} className The class name
+   * @return {Boolean}
+   */
+  dom.hasClass = function(element, className) {
+    if (!className || typeof className !== 'string') return false;
+    if (element.nodeType !== nodeTypes.ELEMENT_NODE) return false;
+    if (element.className && element.className.length) {
+      return new RegExp('(^|\\s)' + className + '($|\\s)').test(element.className);
+    } else {
+      return false;
+    }
+  };
+
+  /**
    * Append CSS classes.
    *
    * @param {Object} element A DOM element
@@ -1596,6 +1613,21 @@ turing.functional = {
         dom.addClass(this[i], className);
       }
       return this;
+    },
+
+    /**
+     * Detects if a class is present.
+     *
+     * @param {String} className A class name
+     * @returns {Boolean}
+     */
+    hasClass: function(className) {
+      for (var i = 0; i < this.length; i++) {
+        if (dom.hasClass(this[i], className)) {
+          return true;
+        }
+      }
+      return false;
     },
 
     /**
