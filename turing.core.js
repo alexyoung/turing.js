@@ -20,8 +20,8 @@
     for (i = 0; i < middleware.length; i++) {
       result = middleware[i].apply(turing, arguments);
       if (result) {
-				return result;
-			}
+        return result;
+      }
     }
   }
 
@@ -102,8 +102,8 @@
    */
   turing.addDetectionTest = function(name, fn) {
     if (!detectionTests[name]) {
-			detectionTests[name] = fn;
-		}
+      detectionTests[name] = fn;
+    }
   };
 
   /**
@@ -124,8 +124,8 @@
   } else {
     global.turing = turing;
     if (typeof exports !== 'undefined') {
-			exports.turing = turing;
-		}
+      exports.turing = turing;
+    }
   }
 }(typeof window === 'undefined' ? this : window));
 
