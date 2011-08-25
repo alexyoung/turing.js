@@ -25,7 +25,7 @@
       /**
        * Iterates using a function over a set of items.  Example:
        *
-       *      global.enumerable.each([1, 2, 3], function(n) {
+       *      turing.enumerable.each([1, 2, 3], function(n) {
        *        console.log(n);
        *      });
        *
@@ -55,7 +55,7 @@
       /**
        * Changes a set of item using a function. Example:
        *
-       *      global.enumerable.map([1, 2, 3], function(n) {
+       *      turing.enumerable.map([1, 2, 3], function(n) {
        *        return n + 1;
        *      });
        *
@@ -77,7 +77,7 @@
        * Removes items based on a callback.  For example:
        *
        *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
-       *      global.enumerable.filter(a, function(n) {
+       *      turing.enumerable.filter(a, function(n) {
        *        return n % 2 === 0;
        *      });
        *
@@ -109,7 +109,7 @@
        * The opposite of filter.  For example:
        *
        *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
-       *      global.enumerable.reject(a, function(n) {
+       *      turing.enumerable.reject(a, function(n) {
        *        return n % 2 === 0;
        *      });
        *
@@ -130,7 +130,7 @@
        * Find a single item.  For example:
        *
        *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
-       *      global.enumerable.detect(a, function(n) {
+       *      turing.enumerable.detect(a, function(n) {
        *        return n === 3;
        *      });
        *
@@ -156,7 +156,7 @@
        * Runs a function over each item, collecting the results:
        *
        *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
-       *      global.enumerable.reduce(a, 0, function(memo, n) {
+       *      turing.enumerable.reduce(a, 0, function(memo, n) {
        *        return memo + n;
        *      });
        *
@@ -180,7 +180,7 @@
       /**
        * Flattens multidimensional arrays:
        *
-       *      global.enumerable.flatten([[2, 4], [[6], 8]]);
+       *      turing.enumerable.flatten([[2, 4], [[6], 8]]);
        *
        *      => [2, 4, 6, 8]
        *
@@ -198,7 +198,7 @@
       /**
        * Return the last items from a list:
        *
-       *      global.enumerable.tail([1, 2, 3, 4, 5], 3);
+       *      turing.enumerable.tail([1, 2, 3, 4, 5], 3);
        *
        *      => [4, 5]
        *
@@ -214,7 +214,7 @@
       /**
        * Invokes `method` on a list of items:
        *
-       *      global.enumerable.invoke(['hello', 'world'], 'substring', 0, 3);
+       *      turing.enumerable.invoke(['hello', 'world'], 'substring', 0, 3);
        *
        *      => ['hel', 'wor']
        *
@@ -232,7 +232,7 @@
       /**
        * Pluck a property from each item of a list:
        *
-       *      global.enumerable.pluck(['hello', 'world'], 'length');
+       *      turing.enumerable.pluck(['hello', 'world'], 'length');
        *
        *      => [5, 5]
        *
@@ -249,7 +249,7 @@
       /**
        * Determines if a list matches some items based on a callback:
        *
-       *      global.enumerable.some([1, 2, 3], function(value) {
+       *      turing.enumerable.some([1, 2, 3], function(value) {
        *        return value === 3;
        *      });
        *
@@ -276,7 +276,7 @@
       /**
        * Checks if all items match the callback:
        *
-       *      global.enumerable.all([1, 2, 3], function(value) {
+       *      turing.enumerable.all([1, 2, 3], function(value) {
        *        return value < 4;
        *      })
        *
@@ -303,7 +303,7 @@
       /**
        * Checks if one item matches a value:
        *
-       *      global.enumerable.include([1, 2, 3], 3);
+       *      turing.enumerable.include([1, 2, 3], 3);
        *
        *      => true
        *
@@ -326,7 +326,7 @@
       /**
        * Chain enumerable calls:
        *
-       *      global.enumerable.chain([1, 2, 3, 4])
+       *      turing.enumerable.chain([1, 2, 3, 4])
        *        .filter(function(n) { return n % 2 == 0; })
        *        .map(function(n) { return n * 10; })
        *        .values();

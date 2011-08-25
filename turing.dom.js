@@ -593,7 +593,7 @@
   };
 
   /**
-   * Detects if a class is present.
+   * Detects if a class is present, optimised by Henrik Lindqvist.
    *
    * @param {Object} element A DOM element
    * @param {String} className The class name
@@ -602,11 +602,8 @@
   dom.hasClass = function(element, className) {
     if (!className || typeof className !== 'string') return false;
     if (element.nodeType !== nodeTypes.ELEMENT_NODE) return false;
-    if (element.className && element.className.length) {
-      return new RegExp('(^|\\s)' + className + '($|\\s)').test(element.className);
-    } else {
-      return false;
-    }
+    var s = element.className, i = s.indexOf(className);
+    return i != -1 && (s.charCodeAt(i - 1) || 32) == 32 && (s.charCodeAt(i + className.length) || 32) == 32;
   };
 
   /**

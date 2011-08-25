@@ -38,6 +38,7 @@ Remember to run <code>git submodule update</code> to get the latest version refe
 h3. Contributions
 
 * John-David Dalton
+* Henrik Lindqvist
 
 h2. TODO
 

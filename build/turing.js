@@ -20,13 +20,13 @@
     for (i = 0; i < middleware.length; i++) {
       result = middleware[i].apply(turing, arguments);
       if (result) {
-				return result;
-			}
+        return result;
+      }
     }
   }
 
-  turing.VERSION = '0.0.76';
-  turing.lesson = 'Part 76: hasClass';
+  turing.VERSION = '0.0.77';
+  turing.lesson = 'Part 77: Optimisation';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -102,8 +102,8 @@
    */
   turing.addDetectionTest = function(name, fn) {
     if (!detectionTests[name]) {
-			detectionTests[name] = fn;
-		}
+      detectionTests[name] = fn;
+    }
   };
 
   /**
@@ -124,8 +124,8 @@
   } else {
     global.turing = turing;
     if (typeof exports !== 'undefined') {
-			exports.turing = turing;
-		}
+      exports.turing = turing;
+    }
   }
 }(typeof window === 'undefined' ? this : window));
 
@@ -257,7 +257,7 @@ turing.oo = {
       /**
        * Iterates using a function over a set of items.  Example:
        *
-       *      global.enumerable.each([1, 2, 3], function(n) {
+       *      turing.enumerable.each([1, 2, 3], function(n) {
        *        console.log(n);
        *      });
        *
@@ -287,7 +287,7 @@ turing.oo = {
       /**
        * Changes a set of item using a function. Example:
        *
-       *      global.enumerable.map([1, 2, 3], function(n) {
+       *      turing.enumerable.map([1, 2, 3], function(n) {
        *        return n + 1;
        *      });
        *
@@ -309,7 +309,7 @@ turing.oo = {
        * Removes items based on a callback.  For example:
        *
        *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
-       *      global.enumerable.filter(a, function(n) {
+       *      turing.enumerable.filter(a, function(n) {
        *        return n % 2 === 0;
        *      });
        *
@@ -341,7 +341,7 @@ turing.oo = {
        * The opposite of filter.  For example:
        *
        *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
-       *      global.enumerable.reject(a, function(n) {
+       *      turing.enumerable.reject(a, function(n) {
        *        return n % 2 === 0;
        *      });
        *
@@ -362,7 +362,7 @@ turing.oo = {
        * Find a single item.  For example:
        *
        *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
-       *      global.enumerable.detect(a, function(n) {
+       *      turing.enumerable.detect(a, function(n) {
        *        return n === 3;
        *      });
        *
@@ -388,7 +388,7 @@ turing.oo = {
        * Runs a function over each item, collecting the results:
        *
        *      var a = [1, 2, 3, 4, 5, 6, 7, 8];
-       *      global.enumerable.reduce(a, 0, function(memo, n) {
+       *      turing.enumerable.reduce(a, 0, function(memo, n) {
        *        return memo + n;
        *      });
        *
@@ -412,7 +412,7 @@ turing.oo = {
       /**
        * Flattens multidimensional arrays:
        *
-       *      global.enumerable.flatten([[2, 4], [[6], 8]]);
+       *      turing.enumerable.flatten([[2, 4], [[6], 8]]);
        *
        *      => [2, 4, 6, 8]
        *
@@ -430,7 +430,7 @@ turing.oo = {
       /**
        * Return the last items from a list:
        *
-       *      global.enumerable.tail([1, 2, 3, 4, 5], 3);
+       *      turing.enumerable.tail([1, 2, 3, 4, 5], 3);
        *
        *      => [4, 5]
        *
@@ -446,7 +446,7 @@ turing.oo = {
       /**
        * Invokes `method` on a list of items:
        *
-       *      global.enumerable.invoke(['hello', 'world'], 'substring', 0, 3);
+       *      turing.enumerable.invoke(['hello', 'world'], 'substring', 0, 3);
        *
        *      => ['hel', 'wor']
        *
@@ -464,7 +464,7 @@ turing.oo = {
       /**
        * Pluck a property from each item of a list:
        *
-       *      global.enumerable.pluck(['hello', 'world'], 'length');
+       *      turing.enumerable.pluck(['hello', 'world'], 'length');
        *
        *      => [5, 5]
        *
@@ -481,7 +481,7 @@ turing.oo = {
       /**
        * Determines if a list matches some items based on a callback:
        *
-       *      global.enumerable.some([1, 2, 3], function(value) {
+       *      turing.enumerable.some([1, 2, 3], function(value) {
        *        return value === 3;
        *      });
        *
@@ -508,7 +508,7 @@ turing.oo = {
       /**
        * Checks if all items match the callback:
        *
-       *      global.enumerable.all([1, 2, 3], function(value) {
+       *      turing.enumerable.all([1, 2, 3], function(value) {
        *        return value < 4;
        *      })
        *
@@ -535,7 +535,7 @@ turing.oo = {
       /**
        * Checks if one item matches a value:
        *
-       *      global.enumerable.include([1, 2, 3], 3);
+       *      turing.enumerable.include([1, 2, 3], 3);
        *
        *      => true
        *
@@ -558,7 +558,7 @@ turing.oo = {
       /**
        * Chain enumerable calls:
        *
-       *      global.enumerable.chain([1, 2, 3, 4])
+       *      turing.enumerable.chain([1, 2, 3, 4])
        *        .filter(function(n) { return n % 2 == 0; })
        *        .map(function(n) { return n * 10; })
        *        .values();
@@ -1336,7 +1336,7 @@ turing.functional = {
   };
 
   /**
-   * Detects if a class is present.
+   * Detects if a class is present, optimised by Henrik Lindqvist.
    *
    * @param {Object} element A DOM element
    * @param {String} className The class name
@@ -1345,11 +1345,8 @@ turing.functional = {
   dom.hasClass = function(element, className) {
     if (!className || typeof className !== 'string') return false;
     if (element.nodeType !== nodeTypes.ELEMENT_NODE) return false;
-    if (element.className && element.className.length) {
-      return new RegExp('(^|\\s)' + className + '($|\\s)').test(element.className);
-    } else {
-      return false;
-    }
+    var s = element.className, i = s.indexOf(className);
+    return i != -1 && (s.charCodeAt(i - 1) || 32) == 32 && (s.charCodeAt(i + className.length) || 32) == 32;
   };
 
   /**
