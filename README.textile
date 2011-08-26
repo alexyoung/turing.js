@@ -39,6 +39,9 @@ h3. Contributions
 
 * John-David Dalton
 * Henrik Lindqvist
+* Ryan Cannon (classList indexOf idea)
+* Adam Solove (classList bug)
+* John Allsopp (classList suggestion)
 
 h2. TODO
 

@@ -89,6 +89,17 @@
     href: true
   };
 
+  turing.addDetectionTest('classList', function() {
+    var div = document.createElement('div');
+
+    if (div.classList) {
+      return true;
+    }
+
+    div = null;
+    return false;
+  });
+
   function scanner() {
     function replacePattern(pattern, patterns) {
       var matched = true, match;
@@ -599,12 +610,15 @@
    * @param {String} className The class name
    * @return {Boolean}
    */
-  dom.hasClass = function(element, className) {
-    if (!className || typeof className !== 'string') return false;
-    if (element.nodeType !== nodeTypes.ELEMENT_NODE) return false;
-    var s = element.className, i = s.indexOf(className);
-    return i != -1 && (s.charCodeAt(i - 1) || 32) == 32 && (s.charCodeAt(i + className.length) || 32) == 32;
-  };
+  if (turing.detect('classList')) {
+    dom.hasClass = function(element, className) {
+      return element.classList.contains(className);
+    };
+  } else {
+    dom.hasClass = function(element, className) {
+      return (' ' + element.className + ' ').indexOf(' ' + className + ' ') !== -1;
+    };
+  }
 
   /**
    * Append CSS classes.

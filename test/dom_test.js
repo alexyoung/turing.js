@@ -133,6 +133,8 @@ exports.testDOM = {
 
   'test hasClass': function() {
     assert.ok(turing('#attr-test').hasClass('example'));
+    assert.ok(turing('#hasclass-test').hasClass('some'), 'should fine some');
+    assert.ok(turing('#hasclass-test').hasClass('something'), 'should find something');
     assert.ok(turing('#attr-test').hasClass('example-2'));
     assert.ok(turing('#attr-test').hasClass('example_3'));
     assert.ok(!turing('#attr-test').hasClass('example_'));
