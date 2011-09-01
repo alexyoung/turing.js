@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.77';
-  turing.lesson = 'Part 77: Optimisation';
+  turing.VERSION = '0.0.78';
+  turing.lesson = 'Part 78: Optimisation';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -832,6 +832,17 @@ turing.functional = {
     href: true
   };
 
+  turing.addDetectionTest('classList', function() {
+    var div = document.createElement('div');
+
+    if (div.classList) {
+      return true;
+    }
+
+    div = null;
+    return false;
+  });
+
   function scanner() {
     function replacePattern(pattern, patterns) {
       var matched = true, match;
@@ -1191,7 +1202,7 @@ turing.functional = {
   /**
    * Gets or sets style values.
    *
-   * @param {Object} element A DOM element 
+   * @param {Object} element A DOM element
    * @returns {Object} The style value
    */
   dom.css = function(element, options) {
@@ -1336,18 +1347,22 @@ turing.functional = {
   };
 
   /**
-   * Detects if a class is present, optimised by Henrik Lindqvist.
+   * Detects if a class is present, optimised by Henrik Lindqvist
+   * and Ryan Cannon.
    *
    * @param {Object} element A DOM element
    * @param {String} className The class name
    * @return {Boolean}
    */
-  dom.hasClass = function(element, className) {
-    if (!className || typeof className !== 'string') return false;
-    if (element.nodeType !== nodeTypes.ELEMENT_NODE) return false;
-    var s = element.className, i = s.indexOf(className);
-    return i != -1 && (s.charCodeAt(i - 1) || 32) == 32 && (s.charCodeAt(i + className.length) || 32) == 32;
-  };
+  if (turing.detect('classList')) {
+    dom.hasClass = function(element, className) {
+      return element.classList.contains(className);
+    };
+  } else {
+    dom.hasClass = function(element, className) {
+      return (' ' + element.className + ' ').indexOf(' ' + className + ' ') !== -1;
+    };
+  }
 
   /**
    * Append CSS classes.

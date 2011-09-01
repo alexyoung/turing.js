@@ -14,6 +14,7 @@
   , "jsmin": "latest"
   , "jslint": "latest"
   , "uglify-js": "latest"
+  , "benchmark": "latest"
   }
 , "repository": {
     "type" : "git"

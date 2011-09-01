@@ -459,7 +459,7 @@
   /**
    * Gets or sets style values.
    *
-   * @param {Object} element A DOM element 
+   * @param {Object} element A DOM element
    * @returns {Object} The style value
    */
   dom.css = function(element, options) {
@@ -604,7 +604,8 @@
   };
 
   /**
-   * Detects if a class is present, optimised by Henrik Lindqvist.
+   * Detects if a class is present, optimised by Henrik Lindqvist
+   * and Ryan Cannon.
    *
    * @param {Object} element A DOM element
    * @param {String} className The class name
