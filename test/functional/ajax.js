@@ -46,7 +46,8 @@ staticFile('/turing-test/stylesheets/screen.css', '/../turing-test/stylesheets/s
   * Ajax tests
   */
 app.get('/get-test', function(req, res) {
-  res.send({ key: 'value' });
+  res.header('content-type', 'text/html');
+  res.send('Sample text');
 });
 
 app.post('/post-test', function(req, res) {
@@ -58,8 +59,13 @@ app.post('/post-array', function(req, res) {
 });
 
 app.post('/give-me-json', function(req, res) {
-  res.header('Content-Type', 'application/json');
+  res.header('content-type', 'application/json');
   res.send({ key: 'value' });
+});
+
+app.post('/give-me-xml', function(req, res) {
+  res.header('content-type', 'application/xml');
+  res.send('<key>value</key>');
 });
 
 app.listen(3000);

@@ -6,8 +6,9 @@ var test = require('test'),
 exports.testAjax = {
   'test ajax get': function() {
     $t.get('/get-test', {
+      headers: { 'Accept': 'text/html' },
       success: function(r) {
-        assert.equal('{"key":"value"}', r.responseText);
+        assert.equal('Sample text', r.responseText);
       }
     });
   },
@@ -36,7 +37,7 @@ exports.testAjax = {
   'test json post object with application/json': function() {
     $t.post('/post-test', {
       postBody: '{"key":"value"}',
-      contentType: 'application/json', 
+      contentType: 'application/json',
       success: function(r) {
         assert.equal('value', r.responseText);
       },
@@ -49,7 +50,7 @@ exports.testAjax = {
   'test json post array with application/json': function() {
     $t.post('/post-array', {
       postBody: '["value"]',
-      contentType: 'application/json', 
+      contentType: 'application/json',
       success: function(r) {
         assert.equal('value', r.responseText);
       },
@@ -59,22 +60,30 @@ exports.testAjax = {
     });
   },
 
+  'test promises': function() {
+    $t.get('/get-test').then(
+      function(r) { assert.equal('Sample text', r.responseText); },
+      function(r) { assert.ok(false); }
+    );
+  },
+
   'test json parsing': function() {
     $t.post('/give-me-json', {
-      contentType: 'application/json', 
+      contentType: 'application/json',
       success: function(r) {
         assert.equal('value', r.responseJSON.key);
       }
     });
   },
 
-  'test promises': function() {
-    $t.get('/get-test').then(
-      function(r) { assert.equal('{"key":"value"}', r.responseText); },
-      function(r) { assert.ok(false); }
-    );
+  'test xml parsing': function() {
+    $t.post('/give-me-xml', {
+      contentType: 'application/xml',
+      success: function(r) {
+        assert.equal('key', r.responseXML.documentElement.nodeName);
+      }
+    });
   }
 };
 
 test.run(exports);
-

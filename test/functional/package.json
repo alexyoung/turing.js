@@ -1,0 +1,11 @@
+{   "name": "turing-net-tests"
+  , "description": "Turing's net module tests"
+  , "version": "0.0.1"
+  , "author": "Alex R. Young <alex@helicoid.net>"
+  , "engines": ["node >= 0.4.7"]
+  , "main": "./ajax.js"
+  , "dependencies": {
+      "express": "2.4.5"
+    , "jade": "0.12.1"
+  }
+}

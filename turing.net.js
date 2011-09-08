@@ -22,6 +22,15 @@
     *
     */
 
+  /**
+    * Removes leading and trailing whitespace.
+    * @param {String}
+    * @return {String}
+    */
+  var trim = ''.trim
+    ? function(s) { return s.trim(); }
+    : function(s) { return s.replace(/^\s\s*/, '').replace(/\s\s*$/, ''); };
+
   function xhr() {
     if (typeof XMLHttpRequest !== 'undefined' && (window.location.protocol !== 'file:' || !window.ActiveXObject)) {
       return new XMLHttpRequest();
@@ -54,11 +63,11 @@
   net.serialize = function(object) {
     if (!object) return;
 
-		var results = [];
+    var results = [];
     for (var key in object) {
       results.push(encodeURIComponent(key) + '=' + encodeURIComponent(object[key]));
     }
-		return results.join('&');
+    return results.join('&');
   };
 
   /**
@@ -75,16 +84,37 @@
     * @returns {Object} A JavaScript object
     */
   net.parseJSON = function(string) {
-		if (typeof string !== 'string' || !string) return null;
-		string = string.trim();
+    if (typeof string !== 'string' || !string) return null;
+    string = trim(string);
     return turing.detect('JSON.parse') ?
       window.JSON.parse(string) :
       (new Function('return ' + string))();
   };
 
+  /**
+    * Parses XML represented as a string.
+    *
+    * @param {String} string The original string
+    * @returns {Object} A JavaScript object
+    */
+  if (window.DOMParser) {
+    net.parseXML = function(text) {
+      return new DOMParser().parseFromString(text, 'text/xml');
+    };
+  } else {
+    net.parseXML = function(text) {
+      var xml = new ActiveXObject('Microsoft.XMLDOM');
+      xml.async = 'false';
+      xml.loadXML(text);
+      return xml;
+    };
+  }
+
   function ajax(url, options) {
     var request = xhr(),
-        promise;
+        promise,
+        then,
+        response = {};
         
     if (turing.Promise) {
       promise = new turing.Promise();
@@ -92,15 +122,22 @@
 
     function respondToReadyState(readyState) {
       if (request.readyState == 4) {
-        if (request.getResponseHeader('content-type') === 'application/json')
-          request.responseJSON = net.parseJSON(request.responseText);
+        var contentType = request.mimeType || request.getResponseHeader('content-type') || '';
+
+        response.status = request.status;
+        response.responseText = request.responseText;
+        if (/json/.test(contentType)) {
+          response.responseJSON = net.parseJSON(request.responseText);
+        } else if (/xml/.test(contentType)) {
+          response.responseXML = net.parseXML(request.responseText);
+        }
 
         if (successfulRequest(request)) {
-          if (options.success) options.success(request);
-          if (promise) promise.resolve(request);
+          if (options.success) options.success(response, request);
+          if (promise) promise.resolve(response, request);
         } else {
-          if (options.error) options.error(request);
-          if (promise) promise.reject(request);
+          if (options.error) options.error(response, request);
+          if (promise) promise.reject(response, request);
         }
       }
     }
@@ -113,7 +150,7 @@
       };
 
       /**
-       * Merge headers with defaults. 
+       * Merge headers with defaults.
        */
       for (var name in defaults) {
         if (!options.headers.hasOwnProperty(name))
@@ -145,19 +182,24 @@
 
     setHeaders();
 
-    try {
-      request.send(options.postBody);
-    } catch (e) {
-      if (options.error) {
-        options.error();
+    function send() {
+      try {
+        request.send(options.postBody);
+      } catch (e) {
+        if (options.error) {
+          options.error();
+        }
       }
     }
 
-    request.then = function() {
-      if (promise) promise.then.apply(promise, arguments);
-    };
+    // Allows promises to be set in IE, else request.send will execute before the promise callbacks are set
+    setTimeout(send, 0);
 
-    return request;
+    return {
+      then: function() {
+        if (promise) promise.then.apply(promise, arguments);
+      }
+    };
   }
 
   function JSONPCallback(url, success, failure) {
@@ -194,13 +236,13 @@
    * An Ajax GET request.
    *
    *     turing.net.get('/url', {
-   *       success: function(request) {
+   *       success: function(res, req) {
    *       }
    *     });
    *
    * @param {String} url The URL to request
    * @param {Object} options The Ajax request options
-   * @returns {Object} The Ajax request object
+   * @returns {Object} An object for further chaining with promises
    */
   net.get = function(url, options) {
     if (typeof options === 'undefined') options = {};
@@ -214,13 +256,13 @@
    *
    *     turing.net.post('/url', {
    *       postBody: 'params',
-   *       success: function(request) {
+   *       success: function(res, req) {
    *       }
    *     });
    *
    * @param {String} url The URL to request
    * @param {Object} options The Ajax request options (`postBody` may come in handy here)
-   * @returns {Object} The Ajax request object
+   * @returns {Object} An object for further chaining with promises
    */
   net.post = function(url, options) {
     if (typeof options === 'undefined') options = {};
@@ -241,7 +283,6 @@
    *     });
    *
    * @param {String} url The URL to request
-   * @param {Object} options The Ajax request options
    */
   net.jsonp = function(url, options) {
     if (typeof options === 'undefined') options = {};
