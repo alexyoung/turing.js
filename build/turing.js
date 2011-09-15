@@ -2342,6 +2342,10 @@ turing.functional = {
   net.serialize = function(object) {
     if (!object) return;
 
+    if (typeof object === 'string') {
+      return object;
+    }
+
     var results = [];
     for (var key in object) {
       results.push(encodeURIComponent(key) + '=' + encodeURIComponent(object[key]));
@@ -2393,7 +2397,8 @@ turing.functional = {
     var request = xhr(),
         promise,
         then,
-        response = {};
+        response = {},
+        chain;
         
     if (turing.Promise) {
       promise = new turing.Promise();
@@ -2411,7 +2416,13 @@ turing.functional = {
           response.responseXML = net.parseXML(request.responseText);
         }
 
-        if (successfulRequest(request)) {
+        response.success = successfulRequest(request);
+
+        if (options.callback) {
+          return options.callback(response, request);
+        }
+
+        if (response.success) {
           if (options.success) options.success(response, request);
           if (promise) promise.resolve(response, request);
         } else {
@@ -2471,14 +2482,38 @@ turing.functional = {
       }
     }
 
-    // Allows promises to be set in IE, else request.send will execute before the promise callbacks are set
-    setTimeout(send, 0);
+    chain = {
+      set: function(key, value) {
+        options.headers[key] = value;
+        return chain;
+      },
 
-    return {
+      send: function(data, callback) {
+        options.postBody = net.serialize(data);
+        options.callback = callback;
+        send();
+        return chain;
+      },
+
+      end: function(callback) {
+        options.callback = callback;
+        send();
+        return chain;
+      },
+
+      data: function(data) {
+        options.postBody = net.serialize(data);
+        return chain;
+      },
+
       then: function() {
+        chain.end();
         if (promise) promise.then.apply(promise, arguments);
+        return chain;
       }
     };
+
+    return chain;
   }
 
   function JSONPCallback(url, success, failure) {

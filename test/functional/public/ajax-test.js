@@ -5,59 +5,60 @@ var test = require('test'),
 
 exports.testAjax = {
   'test ajax get': function() {
-    $t.get('/get-test', {
-      headers: { 'Accept': 'text/html' },
-      success: function(r) {
-        assert.equal('Sample text', r.responseText);
-      }
-    });
+    $t.get('/get-test')
+      .set('Accept', 'text/html')
+      .end(function(res) {
+        assert.equal('Sample text', res.responseText);
+      });
   },
 
   'test ajax post': function() {
-    $t.post('/post-test', {
-      postBody: 'key=value&anotherKey=anotherValue',
-      success: function(r) {
-        assert.equal('value', r.responseText);
-      }
-    });
+    $t.post('/post-test')
+      .data('key=value&anotherKey=anotherValue')
+      .end(function(res) {
+        assert.equal('value', res.responseText);
+      });
+  },
+
+  'test send with data': function() {
+    $t.post('/post-test')
+      .send('key=value&anotherKey=anotherValue', function(res) {
+        assert.equal('value', res.responseText);
+      });
   },
 
   'test json post object': function() {
-    $t.post('/post-test', {
-      postBody: { key: 'value' },
-      success: function(r) {
-        assert.equal('value', r.responseText);
-      },
-      error: function() {
-        assert.ok(false);
-      }
-    });
+    $t.post('/post-test')
+      .data({ key: 'value' })
+      .end(function(res) {
+        assert.equal('value', res.responseText);
+      });
+  },
+
+  'test error handling': function() {
+    $t.get('/error')
+      .end(function(res) {
+        assert.equal(500, res.status);
+        assert.equal(false, res.success);
+      });
   },
 
   'test json post object with application/json': function() {
-    $t.post('/post-test', {
-      postBody: '{"key":"value"}',
-      contentType: 'application/json',
-      success: function(r) {
-        assert.equal('value', r.responseText);
-      },
-      error: function() {
-        assert.ok(false);
-      }
-    });
+    $t.post('/post-test')
+      .data({ 'key': 'value' })
+      .set('Content-Type', 'application/json')
+      .end(function(res) {
+        assert.equal('value', res.responseText);
+      });
   },
 
   'test json post array with application/json': function() {
-    $t.post('/post-array', {
-      postBody: '["value"]',
-      contentType: 'application/json',
-      success: function(r) {
-        assert.equal('value', r.responseText);
-      },
-      error: function() {
-        assert.ok(false);
-      }
-    });
+    $t.post('/post-array')
+      .data(['value'])
+      .set('Content-Type', 'application/json')
+      .end(function(res) {
+        assert.equal('value', res.responseText);
+      });
   },
 
   'test promises': function() {
@@ -68,21 +69,19 @@ exports.testAjax = {
   },
 
   'test json parsing': function() {
-    $t.post('/give-me-json', {
-      contentType: 'application/json',
-      success: function(r) {
-        assert.equal('value', r.responseJSON.key);
-      }
-    });
+    $t.post('/give-me-json')
+      .set('Content-Type', 'application/json')
+      .end(function(res) {
+        assert.equal('value', res.responseJSON.key);
+      });
   },
 
   'test xml parsing': function() {
-    $t.post('/give-me-xml', {
-      contentType: 'application/xml',
-      success: function(r) {
-        assert.equal('key', r.responseXML.documentElement.nodeName);
-      }
-    });
+    $t.post('/give-me-xml')
+      .set('Content-Type', 'application/xml')
+      .end(function(res) {
+        assert.equal('key', res.responseXML.documentElement.nodeName);
+      });
   }
 };
 

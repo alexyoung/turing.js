@@ -63,6 +63,10 @@
   net.serialize = function(object) {
     if (!object) return;
 
+    if (typeof object === 'string') {
+      return object;
+    }
+
     var results = [];
     for (var key in object) {
       results.push(encodeURIComponent(key) + '=' + encodeURIComponent(object[key]));
@@ -110,11 +114,39 @@
     };
   }
 
+  /**
+    * Creates an Ajax request.  Returns an object that can be used
+    * to chain calls.  For example:
+    * 
+    *      $t.post('/post-test')
+    *        .data({ key: 'value' })
+    *        .end(function(res) {
+    *          assert.equal('value', res.responseText);
+    *        });
+    *
+    *      $t.get('/get-test')
+    *        .set('Accept', 'text/html')
+    *        .end(function(res) {
+    *          assert.equal('Sample text', res.responseText);
+    *        });
+    *
+    * The available chained methods are:
+    * 
+    * `set` -- set a HTTP header
+    * `data` -- the postBody
+    * `end` -- send the request over the network, and calls your callback with a `res` object
+    * `send` -- sends the request and calls `data`: `.send({ data: value }, function(res) { });`
+    *
+    * @param {String} The URL to call
+    * @param {Object} Optional settings
+    * @returns {Object} A chainable object for further configuration
+    */
   function ajax(url, options) {
     var request = xhr(),
         promise,
         then,
-        response = {};
+        response = {},
+        chain;
         
     if (turing.Promise) {
       promise = new turing.Promise();
@@ -132,7 +164,13 @@
           response.responseXML = net.parseXML(request.responseText);
         }
 
-        if (successfulRequest(request)) {
+        response.success = successfulRequest(request);
+
+        if (options.callback) {
+          return options.callback(response, request);
+        }
+
+        if (response.success) {
           if (options.success) options.success(response, request);
           if (promise) promise.resolve(response, request);
         } else {
@@ -192,14 +230,38 @@
       }
     }
 
-    // Allows promises to be set in IE, else request.send will execute before the promise callbacks are set
-    setTimeout(send, 0);
+    chain = {
+      set: function(key, value) {
+        options.headers[key] = value;
+        return chain;
+      },
 
-    return {
+      send: function(data, callback) {
+        options.postBody = net.serialize(data);
+        options.callback = callback;
+        send();
+        return chain;
+      },
+
+      end: function(callback) {
+        options.callback = callback;
+        send();
+        return chain;
+      },
+
+      data: function(data) {
+        options.postBody = net.serialize(data);
+        return chain;
+      },
+
       then: function() {
+        chain.end();
         if (promise) promise.then.apply(promise, arguments);
+        return chain;
       }
     };
+
+    return chain;
   }
 
   function JSONPCallback(url, success, failure) {
@@ -235,14 +297,15 @@
   /**
    * An Ajax GET request.
    *
-   *     turing.net.get('/url', {
-   *       success: function(res, req) {
-   *       }
-   *     });
+   *      $t.get('/get-test')
+   *        .set('Accept', 'text/html')
+   *        .end(function(res) {
+   *          assert.equal('Sample text', res.responseText);
+   *        });
    *
    * @param {String} url The URL to request
    * @param {Object} options The Ajax request options
-   * @returns {Object} An object for further chaining with promises
+   * @returns {Object} A chainable object for further configuration
    */
   net.get = function(url, options) {
     if (typeof options === 'undefined') options = {};
@@ -253,12 +316,11 @@
   /**
    * An Ajax POST request.
    *
-   *
-   *     turing.net.post('/url', {
-   *       postBody: 'params',
-   *       success: function(res, req) {
-   *       }
-   *     });
+   *      $t.post('/post-test')
+   *        .data({ key: 'value' })
+   *        .end(function(res) {
+   *          assert.equal('value', res.responseText);
+   *        });
    *
    * @param {String} url The URL to request
    * @param {Object} options The Ajax request options (`postBody` may come in handy here)

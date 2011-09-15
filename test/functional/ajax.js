@@ -50,6 +50,11 @@ app.get('/get-test', function(req, res) {
   res.send('Sample text');
 });
 
+app.get('/error', function(req, res) {
+  res.header('content-type', 'text/html');
+  res.send('Sample text', 500);
+});
+
 app.post('/post-test', function(req, res) {
   res.send(req.body.key);
 });
