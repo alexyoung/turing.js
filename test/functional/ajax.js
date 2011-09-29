@@ -73,5 +73,10 @@ app.post('/give-me-xml', function(req, res) {
   res.send('<key>value</key>');
 });
 
+app.get('/load-me.js', function(req, res) {
+  res.header('content-type', 'text/javascript');
+  res.send('loadMeDone = 1;');
+});
+
 app.listen(3000);
 

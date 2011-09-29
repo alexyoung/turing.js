@@ -1,4 +1,4 @@
-SRC = turing.core.js turing.oo.js turing.enumerable.js turing.promise.js turing.functional.js turing.dom.js turing.plugins.js turing.events.js turing.net.js turing.touch.js turing.anim.js
+SRC = turing.core.js turing.oo.js turing.enumerable.js turing.promise.js turing.functional.js turing.dom.js turing.plugins.js turing.events.js turing.net.js turing.touch.js turing.anim.js turing.require.js
 
 docs:
 	./node_modules/.bin/dox --title Turing turing.*.js --intro docs/intro.md > docs/index.html

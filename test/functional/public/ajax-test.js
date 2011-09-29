@@ -85,4 +85,12 @@ exports.testAjax = {
   }
 };
 
+exports.testRequire = {
+  'test require': function() {
+    $t.require('/load-me.js', function() {
+      assert.equal(loadMeDone, 1);
+    });
+  }
+};
+
 test.run(exports);

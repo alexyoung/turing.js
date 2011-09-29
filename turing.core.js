@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.80';
-  turing.lesson = 'Part 80: Chained Ajax API';
+  turing.VERSION = '0.0.82';
+  turing.lesson = 'Part 82: Asynchronous Loading';
 
   /**
    * This alias will be used as an alternative to `turing()`.
