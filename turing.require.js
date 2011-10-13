@@ -11,6 +11,8 @@
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = scriptSrc;
+    script.async = true;
+    script.defer = true;
 
     script.onload = script.onreadystatechange = function() {
       if (!script.readyState || (script.readyState === 'complete' || script.readyState === 'loaded')) {
