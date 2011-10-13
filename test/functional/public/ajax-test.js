@@ -93,6 +93,13 @@ exports.testRequire = {
   },
 
   'test require execution': function() {
+    $t.require('/load-me.js', { async: true, defer: true }, function() {
+      assert.equal(loadMeDone, 1);
+    });
+
+    $t.require('/load-me.js', { async: true, defer: true });
+    $t.require('/load-me.js');
+
     $t.require('/load-me.js', function() {
       assert.equal(loadMeDone, 1);
     });

@@ -1,18 +1,18 @@
 (function(global) {
   var appendTo = document.head || document.getElementsByTagName('head');
 
-  /**
-   * Non-blocking script loading.
-   *
-   * @param {String} The script path
-   * @param {Function} A callback to run once the script has loaded
-   */
-  function require(scriptSrc, fn) {
+  function require(scriptSrc, options, fn) {
     var script = document.createElement('script');
     script.type = 'text/javascript';
     script.src = scriptSrc;
-    script.async = true;
-    script.defer = true;
+
+    if (options.async) {
+      script.async = options.async;
+    }
+
+    if (options.defer) {
+      script.defer = options.defer;
+    }
 
     script.onload = script.onreadystatechange = function() {
       if (!script.readyState || (script.readyState === 'complete' || script.readyState === 'loaded')) {
@@ -25,7 +25,17 @@
     appendTo.insertBefore(script, appendTo.firstChild);
   }
 
-  turing.require = function(scriptSrc, fn) {
+  /**
+   * Non-blocking script loading.
+   *
+   * @param {String} The script path
+   * @param {Object} A configuration object.  Options: {Boolean} `defer`, {Boolean} `async`
+   * @param {Function} A callback
+   */
+  turing.require = function(scriptSrc, options, fn) {
+    options = options || {};
+    fn = fn || function() {};
+
     setTimeout(function() {
       if ('item' in appendTo) {
         if (!appendTo[0]) {
@@ -35,7 +45,7 @@
         appendTo = appendTo[0];
       }
 
-      require(scriptSrc, fn);
+      require(scriptSrc, options, fn);
     });
   };
 }(window));
