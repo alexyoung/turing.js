@@ -90,6 +90,12 @@ exports.testRequire = {
     $t.require('/load-me.js', function() {
       assert.equal(loadMeDone, 1);
     });
+  },
+
+  'test require execution': function() {
+    $t.require('/load-me.js', function() {
+      assert.equal(loadMeDone, 1);
+    });
   }
 };
 
