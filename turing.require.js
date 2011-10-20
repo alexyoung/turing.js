@@ -5,7 +5,7 @@
  */
 
 /**
- * Contains everything relating to the `require` module..
+ * Contains everything relating to the `require` module.
  */
 (function(global) {
   var appendTo = document.head || document.getElementsByTagName('head'),
