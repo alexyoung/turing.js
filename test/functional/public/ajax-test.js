@@ -87,22 +87,31 @@ exports.testAjax = {
 
 exports.testRequire = {
   'test require': function() {
-    $t.require('/load-me.js', function() {
-      assert.equal(loadMeDone, 1);
+    $t.require('/load-me.js?test0=0', { transport: 'scriptInsertion' }, function() {
+      assert.equal(window.test0, 0);
     });
   },
 
   'test require execution': function() {
-    $t.require('/load-me.js', { async: true, defer: true }, function() {
-      assert.equal(loadMeDone, 1);
+    $t.require('/load-me.js?test1=1', { async: true, defer: true, transport: 'scriptInsertion' }, function() {
+      assert.equal(window.test1, 1);
     });
 
-    $t.require('/load-me.js', { async: true, defer: true });
-    $t.require('/load-me.js');
-
-    $t.require('/load-me.js', function() {
-      assert.equal(loadMeDone, 1);
+    $t.require('/load-me.js?test2=2', { transport: 'scriptInsertion' }, function() {
+      assert.equal(window.test2, 2);
     });
+  },
+
+  'test require with XMLHttpRequest': function() {
+    $t.require('/load-me.js?test3=3', { transport: 'XMLHttpRequest' }, function() {
+      assert.equal(window.test3, 3);
+    });
+  },
+
+  'test turing.require.isSameOrigin': function() {
+    assert.ok(turing.require.isSameOrigin('/example.js'));
+    assert.ok(turing.require.isSameOrigin(location.protocol + '//' + location.host + '/example.js'));
+    assert.ok(!turing.require.isSameOrigin('https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js'));
   }
 };
 

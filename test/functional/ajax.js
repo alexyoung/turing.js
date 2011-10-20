@@ -75,7 +75,11 @@ app.post('/give-me-xml', function(req, res) {
 
 app.get('/load-me.js', function(req, res) {
   res.header('content-type', 'text/javascript');
-  res.send('loadMeDone = 1;');
+  var js = '';
+  Object.keys(req.query).forEach(function(key) {
+    js = 'window.' + key + ' = ' + req.query[key];
+  });
+  res.send(js);
 });
 
 app.listen(3000);

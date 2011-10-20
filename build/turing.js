@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.83';
-  turing.lesson = 'Part 83: Asynchronous Loading';
+  turing.VERSION = '0.0.84';
+  turing.lesson = 'Part 84: Asynchronous Loading';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -3283,21 +3283,73 @@ turing.functional = {
 
   turing.anim = anim;
 }());
+/*!
+ * Turing Core
+ * Copyright (C) 2011 Alex R. Young
+ * MIT Licensed
+ */
+
+/**
+ * Contains everything relating to the `require` module..
+ */
 (function(global) {
-  var appendTo = document.head || document.getElementsByTagName('head');
+  var appendTo = document.head || document.getElementsByTagName('head'),
+      scriptOptions = ['async', 'defer', 'src', 'text'];
 
-  function require(scriptSrc, options, fn) {
-    var script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = scriptSrc;
+  /**
+   * Used to determine if a script is from the same origin.
+   *
+   * @param {String} Path to a script
+   * @return {Boolean} True when `src` is from the same origin
+   */
+  function isSameOrigin(src) {
+    return src.charAt(0) === '/'
+      || src.indexOf(location.protocol + '//' + location.host) !== -1
+      || false;
+  }
 
-    if (options.async) {
-      script.async = options.async;
+  /**
+   * Creates a script tag from a set of options.
+   *
+   * Options may include: `async`, `defer`, `src`, and `text`.
+   *
+   * @param {Object} The options
+   * @return {Object} The script tag's DOM object
+   */
+  function createScript(options) {
+    var script = document.createElement('script'),
+        key;
+
+    for (key in scriptOptions) {
+      key = scriptOptions[key];
+
+      if (options[key]) {
+        script[key] = options[key];
+      }
     }
 
-    if (options.defer) {
-      script.defer = options.defer;
-    }
+    return script;
+  }
+
+  /**
+   * Inserts a script tag into the document.
+   *
+   * @param {String} The script tag
+   */
+  function insertScript(script) {
+    appendTo.insertBefore(script, appendTo.firstChild);
+  }
+
+  /**
+   * Loads scripts using script tag insertion.
+   *
+   * @param {String} The script path
+   * @param {Object} A configuration object
+   * @param {Function} A callback
+   */
+  function requireWithScriptInsertion(scriptSrc, options, fn) {
+    options.src = scriptSrc;
+    var script = createScript(options);
 
     script.onload = script.onreadystatechange = function() {
       if (!script.readyState || (script.readyState === 'complete' || script.readyState === 'loaded')) {
@@ -3307,7 +3359,35 @@ turing.functional = {
       }
     };
 
-    appendTo.insertBefore(script, appendTo.firstChild);
+    insertScript(script, options, fn);
+  }
+
+  /**
+   * Loads scripts using XMLHttpRequest.
+   *
+   * @param {String} The script path
+   * @param {Object} A configuration object
+   * @param {Function} A callback
+   */
+  function requireWithXMLHttpRequest(scriptSrc, options, fn) {
+    if (!isSameOrigin(scriptSrc)) {
+      throw('Scripts loaded with XMLHttpRequest must be from the same origin');
+    }
+
+    if (!turing.get) {
+      throw('Loading scripts with XMLHttpRequest requires turing.net to be loaded');
+    }
+
+    turing
+      .get(scriptSrc)
+      .end(function(res) {
+        options.text = res.responseText;
+        
+        var script = createScript(options);
+        insertScript(script);
+        appendTo.removeChild(script);
+        fn();
+      });
   }
 
   /**
@@ -3330,7 +3410,18 @@ turing.functional = {
         appendTo = appendTo[0];
       }
 
-      require(scriptSrc, options, fn);
+      switch (options.transport) {
+        case 'XMLHttpRequest':
+          return requireWithXMLHttpRequest(scriptSrc, options, fn);
+
+        case 'scriptInsertion':
+          return requireWithScriptInsertion(scriptSrc, options, fn);
+
+        default:
+          return requireWithScriptInsertion(scriptSrc, options, fn);
+      }
     });
   };
+
+  turing.require.isSameOrigin = isSameOrigin;
 }(window));
