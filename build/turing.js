@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.84';
-  turing.lesson = 'Part 84: Asynchronous Loading';
+  turing.VERSION = '0.0.85';
+  turing.lesson = 'Part 85: Asynchronous Loading';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -3290,7 +3290,7 @@ turing.functional = {
  */
 
 /**
- * Contains everything relating to the `require` module..
+ * Contains everything relating to the `require` module.
  */
 (function(global) {
   var appendTo = document.head || document.getElementsByTagName('head'),
@@ -3382,12 +3382,165 @@ turing.functional = {
       .get(scriptSrc)
       .end(function(res) {
         options.text = res.responseText;
-        
-        var script = createScript(options);
-        insertScript(script);
-        appendTo.removeChild(script);
-        fn();
+        fn(options);
       });
+  }
+
+  /**
+   * Parse and run a queue of scripts, preloading where required.
+   *
+   * @param {Array} An array of scripts.
+   */
+  function Queue(sources) {
+    this.sources = sources;
+    this.events = new turing.events.Emitter();
+    this.queue = [];
+    this.currentGroup = 0;
+    this.groups = {};
+    this.groupKeys = [];
+    this.parseQueue(this.sources, false, 0);
+
+    this.installEventHandlers();
+    this.pointer = 0;
+
+    var self = this;
+    runWhenReady(function() {
+      self.runQueue();
+    });
+  }
+
+  Queue.prototype = {
+    on: function() {
+      this.events.on.apply(this.events, arguments);
+      return this;
+    },
+
+    emit: function() {
+      this.events.emit.apply(this.events, arguments);
+      return this;
+    },
+
+    installEventHandlers: function() {
+      var self = this;
+
+      this.on('preloaded', function(groupItem, options) {
+        var group = self.groups[groupItem.group];
+        groupItem.preloaded = true;
+        groupItem.scriptOptions = options;
+
+        if (self.groupReady(group)) {
+          self.groups[groupItem.group].executed = true;
+          self.execute();
+        }
+      });
+    },
+
+    groupReady: function(group) {
+      if (group.executed) {
+        return false;
+      }
+
+      for (i = 0; i < group.length; i++) {
+        if (!group[i].preloaded) {
+          return false;
+        }
+      }
+      return true;
+    },
+
+    execute: function() {
+      var id = this.groupKeys[this.pointer],
+          group = this.groups[id],
+          i,
+          item,
+          script;
+
+      for (i = 0; i < group.length; i++) {
+        item = group[i];
+
+        if (item && item.scriptOptions) {
+          script = createScript(item.scriptOptions);
+          insertScript(script);
+          appendTo.removeChild(script);
+        }
+      }
+
+      this.emit('loaded', item);
+
+      this.pointer++;
+      if (this.pointer === this.groupKeys.length) {
+        this.emit('complete');
+      }
+    },
+
+    enqueue: function(source, async) {
+      var preload = isSameOrigin(source),
+          options;
+
+      options = {
+        src: source,
+        preload: preload,
+        async: async,
+        group: this.currentGroup
+      };
+
+      if (!this.groups[this.currentGroup]) {
+        this.groups[this.currentGroup] = [];
+        this.groupKeys.push(this.currentGroup);
+      }
+
+      this.groups[this.currentGroup].push(options);
+    },
+
+    parseQueue: function(sources, async, level) {
+      var i, source;
+      for (i = 0; i < sources.length; i++) {
+        source = sources[i];
+        if (turing.isArray(source)) {
+          this.currentGroup++;
+          this.parseQueue(source, true, level + 1);
+        } else {
+          if (level === 0) {
+            this.currentGroup++;
+          }
+          this.enqueue(source, async);
+        }
+      }
+    },
+
+    runQueue: function() {
+      var i, g, group, item, self = this;
+
+      for (g = 0; g < this.groupKeys.length; g++) {
+        group = this.groups[this.groupKeys[g]];
+        
+        for (i = 0; i < group.length; i++ ) {
+          item = group[i];
+
+          if (item.preload) {
+            (function(groupItem) {
+              requireWithXMLHttpRequest(groupItem.src, {}, function(script) {
+                self.emit('preloaded', groupItem, script);
+              })
+            }(item));
+          }
+        }
+      }
+    }
+  };
+
+  function runWhenReady(fn) {
+    setTimeout(function() {
+      if ('item' in appendTo) {
+        if (!appendTo[0]) {
+          return setTimeout(arguments.callee, 25);
+        }
+
+        appendTo = appendTo[0];
+      }
+
+      fn();
+    });
   }
 
   /**
@@ -3401,18 +3554,19 @@ turing.functional = {
     options = options || {};
     fn = fn || function() {};
 
-    setTimeout(function() {
-      if ('item' in appendTo) {
-        if (!appendTo[0]) {
-          return setTimeout(arguments.callee, 25);
-        }
+    if (turing.isArray(scriptSrc)) {
+      return new Queue(scriptSrc);
+    }
 
-        appendTo = appendTo[0];
-      }
-
+    runWhenReady(function() {
       switch (options.transport) {
         case 'XMLHttpRequest':
-          return requireWithXMLHttpRequest(scriptSrc, options, fn);
+          return requireWithXMLHttpRequest(scriptSrc, options, function(options) {
+            var script = createScript(options);
+            insertScript(script);
+            appendTo.removeChild(script);
+            fn();
+          });
 
         case 'scriptInsertion':
           return requireWithScriptInsertion(scriptSrc, options, fn);

@@ -112,6 +112,35 @@ exports.testRequire = {
     assert.ok(turing.require.isSameOrigin('/example.js'));
     assert.ok(turing.require.isSameOrigin(location.protocol + '//' + location.host + '/example.js'));
     assert.ok(!turing.require.isSameOrigin('https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js'));
+  },
+
+  'test async queue loading': function() {
+    $t.require([
+      '/load-me.js?test9=9',
+      ['/load-me.js?test4=4', '/load-me.js?test5=5'],
+      ['/load-me.js?test6=6', '/load-me.js?test7=7'],
+      '/load-me.js?test8=8'
+    ]).on('complete', function() {
+      assert.ok(true);
+    }).on('loaded', function(item) {
+      if (item.src === '/load-me.js?test9=9') {
+        assert.equal(typeof test4, 'undefined');
+      }
+
+      if (item.src === '/load-me.js?test4=4') {
+        assert.equal(test9, 9);
+        assert.equal(test4, 4);
+        assert.equal(typeof test6, 'undefined');
+        assert.equal(typeof test8, 'undefined');
+      }
+
+      if (item.src === '/load-me.js?test6=6') {
+        assert.equal(test9, 9);
+        assert.equal(test4, 4);
+        assert.equal(test6, 6);
+        assert.equal(typeof test8, 'undefined');
+      }
+    });
   }
 };
 

@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.84';
-  turing.lesson = 'Part 84: Asynchronous Loading';
+  turing.VERSION = '0.0.85';
+  turing.lesson = 'Part 85: Asynchronous Loading';
 
   /**
    * This alias will be used as an alternative to `turing()`.
