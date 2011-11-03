@@ -25,8 +25,8 @@
     }
   }
 
-  turing.VERSION = '0.0.85';
-  turing.lesson = 'Part 85: Asynchronous Loading';
+  turing.VERSION = '0.0.86';
+  turing.lesson = 'Part 86: Asynchronous Loading';
 
   /**
    * This alias will be used as an alternative to `turing()`.
@@ -3389,6 +3389,8 @@ turing.functional = {
   /**
    * Parse and run a queue of scripts, preloading where required.
    *
+   * TODO: Handle remote scripts
+   *
    * @param {Array} An array of scripts.
    */
   function Queue(sources) {
@@ -3402,6 +3404,7 @@ turing.functional = {
 
     this.installEventHandlers();
     this.pointer = 0;
+    this.preloadCount = 0;
 
     var self = this;
     runWhenReady(function() {
@@ -3427,50 +3430,67 @@ turing.functional = {
         var group = self.groups[groupItem.group];
         groupItem.preloaded = true;
         groupItem.scriptOptions = options;
+        self.preloadCount--;
 
-        if (self.groupReady(group)) {
-          self.groups[groupItem.group].executed = true;
-          self.execute();
+        if (self.preloadCount === 0) {
+          self.emit('preload-complete');
+        }
+      });
+
+      this.on('preload-complete', function() {
+        this.emit('execute-next');
+      });
+
+      this.on('execute-next', function() {
+        var groupItem = self.nextItem();
+
+        function completeCallback() {
+          groupItem.loaded = true;
+          self.emit('loaded', groupItem);
+          self.emit('execute-next');
+        }
+
+        if (groupItem) {
+          if (groupItem.preload) {
+            self.execute(groupItem, completeCallback);
+          } else {
+            self.fetchExecute(groupItem, completeCallback);
+          }
+        } else {
+          self.emit('complete');
         }
       });
     },
 
-    groupReady: function(group) {
-      if (group.executed) {
-        return false;
-      }
+    nextItem: function() {
+      var group, i, j, item;
 
-      for (i = 0; i < group.length; i++) {
-        if (!group[i].preloaded) {
-          return false;
+      for (i = 0; i < this.groupKeys.length; i++) {
+        group = this.groups[this.groupKeys[i]];
+        for (j = 0; j < group.length; j++) {
+          item = group[j];
+          if (!item.loaded) {
+            return item;
+          }
         }
       }
-      return true;
     },
 
-    execute: function() {
-      var id = this.groupKeys[this.pointer],
-          group = this.groups[id],
-          i,
-          item,
-          script;
+    fetchExecute: function(item, fn) {
+      var self = this;
+      requireWithScriptInsertion(item.src, { async: true, defer: true }, function() {
+        fn();
+      });
+    },
 
-      for (i = 0; i < group.length; i++) {
-        item = group[i];
-
-        if (item && item.scriptOptions) {
-          script = createScript(item.scriptOptions);
-          insertScript(script);
-          appendTo.removeChild(script);
-        }
+    execute: function(item, fn) {
+      if (item && item.scriptOptions) {
+        script = createScript(item.scriptOptions);
+        insertScript(script);
+        appendTo.removeChild(script);
       }
 
-      this.emit('loaded', item);
-
-      this.pointer++;
-      if (this.pointer === this.groupKeys.length) {
-        this.emit('complete');
-      }
+      fn();
     },
 
     enqueue: function(source, async) {
@@ -3509,8 +3529,12 @@ turing.functional = {
     },
 
     runQueue: function() {
-      var i, g, group, item, self = this;
+      // Preload everything that can be preloaded
+      this.preloadAll();
+    },
 
+    preloadAll: function() {
+      var i, g, group, item, self = this;
       for (g = 0; g < this.groupKeys.length; g++) {
         group = this.groups[this.groupKeys[g]];
         
@@ -3518,6 +3542,7 @@ turing.functional = {
           item = group[i];
 
           if (item.preload) {
+            this.preloadCount++;
             (function(groupItem) {
               requireWithXMLHttpRequest(groupItem.src, {}, function(script) {
                 self.emit('preloaded', groupItem, script);
@@ -3525,6 +3550,10 @@ turing.functional = {
             }(item));
           }
         }
+      }
+
+      if (this.preloadCount === 0) {
+        this.emit('execute-next');
       }
     }
   };
