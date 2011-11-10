@@ -32,6 +32,28 @@ function mixinExpect(m) {
   return m2;
 }
 
+function Expect() {
+  this.expectations = {};
+}
+
+Expect.prototype = {
+  add: function(expectation) {
+    this.expectations[expectation] = false;
+  },
+
+  fulfill: function(expectation) {
+    this.expectations[expectation] = true;
+  },
+
+  done: function() {
+    for (var expectation in this.expectations) {
+      if (!this.expectations[expectation]) {
+        throw('Expected assertion was fulfilled , expected: ' + expectation); 
+      }
+    }
+  }
+};
+
 exports.testAjax = {
   'test ajax get': function() {
     $t.get('/get-test')
@@ -230,17 +252,20 @@ exports.testRequire = {
   },
 
   'test queue loading with no local scripts': function() {
-    var assertExpect = mixinExpect(assert);
-    assertExpect.expect(2);
+    var expect = new Expect();
+    expect.add('jQuery was set');
+    expect.add('loaded fired');
 
     $t.require([
       'https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js'
     ]).on('complete', function() {
-      assertExpect.ok(true);
-      assertExpect.done();
+      assert.ok(true);
+      expect.fulfill('loaded fired');
+      expect.done();
     }).on('loaded', function(item) {
       if (item.src === 'https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js') {
-        assertExpect.ok(jQuery, 'jQuery should be set');
+        expect.fulfill('jQuery was set');
+        assert.ok(jQuery, 'jQuery should be set');
       }
     });
   }
