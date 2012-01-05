@@ -27,7 +27,7 @@
  *       alert('Orientation is now: ' + turing.touch.orientation());
  *     });
  */
-(function() {
+define('turing.dom', ['turing.core', 'turing.dom', 'turing.events'], function(turing, dom, events) {
   var touch = {}, state = {};
 
   touch.swipeThreshold = 50;
@@ -97,5 +97,5 @@
   };
 
   turing.touch = touch;
-})();
-
+  return turing.touch;
+});

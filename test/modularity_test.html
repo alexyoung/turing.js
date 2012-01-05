@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head><title>Let's Make a Framework: Modularity</title></head>
+  <body>
+    <div id="test"><p>Test Content</p></div>
+
+    <script src="turing-test/lib/assert.js" type="text/javascript"></script>
+    <script src="../turing.core.js" type="text/javascript"></script>
+    <script src="../turing.dom.js" type="text/javascript"></script>
+    <script src="../turing.events.js" type="text/javascript"></script>
+    <script src="../turing.anim.js" type="text/javascript"></script>
+    <script src="../turing.enumerable.js" type="text/javascript"></script>
+    <script src="../turing.functional.js" type="text/javascript"></script>
+    <script src="../turing.net.js" type="text/javascript"></script>
+    <script src="../turing.oo.js" type="text/javascript"></script>
+    <script src="../turing.plugins.js" type="text/javascript"></script>
+    <script src="../turing.promise.js" type="text/javascript"></script>
+    <script src="../turing.require.js" type="text/javascript"></script>
+    <script src="../turing.touch.js" type="text/javascript"></script>
+
+    <script type="text/javascript">
+assert.equal(turing('#test p').html(), 'Test Content');
+
+// DOM
+turing('#test')
+  .css({ backgroundColor: 'green', color: 'white' })
+  .find('p')
+  .html('Test Passed');
+
+// OO
+var User = turing.Class({
+  initialize: function(name, age) {
+    this.name = name;
+    this.age = age;
+  }
+});
+var bob = new User('Bob', '45');
+
+if (bob.name !== 'Bob') {
+  throw('OO library error');
+}
+    </script>
+  </body>
+</html>

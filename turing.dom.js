@@ -7,7 +7,7 @@
 /**
  * The Turing DOM module.
  */
-(function() {
+define('turing.dom', ['turing.core'], function(turing) {
   var dom = {}, InvalidFinder = Error, macros, rules, tokenMap,
       find, matchMap, findMap, filter, scannerRegExp, nodeTypes,
       getStyle, setStyle, cssNumericalProperty, propertyFix,
@@ -451,7 +451,7 @@
       };
 
       setStyle = function(element, property, value) {
-        return setStyleProperty(element, uncamel(property), value);
+        return setStyleProperty(element, property, value);
       };
     }
   }
@@ -1031,5 +1031,5 @@
 
   dom.nodeTypes = nodeTypes;
   turing.dom = dom;
-})();
-
+  return dom;
+});

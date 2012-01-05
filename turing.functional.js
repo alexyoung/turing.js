@@ -7,18 +7,21 @@
 /**
  * Turing Functional helpers.
  */
-turing.functional = {
-  curry: turing.bind,
+define('turing.functional', ['turing.core'], function(turing) {
+  turing.functional = {
+    curry: turing.bind,
 
-  memoize: function(memo, fn) {
-    var wrapper = function(n) {
-      var result = memo[n];
-      if (typeof result !== 'number') {
-        result = fn(wrapper, n);
-        memo[n] = result;
-      }
-      return result;
-    };
-    return wrapper;
-  } 
-};
+    memoize: function(memo, fn) {
+      var wrapper = function(n) {
+        var result = memo[n];
+        if (typeof result !== 'number') {
+          result = fn(wrapper, n);
+          memo[n] = result;
+        }
+        return result;
+      };
+      return wrapper;
+    } 
+  };
+  return turing;
+});

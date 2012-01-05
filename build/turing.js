@@ -4,18 +4,41 @@
  * MIT Licensed
  */
 
-/**
- * A private namespace to set things up against the global object.
- */
 (function(global) {
-  var middleware = [];
+  if (typeof global.define === 'undefined') {
+    var define, modules = {};
+
+    global.define = function(name, dependencies, fn) {
+      if (dependencies && dependencies.length) {
+        for (var i = 0; i < dependencies.length; i++) {
+          if (dependencies[i] === 'exports') {
+            dependencies[i] = modules;
+          } else {
+            dependencies[i] = modules[dependencies[i]];
+          }
+        }
+      }
+      modules[name] = fn.apply(this, dependencies || []);
+
+      if (name === 'turing.core' && typeof window !== 'undefined') {
+        global.turing = modules[name];
+      }
+    };
+  }
+}(window || this));
+
+/**
+ * The core Turing AMD module.
+ */
+define('turing.core', [], function() {
+  var middleware = [], turing;
 
   /**
    * The turing object.  Use `turing('selector')` for quick DOM access when built with the DOM module.
    *
    * @returns {Object} The turing object, run through `init`
    */
-  function turing() {
+  turing = function() {
     var result, i;
     for (i = 0; i < middleware.length; i++) {
       result = middleware[i].apply(turing, arguments);
@@ -25,16 +48,18 @@
     }
   }
 
-  turing.VERSION = '0.0.86';
-  turing.lesson = 'Part 86: Asynchronous Loading';
+  turing.VERSION = '0.0.90';
+  turing.lesson = 'Part 90: AMD';
 
   /**
    * This alias will be used as an alternative to `turing()`.
    * If `__turing_alias` is present in the global scope this will be used instead. 
    * 
    */
-  turing.alias = global.__turing_alias || '$t';
-  global[turing.alias] = turing;
+  if (typeof window !== 'undefined') {
+    turing.alias = window.__turing_alias || '$t';
+    window[turing.alias] = turing;
+  }
 
   /**
    * Determine if an object is an `Array`.
@@ -118,17 +143,9 @@
     }
     return testCache[testName];
   };
-
-  if (global.turing) {
-    throw new Error('turing has already been defined');
-  } else {
-    global.turing = turing;
-    if (typeof exports !== 'undefined') {
-      exports.turing = turing;
-    }
-  }
-}(typeof window === 'undefined' ? this : window));
-
+  
+  return turing;
+});
 /*!
  * Turing OO
  * Copyright (C) 2010-2011 Alex R. Young
@@ -174,62 +191,70 @@
  *     });
  *
  **/
-turing.Class = function() {
-  return turing.oo.create.apply(this, arguments);
-}
+define('turing.oo', ['turing.core'], function(turing) {
+  var Class, oo;
 
-turing.oo = {
-  create: function() {
-    var methods = null,
-        parent  = undefined,
-        klass   = function() {
-          this.$super = function(method, args) { return turing.oo.$super(this.$parent, this, method, args); };
-          this.initialize.apply(this, arguments);
-        };
+  Class = function() {
+    return oo.create.apply(this, arguments);
+  }
 
-    if (typeof arguments[0] === 'function') {
-      parent = arguments[0];
-      methods = arguments[1];
-    } else {
-      methods = arguments[0];
-    }
+  oo = {
+    create: function() {
+      var methods = null,
+          parent  = undefined,
+          klass   = function() {
+            this.$super = function(method, args) { return oo.$super(this.$parent, this, method, args); };
+            this.initialize.apply(this, arguments);
+          };
 
-    if (typeof parent !== 'undefined') {
-      turing.oo.extend(klass.prototype, parent.prototype);
-      klass.prototype.$parent = parent.prototype;
-    }
-
-    turing.oo.mixin(klass, methods);
-    turing.oo.extend(klass.prototype, methods);
-    klass.prototype.constructor = klass;
-
-    if (!klass.prototype.initialize)
-      klass.prototype.initialize = function(){};
-
-    return klass;
-  },
-
-  mixin: function(klass, methods) {
-    if (typeof methods.include !== 'undefined') {
-      if (typeof methods.include === 'function') {
-        turing.oo.extend(klass.prototype, methods.include.prototype);
+      if (typeof arguments[0] === 'function') {
+        parent = arguments[0];
+        methods = arguments[1];
       } else {
-        for (var i = 0; i < methods.include.length; i++) {
-          turing.oo.extend(klass.prototype, methods.include[i].prototype);
+        methods = arguments[0];
+      }
+
+      if (typeof parent !== 'undefined') {
+        oo.extend(klass.prototype, parent.prototype);
+        klass.prototype.$parent = parent.prototype;
+      }
+
+      oo.mixin(klass, methods);
+      oo.extend(klass.prototype, methods);
+      klass.prototype.constructor = klass;
+
+      if (!klass.prototype.initialize)
+        klass.prototype.initialize = function(){};
+
+      return klass;
+    },
+
+    mixin: function(klass, methods) {
+      if (typeof methods.include !== 'undefined') {
+        if (typeof methods.include === 'function') {
+          oo.extend(klass.prototype, methods.include.prototype);
+        } else {
+          for (var i = 0; i < methods.include.length; i++) {
+            oo.extend(klass.prototype, methods.include[i].prototype);
+          }
         }
       }
-    }
-  },
+    },
 
-  extend: function(destination, source) {
-    for (var property in source)
-      destination[property] = source[property];
-    return destination;
-  },
-  $super: function(parentClass, instance, method, args) {
-    return parentClass[method].apply(instance, args);
-  }
-};
+    extend: function(destination, source) {
+      for (var property in source)
+        destination[property] = source[property];
+      return destination;
+    },
+    $super: function(parentClass, instance, method, args) {
+      return parentClass[method].apply(instance, args);
+    }
+  };
+
+  turing.Class = Class;
+  turing.oo = oo;
+  return oo;
+});
 /*!
  * Turing Enumerable
  * Copyright (C) 2010-2011 Alex R. Young
@@ -246,7 +271,7 @@ turing.oo = {
  *     });
  * 
  */
-(function() {
+define('turing.enumerable', ['turing.core'], function(turing) {
   function EnumerableModule(global) {
     global.enumerable = {
       /**
@@ -620,7 +645,7 @@ turing.oo = {
   } else {
     EnumerableModule(turing);
   }
-})();
+});
 /*!
  * Turing Promise
  * Copyright (C) 2010-2011 Alex R. Young
@@ -630,7 +655,7 @@ turing.oo = {
 /**
  * The Turing Promise module.
  */
-(function() {
+define('turing.promise', ['turing.core'], function(turing) {
   function PromiseModule(global) {
     /**
      * The Promise class.
@@ -694,13 +719,13 @@ turing.oo = {
       */
     var chain = {};
 
-    global.init(function() {
+    turing.init(function() {
       if (arguments.length === 0)
         return chain;
     });
 
     chain.delay = function(ms) {
-      var p = new global.Promise();
+      var p = new turing.Promise();
       setTimeout(p.resolve, ms);
       return p;
     };
@@ -715,7 +740,9 @@ turing.oo = {
   } else {
     PromiseModule(turing);
   }
-})();
+
+  return turing.Promise;
+});
 
 /*!
  * Turing Functional
@@ -726,21 +753,24 @@ turing.oo = {
 /**
  * Turing Functional helpers.
  */
-turing.functional = {
-  curry: turing.bind,
+define('turing.functional', ['turing.core'], function(turing) {
+  turing.functional = {
+    curry: turing.bind,
 
-  memoize: function(memo, fn) {
-    var wrapper = function(n) {
-      var result = memo[n];
-      if (typeof result !== 'number') {
-        result = fn(wrapper, n);
-        memo[n] = result;
-      }
-      return result;
-    };
-    return wrapper;
-  } 
-};
+    memoize: function(memo, fn) {
+      var wrapper = function(n) {
+        var result = memo[n];
+        if (typeof result !== 'number') {
+          result = fn(wrapper, n);
+          memo[n] = result;
+        }
+        return result;
+      };
+      return wrapper;
+    } 
+  };
+  return turing;
+});
 /*!
  * Turing DOM
  * Copyright (C) 2010-2011 Alex R. Young
@@ -750,7 +780,7 @@ turing.functional = {
 /**
  * The Turing DOM module.
  */
-(function() {
+define('turing.dom', ['turing.core'], function(turing) {
   var dom = {}, InvalidFinder = Error, macros, rules, tokenMap,
       find, matchMap, findMap, filter, scannerRegExp, nodeTypes,
       getStyle, setStyle, cssNumericalProperty, propertyFix,
@@ -1774,8 +1804,8 @@ turing.functional = {
 
   dom.nodeTypes = nodeTypes;
   turing.dom = dom;
-})();
-
+  return dom;
+});
 /*!
  * Turing Plugins
  * Copyright (C) 2011 Alex R. Young
@@ -1801,7 +1831,7 @@ turing.functional = {
  *     });
  *
  */
-(function() {
+define('turing.dom', ['turing.core'], function(turing) {
   var plugins = {};
   plugins.registered = {};
   plugins.AlreadyRegistered = Error;
@@ -1842,8 +1872,8 @@ turing.functional = {
   };
 
   turing.plugins = plugins;
-})();
-
+  return plugins;
+});
 /*!
  * Turing Events
  * Copyright (C) 2010-2011 Alex R. Young
@@ -1854,7 +1884,7 @@ turing.functional = {
  * The Turing Events module.
  *
  */
-(function() {
+define('turing.events', ['turing.core', 'turing.dom'], function(turing) {
   var events = {},
       cache = [],
       onReadyBound = false,
@@ -2275,8 +2305,7 @@ turing.functional = {
       }
     });
   }
-})();
-
+});
 /*!
  * Turing Net
  * Copyright (C) 2010-2011 Alex R. Young
@@ -2286,7 +2315,7 @@ turing.functional = {
 /**
  * The Turing Net module (Ajax).
  */
-(function() {
+define('turing.net', ['turing.core', 'turing.dom'], function(turing) {
   var net = {};
 
   /**
@@ -2645,8 +2674,7 @@ turing.functional = {
 
   net.ajax = ajax;
   turing.net = net;
-})();
-
+});
 /*!
  * Turing Touch
  * Copyright (C) 2010-2011 Alex R. Young
@@ -2676,7 +2704,7 @@ turing.functional = {
  *       alert('Orientation is now: ' + turing.touch.orientation());
  *     });
  */
-(function() {
+define('turing.dom', ['turing.core', 'turing.dom', 'turing.events'], function(turing, dom, events) {
   var touch = {}, state = {};
 
   touch.swipeThreshold = 50;
@@ -2746,8 +2774,8 @@ turing.functional = {
   };
 
   turing.touch = touch;
-})();
-
+  return turing.touch;
+});
 /*!
  * Turing Anim
  * Copyright (C) 2010-2011 Alex R. Young
@@ -2787,7 +2815,7 @@ turing.functional = {
  *
  */
 
-(function() {
+define('turing.anim', ['turing.core', 'turing.dom'], function(turing, dom) {
   var anim = {},
       easing = {},
       Chainer,
@@ -2994,10 +3022,6 @@ turing.functional = {
       }
     }
 
-    function transition() {
-      CSSTransitions.end(element, property);
-    }
-
     for (p in properties) {
       if (properties.hasOwnProperty(p)) {
         properties[p] = parseCSSValue(properties[p], element, p);
@@ -3005,8 +3029,9 @@ turing.functional = {
           element.style.zoom = 1;
         } else if (CSSTransitions.vendorPrefix && (p === 'left' || p === 'top')) {
           CSSTransitions.start(element, duration, p, properties[p].value + properties[p].units, options.easing);
-          setTimeout(transition, duration);
-          return;
+          return setTimeout(function() {
+            CSSTransitions.end(element, p);
+          }, duration);
         }
       }
     }
@@ -3282,7 +3307,8 @@ turing.functional = {
   anim.addDOMethods();
 
   turing.anim = anim;
-}());
+  return anim;
+});
 /*!
  * Turing Core
  * Copyright (C) 2011 Alex R. Young
@@ -3292,7 +3318,7 @@ turing.functional = {
 /**
  * Contains everything relating to the `require` module.
  */
-(function(global) {
+define('turing.require', ['turing.core'], function(turing) {
   var appendTo = document.head || document.getElementsByTagName('head'),
       scriptOptions = ['async', 'defer', 'src', 'text'];
 
@@ -3607,4 +3633,5 @@ turing.functional = {
   };
 
   turing.require.isSameOrigin = isSameOrigin;
-}(window));
+  return turing.require;
+});

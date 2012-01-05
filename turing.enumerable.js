@@ -14,7 +14,7 @@
  *     });
  * 
  */
-(function() {
+define('turing.enumerable', ['turing.core'], function(turing) {
   function EnumerableModule(global) {
     global.enumerable = {
       /**
@@ -388,4 +388,4 @@
   } else {
     EnumerableModule(turing);
   }
-})();
+});

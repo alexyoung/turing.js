@@ -23,7 +23,7 @@
  *     });
  *
  */
-(function() {
+define('turing.dom', ['turing.core'], function(turing) {
   var plugins = {};
   plugins.registered = {};
   plugins.AlreadyRegistered = Error;
@@ -64,5 +64,5 @@
   };
 
   turing.plugins = plugins;
-})();
-
+  return plugins;
+});

@@ -37,7 +37,7 @@
  *
  */
 
-(function() {
+define('turing.anim', ['turing.core', 'turing.dom'], function(turing, dom) {
   var anim = {},
       easing = {},
       Chainer,
@@ -244,10 +244,6 @@
       }
     }
 
-    function transition() {
-      CSSTransitions.end(element, property);
-    }
-
     for (p in properties) {
       if (properties.hasOwnProperty(p)) {
         properties[p] = parseCSSValue(properties[p], element, p);
@@ -255,8 +251,9 @@
           element.style.zoom = 1;
         } else if (CSSTransitions.vendorPrefix && (p === 'left' || p === 'top')) {
           CSSTransitions.start(element, duration, p, properties[p].value + properties[p].units, options.easing);
-          setTimeout(transition, duration);
-          return;
+          return setTimeout(function() {
+            CSSTransitions.end(element, p);
+          }, duration);
         }
       }
     }
@@ -532,4 +529,5 @@
   anim.addDOMethods();
 
   turing.anim = anim;
-}());
+  return anim;
+});

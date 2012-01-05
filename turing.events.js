@@ -8,7 +8,7 @@
  * The Turing Events module.
  *
  */
-(function() {
+define('turing.events', ['turing.core', 'turing.dom'], function(turing) {
   var events = {},
       cache = [],
       onReadyBound = false,
@@ -429,5 +429,4 @@
       }
     });
   }
-})();
-
+});

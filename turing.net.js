@@ -7,7 +7,7 @@
 /**
  * The Turing Net module (Ajax).
  */
-(function() {
+define('turing.net', ['turing.core', 'turing.dom'], function(turing) {
   var net = {};
 
   /**
@@ -366,5 +366,4 @@
 
   net.ajax = ajax;
   turing.net = net;
-})();
-
+});

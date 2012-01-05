@@ -7,7 +7,7 @@
 /**
  * Contains everything relating to the `require` module.
  */
-(function(global) {
+define('turing.require', ['turing.core'], function(turing) {
   var appendTo = document.head || document.getElementsByTagName('head'),
       scriptOptions = ['async', 'defer', 'src', 'text'];
 
@@ -322,4 +322,5 @@
   };
 
   turing.require.isSameOrigin = isSameOrigin;
-}(window));
+  return turing.require;
+});

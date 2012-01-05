@@ -7,7 +7,7 @@
 /**
  * The Turing Promise module.
  */
-(function() {
+define('turing.promise', ['turing.core'], function(turing) {
   function PromiseModule(global) {
     /**
      * The Promise class.
@@ -71,13 +71,13 @@
       */
     var chain = {};
 
-    global.init(function() {
+    turing.init(function() {
       if (arguments.length === 0)
         return chain;
     });
 
     chain.delay = function(ms) {
-      var p = new global.Promise();
+      var p = new turing.Promise();
       setTimeout(p.resolve, ms);
       return p;
     };
@@ -92,5 +92,7 @@
   } else {
     PromiseModule(turing);
   }
-})();
+
+  return turing.Promise;
+});
 

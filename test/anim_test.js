@@ -30,7 +30,6 @@ exports.testAnimations = {
       .fadeIn(250)
       .animate(250, { width: '20px' });
 
-    setTimeout(function() { assert.equal(box.style.top, '100px'); }, 350);
     setTimeout(function() { assert.equal(box.style.width, '20px'); }, 2000);
   }
 };

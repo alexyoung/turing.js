@@ -5,17 +5,17 @@
  */
 
 /**
- * A private namespace to set things up against the global object.
+ * The core Turing module.
  */
 (function(global) {
-  var middleware = [];
+  var middleware = [], turing, modules = {};
 
   /**
    * The turing object.  Use `turing('selector')` for quick DOM access when built with the DOM module.
    *
    * @returns {Object} The turing object, run through `init`
    */
-  function turing() {
+  turing = function() {
     var result, i;
     for (i = 0; i < middleware.length; i++) {
       result = middleware[i].apply(turing, arguments);
@@ -25,16 +25,18 @@
     }
   }
 
-  turing.VERSION = '0.0.87';
-  turing.lesson = 'Part 87: Asynchronous Testing';
+  turing.VERSION = '0.0.90';
+  turing.lesson = 'Part 90: AMD';
 
   /**
    * This alias will be used as an alternative to `turing()`.
    * If `__turing_alias` is present in the global scope this will be used instead. 
    * 
    */
-  turing.alias = global.__turing_alias || '$t';
-  global[turing.alias] = turing;
+  if (typeof window !== 'undefined') {
+    turing.alias = window.__turing_alias || '$t';
+    window[turing.alias] = turing;
+  }
 
   /**
    * Determine if an object is an `Array`.
@@ -119,13 +121,31 @@
     return testCache[testName];
   };
 
-  if (global.turing) {
-    throw new Error('turing has already been defined');
-  } else {
-    global.turing = turing;
-    if (typeof exports !== 'undefined') {
-      exports.turing = turing;
+  turing.define = function(module, dependencies, fn) {
+    if (typeof define === 'function' && define.amd) {
+      define(module, dependencies, fn);
+    } else {
+      if (dependencies && dependencies.length) {
+        for (var i = 0; i < dependencies.length; i++) {
+          dependencies[i] = modules[dependencies[i]];
+        }
+      }
+      modules[module] = fn.apply(this, dependencies || []);
     }
+  };
+
+  /**
+   * Export `turing` based on environment.
+   */
+  global.turing = turing;
+
+  if (typeof exports !== 'undefined') {
+    exports.turing = turing;
+  }
+
+  turing.define('turing.core', [], function() { return turing; } );
+
+  if (typeof define === 'undefined') {
+    global.define = turing.define;
   }
 }(typeof window === 'undefined' ? this : window));
-
