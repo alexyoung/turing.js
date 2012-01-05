@@ -4,34 +4,11 @@
  * MIT Licensed
  */
 
-(function(global) {
-  if (typeof global.define === 'undefined') {
-    var define, modules = {};
-
-    global.define = function(name, dependencies, fn) {
-      if (dependencies && dependencies.length) {
-        for (var i = 0; i < dependencies.length; i++) {
-          if (dependencies[i] === 'exports') {
-            dependencies[i] = modules;
-          } else {
-            dependencies[i] = modules[dependencies[i]];
-          }
-        }
-      }
-      modules[name] = fn.apply(this, dependencies || []);
-
-      if (name === 'turing.core' && typeof window !== 'undefined') {
-        global.turing = modules[name];
-      }
-    };
-  }
-}(window || this));
-
 /**
- * The core Turing AMD module.
+ * The core Turing module.
  */
-define('turing.core', [], function() {
-  var middleware = [], turing;
+(function(global) {
+  var middleware = [], turing, modules = {};
 
   /**
    * The turing object.  Use `turing('selector')` for quick DOM access when built with the DOM module.
@@ -143,9 +120,35 @@ define('turing.core', [], function() {
     }
     return testCache[testName];
   };
-  
-  return turing;
-});
+
+  turing.define = function(module, dependencies, fn) {
+    if (typeof define === 'function' && define.amd) {
+      define(module, dependencies, fn);
+    } else {
+      if (dependencies && dependencies.length) {
+        for (var i = 0; i < dependencies.length; i++) {
+          dependencies[i] = modules[dependencies[i]];
+        }
+      }
+      modules[module] = fn.apply(this, dependencies || []);
+    }
+  };
+
+  /**
+   * Export `turing` based on environment.
+   */
+  global.turing = turing;
+
+  if (typeof exports !== 'undefined') {
+    exports.turing = turing;
+  }
+
+  turing.define('turing.core', [], function() { return turing; } );
+
+  if (typeof define === 'undefined') {
+    global.define = turing.define;
+  }
+}(typeof window === 'undefined' ? this : window));
 /*!
  * Turing OO
  * Copyright (C) 2010-2011 Alex R. Young
@@ -1224,7 +1227,7 @@ define('turing.dom', ['turing.core'], function(turing) {
       };
 
       setStyle = function(element, property, value) {
-        return setStyleProperty(element, uncamel(property), value);
+        return setStyleProperty(element, property, value);
       };
     }
   }
