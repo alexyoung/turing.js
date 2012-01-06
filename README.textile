@@ -42,6 +42,7 @@ h3. Contributions
 * Ryan Cannon (classList indexOf idea)
 * Adam Solove (classList bug)
 * John Allsopp (classList suggestion)
+* Nano Documet (incorrectly named modules)
 
 h2. TODO
 
