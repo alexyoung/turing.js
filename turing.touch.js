@@ -27,7 +27,7 @@
  *       alert('Orientation is now: ' + turing.touch.orientation());
  *     });
  */
-define('turing.dom', ['turing.core', 'turing.dom', 'turing.events'], function(turing, dom, events) {
+define('turing.touch', ['turing.core', 'turing.dom', 'turing.events'], function(turing, dom, events) {
   var touch = {}, state = {};
 
   touch.swipeThreshold = 50;
