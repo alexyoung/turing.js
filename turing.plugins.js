@@ -23,7 +23,7 @@
  *     });
  *
  */
-define('turing.dom', ['turing.core'], function(turing) {
+define('turing.plugins', ['turing.core'], function(turing) {
   var plugins = {};
   plugins.registered = {};
   plugins.AlreadyRegistered = Error;
